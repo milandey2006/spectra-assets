@@ -383,6 +383,151 @@ function CountUp({ to, prefix = "", suffix = "", dur = 1500 }) {
   return <span ref={ref}>{prefix}{Math.round(val).toLocaleString("en-IN")}{suffix}</span>;
 }
 
+/* magnetic wrapper — child gently follows the cursor, springs back on leave */
+function Magnetic({ children, strength = 0.3, style }) {
+  const ref = React.useRef(null);
+  const [t, setT] = React.useState({ x: 0, y: 0 });
+  const reduce = typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  return (
+    <div
+      ref={ref}
+      onMouseMove={(e) => {
+        if (reduce || !ref.current) return;
+        const r = ref.current.getBoundingClientRect();
+        setT({ x: (e.clientX - (r.left + r.width / 2)) * strength, y: (e.clientY - (r.top + r.height / 2)) * strength });
+      }}
+      onMouseLeave={() => setT({ x: 0, y: 0 })}
+      style={{ display: "inline-block", transform: `translate(${t.x}px, ${t.y}px)`, transition: "transform 0.28s cubic-bezier(0.16,1,0.3,1)", ...(style || {}) }}
+    >
+      {children}
+    </div>
+  );
+}
+
+/* 3D tilt card — follows cursor with a subtle perspective tilt + teal spotlight */
+function TiltCard({ children, max = 8, radius = 18, style }) {
+  const ref = React.useRef(null);
+  const [s, setS] = React.useState({ rx: 0, ry: 0, px: 50, py: 50, on: false });
+  const reduce = typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const onMove = (e) => {
+    if (reduce || !ref.current) return;
+    const r = ref.current.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width;
+    const y = (e.clientY - r.top) / r.height;
+    setS({ rx: (0.5 - y) * max * 2, ry: (x - 0.5) * max * 2, px: x * 100, py: y * 100, on: true });
+  };
+  const onLeave = () => setS((p) => ({ ...p, rx: 0, ry: 0, on: false }));
+  return (
+    <div ref={ref} onMouseMove={onMove} onMouseLeave={onLeave}
+      style={{ position: "relative", transform: `perspective(800px) rotateX(${s.rx}deg) rotateY(${s.ry}deg)`, transition: s.on ? "transform 0.08s linear" : "transform 0.45s cubic-bezier(0.16,1,0.3,1)", transformStyle: "preserve-3d", ...(style || {}) }}>
+      {children}
+      <div aria-hidden="true" style={{ position: "absolute", inset: 0, borderRadius: radius, pointerEvents: "none", opacity: s.on ? 1 : 0, transition: "opacity 0.3s ease", background: `radial-gradient(circle 240px at ${s.px}% ${s.py}%, rgba(0,155,141,0.13), transparent 62%)` }}></div>
+    </div>
+  );
+}
+
+/* premium primary CTA — magnetic, lifts, glows, gradient sweep on hover */
+function CtaPrimary({ children, onClick, base = NAVY, sweep = "linear-gradient(90deg,#009B8D,#00C9B6)", glow = "rgba(0,155,141,0.45)", color = "#fff", fontSize = 15, pad = "14px 28px", strength = 0.35 }) {
+  const [h, setH] = React.useState(false);
+  return (
+    <Magnetic strength={strength}>
+      <button
+        onClick={onClick}
+        onMouseEnter={() => setH(true)}
+        onMouseLeave={() => setH(false)}
+        style={{
+          position: "relative", overflow: "hidden", border: "none", cursor: "pointer",
+          fontFamily: "inherit", fontWeight: 600, fontSize, padding: pad, borderRadius: 10,
+          color, background: base, letterSpacing: "-0.1px", whiteSpace: "nowrap",
+          transform: h ? "translateY(-2px)" : "none",
+          boxShadow: h ? `0 16px 40px ${glow}` : "0 6px 18px rgba(15,23,41,0.12)",
+          transition: "transform 0.22s ease, box-shadow 0.22s ease",
+        }}
+      >
+        <span aria-hidden="true" style={{ position: "absolute", inset: 0, background: sweep, transform: h ? "translateX(0)" : "translateX(-101%)", transition: "transform 0.5s cubic-bezier(0.16,1,0.3,1)" }}></span>
+        <span style={{ position: "relative", zIndex: 1 }}>{children}</span>
+      </button>
+    </Magnetic>
+  );
+}
+
+/* custom cursor — a teal dot (instant) + a ring that trails and expands on interactive targets */
+/* word-by-word mask reveal — words rise out of a clip when scrolled into view */
+function WordReveal({ text, emFrom = -1, as = "span", style, stagger = 55, baseDelay = 0 }) {
+  const ref = React.useRef(null);
+  const [seen, setSeen] = React.useState(false);
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (typeof IntersectionObserver === "undefined") { setSeen(true); return; }
+    const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { setSeen(true); io.disconnect(); } }), { threshold: 0.2, rootMargin: "0px 0px -8% 0px" });
+    io.observe(el);
+    const fb = setTimeout(() => setSeen(true), 1600);
+    return () => { io.disconnect(); clearTimeout(fb); };
+  }, []);
+  const words = String(text).split(" ");
+  const Tag = as;
+  return (
+    <Tag ref={ref} className={"wr" + (seen ? " in" : "")} style={style}>
+      {words.map((w, i) => (
+        <React.Fragment key={i}>
+          <span className="wr-word"><span className="wr-inner" style={{ transitionDelay: (baseDelay + i * stagger) + "ms", color: emFrom >= 0 && i >= emFrom ? TEAL : undefined }}>{w}</span></span>
+          {i < words.length - 1 ? " " : ""}
+        </React.Fragment>
+      ))}
+    </Tag>
+  );
+}
+
+/* hero aurora — slow-drifting colour blobs behind the content for living depth */
+function Aurora() {
+  return (
+    <div className="sp-aurora" aria-hidden="true">
+      <i style={{ width: "46%", height: "72%", left: "-6%", top: "-12%", background: "radial-gradient(circle, rgba(0,155,141,0.30), transparent 65%)", animation: "auroraDrift1 19s ease-in-out infinite" }}></i>
+      <i style={{ width: "42%", height: "66%", right: "-4%", top: "4%", background: "radial-gradient(circle, rgba(201,168,76,0.22), transparent 65%)", animation: "auroraDrift2 23s ease-in-out infinite" }}></i>
+      <i style={{ width: "40%", height: "62%", left: "28%", bottom: "-18%", background: "radial-gradient(circle, rgba(58,123,213,0.16), transparent 65%)", animation: "auroraDrift3 27s ease-in-out infinite" }}></i>
+    </div>
+  );
+}
+
+function CustomCursor() {
+  React.useEffect(() => {
+    if (typeof window === "undefined") return;
+    const fine = window.matchMedia && window.matchMedia("(pointer: fine)").matches;
+    const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!fine || reduce) return;
+    const dot = document.createElement("div"); dot.className = "sp-cursor-dot";
+    const ring = document.createElement("div"); ring.className = "sp-cursor-ring";
+    document.body.appendChild(dot); document.body.appendChild(ring);
+    document.body.classList.add("sp-cursor-on");
+    let mx = window.innerWidth / 2, my = window.innerHeight / 2, rx = mx, ry = my, raf;
+    const sel = "a,button,input,textarea,select,label,[role=button],.sp-wa";
+    const move = (e) => {
+      mx = e.clientX; my = e.clientY;
+      dot.style.transform = `translate(${mx}px, ${my}px)`;
+      const t = e.target && e.target.closest ? e.target.closest(sel) : null;
+      ring.classList.toggle("active", !!t);
+      dot.classList.toggle("hide", !!t);
+    };
+    const loop = () => { rx += (mx - rx) * 0.18; ry += (my - ry) * 0.18; ring.style.transform = `translate(${rx}px, ${ry}px)`; raf = requestAnimationFrame(loop); };
+    const leave = () => { dot.style.opacity = "0"; ring.style.opacity = "0"; };
+    const enter = () => { dot.style.opacity = ""; ring.style.opacity = ""; };
+    window.addEventListener("mousemove", move);
+    document.addEventListener("mouseleave", leave);
+    document.addEventListener("mouseenter", enter);
+    raf = requestAnimationFrame(loop);
+    return () => {
+      window.removeEventListener("mousemove", move);
+      document.removeEventListener("mouseleave", leave);
+      document.removeEventListener("mouseenter", enter);
+      cancelAnimationFrame(raf);
+      dot.remove(); ring.remove();
+      document.body.classList.remove("sp-cursor-on");
+    };
+  }, []);
+  return null;
+}
+
 function WhatsAppButton({ go }) {
   const onClick = () => {
     if (WHATSAPP) window.open("https://wa.me/" + WHATSAPP + "?text=" + encodeURIComponent("Hi Spectra Assets, I'd like to talk about my finances."), "_blank", "noopener");
@@ -506,6 +651,7 @@ function FeatureRows() {
 /* ============================ COMPONENT ============================ */
 export default function SpectraSite() {
   const [page, setPage] = React.useState("home");
+  const [wipeKey, setWipeKey] = React.useState(0);
   const [tab, setTab] = React.useState("wealth");
   const [drop, setDrop] = React.useState(null);
   const [openMember, setOpenMember] = React.useState(null);
@@ -526,6 +672,7 @@ export default function SpectraSite() {
 
   const go = (p, t, anchor) => {
     pendingAnchor.current = anchor || null;
+    if (p !== page) setWipeKey((k) => k + 1);
     setPage(p);
     if (t) setTab(t);
     setDrop(null);
@@ -651,12 +798,14 @@ export default function SpectraSite() {
       if (!seg1) return;
       const len1 = 528, len2 = 190, len3 = 528;
       const ease = (t) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
-      const activateDot = (i) => { if (!dots[i]) return; dots[i].setAttribute("fill", TEAL); dots[i].setAttribute("stroke", TEAL); };
-      const activateCard = (i) => {
+      const setDot = (i, on) => { if (!dots[i]) return; dots[i].setAttribute("fill", on ? TEAL : "#fff"); dots[i].setAttribute("stroke", on ? TEAL : "#E5E7EB"); };
+      const setCard = (i, on) => {
         if (!cards[i] || !nums[i]) return;
-        cards[i].style.borderColor = "rgba(0,155,141,0.3)";
-        cards[i].style.boxShadow = "0 8px 32px rgba(0,155,141,0.08)";
-        nums[i].style.background = TEAL; nums[i].style.borderColor = TEAL; nums[i].style.color = "#fff";
+        cards[i].style.borderColor = on ? "rgba(0,155,141,0.3)" : "#F0F2F5";
+        cards[i].style.boxShadow = on ? "0 8px 32px rgba(0,155,141,0.08)" : "none";
+        nums[i].style.background = on ? TEAL : "#F9FAFB";
+        nums[i].style.borderColor = on ? TEAL : "#E5E7EB";
+        nums[i].style.color = on ? "#fff" : "#9CA3AF";
       };
       const onScroll = () => {
         const rect = section.getBoundingClientRect();
@@ -669,10 +818,9 @@ export default function SpectraSite() {
         seg1.style.strokeDashoffset = String(len1 * (1 - p1));
         seg2.style.strokeDashoffset = String(len2 * (1 - p2));
         seg3.style.strokeDashoffset = String(len3 * (1 - p3));
-        if (p1 > 0.01) { activateDot(0); activateCard(0); }
-        if (p1 > 0.95) { activateDot(1); activateCard(1); }
-        if (p2 > 0.95) { activateDot(2); activateCard(2); }
-        if (p3 > 0.95) { activateDot(3); activateCard(3); }
+        // reversible: reflect current scroll state so scrolling back up reverts colours too
+        const on = [p1 > 0.01, p1 > 0.95, p2 > 0.95, p3 > 0.95];
+        for (let i = 0; i < 4; i++) { setDot(i, on[i]); setCard(i, on[i]); }
       };
       window.__spProc = onScroll;
       window.addEventListener("scroll", onScroll, { passive: true });
@@ -726,7 +874,9 @@ export default function SpectraSite() {
           <h2 style={{ fontSize: "clamp(24px,3vw,36px)", fontWeight: 800, color: "#fff", letterSpacing: "-0.7px", marginBottom: 10, lineHeight: 1.1 }}>{head}{em ? <em style={{ fontStyle: "normal", opacity: 0.85 }}> {em}</em> : null}</h2>
           <p style={{ fontSize: 16, color: "rgba(255,255,255,0.78)", maxWidth: 380, lineHeight: 1.65 }}>{sub}</p>
         </div>
-        <S as="button" onClick={() => go("contact")} css="background:#fff;color:#009B8D;border:none;cursor:pointer;font-weight:700;font-size:15px;padding:15px 30px;border-radius:10px;flex-shrink:0;transition:all 0.18s;white-space:nowrap;" hover="transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,0.18);">{label} →</S>
+        <div style={{ flexShrink: 0 }}>
+          <CtaPrimary onClick={() => go("contact")} base="#fff" color={TEAL} sweep="linear-gradient(90deg,#0F1729,#132a3a)" glow="rgba(0,0,0,0.28)" fontSize={15} pad="15px 30px">{label} →</CtaPrimary>
+        </div>
       </div>
     </section>
   );
@@ -734,6 +884,14 @@ export default function SpectraSite() {
   /* ============================ RENDER ============================ */
   return (
     <div style={{ background: "#fff" }}>
+      <CustomCursor />
+      {/* PAGE TRANSITION WIPE (two-tone teal + navy sweep on navigation) */}
+      {wipeKey > 0 && (
+        <div key={wipeKey} aria-hidden="true">
+          <div className="sp-wipe" style={{ background: NAVY }}></div>
+          <div className="sp-wipe" style={{ background: TEAL, animationDelay: "0.08s" }}></div>
+        </div>
+      )}
       {/* PAGE LOADER */}
       {loaderState !== "gone" && (
         <div id="page-loader">
@@ -921,15 +1079,16 @@ function Home({ go, openMember, setOpenMember, CtaBanner }) {
     <div className="page-wrap" style={{ paddingTop: 64 }}>
       {/* HERO with faint live-market backdrop */}
       <section style={{ position: "relative", overflow: "hidden", background: "#fff" }}>
+        <Aurora />
         <HeroNumbersBg rows={marketRows} />
         <div aria-hidden="true" className="sp-hero-veil" style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "linear-gradient(90deg, rgba(255,255,255,0.96) 0%, rgba(255,255,255,0.92) 44%, rgba(255,255,255,0.55) 62%, rgba(255,255,255,0) 78%)" }}></div>
         <div className="sp-grid-2" style={{ position: "relative", zIndex: 1, padding: "64px 32px 44px", maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "center" }}>
           <div>
-          <h1 style={{ fontSize: "clamp(40px,5vw,68px)", fontWeight: 800, color: NAVY, lineHeight: 1.08, marginBottom: 26 }}>Financial advice that looks at the <em style={{ fontStyle: "normal", color: TEAL }}>bigger picture.</em></h1>
+          <WordReveal as="h1" text="Financial advice that looks at the bigger picture." emFrom={6} baseDelay={200} style={{ fontSize: "clamp(40px,5vw,68px)", fontWeight: 800, color: NAVY, lineHeight: 1.08, marginBottom: 26 }} />
           <p style={{ fontSize: 17, color: "#6B7280", lineHeight: 1.75, maxWidth: 440, marginBottom: 24, fontWeight: 400 }}>Money rarely comes with just one goal. We help individuals, families and businesses make informed decisions across wealth creation, insurance, lending and financial planning, with the bigger picture always in focus.</p>
           <p style={{ fontSize: 15, color: "#9CA3AF", lineHeight: 1.7, maxWidth: 440, marginBottom: 36 }}>Because a financial product may solve one need. A well-thought-out strategy can connect them all.</p>
           <div style={{ display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
-            <S as="button" onClick={() => go("contact")} css="background:#0F1729;color:#fff;border:none;cursor:pointer;font-weight:600;font-size:15px;padding:14px 28px;border-radius:10px;transition:all 0.18s;letter-spacing:-0.1px;" hover="background:#1A2840;transform:translateY(-1px);">Talk to an Advisor</S>
+            <CtaPrimary onClick={() => go("contact")}>Talk to an Advisor</CtaPrimary>
             <S as="button" onClick={() => go("solutions")} css="background:none;border:none;cursor:pointer;font-size:14px;font-weight:500;color:#6B7280;padding:0;letter-spacing:-0.1px;transition:color 0.15s;" hover="color:#0F1729;">Explore our solutions →</S>
           </div>
         </div>
@@ -998,24 +1157,40 @@ function Home({ go, openMember, setOpenMember, CtaBanner }) {
                 <path id="proc-seg-1" d="M 176,95 L 704,95" stroke={TEAL} strokeWidth="2.5" strokeLinecap="round" fill="none" strokeDasharray="528" strokeDashoffset="528"></path>
                 <path id="proc-seg-2" d="M 704,95 L 704,285" stroke={TEAL} strokeWidth="2.5" strokeLinecap="round" fill="none" strokeDasharray="190" strokeDashoffset="190"></path>
                 <path id="proc-seg-3" d="M 704,285 L 176,285" stroke={TEAL} strokeWidth="2.5" strokeLinecap="round" fill="none" strokeDasharray="528" strokeDashoffset="528"></path>
-                {[["proc-dot-1", 176, 95], ["proc-dot-2", 704, 95], ["proc-dot-3", 176, 285], ["proc-dot-4", 704, 285]].map(([id, cx, cy]) => (
+                {[["proc-dot-1", 176, 95], ["proc-dot-2", 704, 95], ["proc-dot-3", 704, 285], ["proc-dot-4", 176, 285]].map(([id, cx, cy]) => (
                   <circle key={id} id={id} cx={cx} cy={cy} r="7" fill="#fff" stroke="#E5E7EB" strokeWidth="2"></circle>
                 ))}
               </svg>
-              <div className="sp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 28, position: "relative", zIndex: 2 }}>
-                {[["01", "Understand you", "Where are you today? What matters to you? Where do you want to go? Everything begins with listening."],
+              {(() => {
+                const steps = [
+                  ["01", "Understand you", "Where are you today? What matters to you? Where do you want to go? Everything begins with listening."],
                   ["02", "Clarify what matters", "We map your goals and priorities so recommendations follow your life, not a product shelf."],
                   ["03", "Build the strategy", "A connected plan across investments, protection, lending and planning, explained plainly."],
-                  ["04", "Stay with you", "Reviewing progress, adapting strategies and supporting you through every important milestone."]].map(([num, t, d], i) => (
-                  <div key={i} id={"proc-card-" + (i + 1)} style={{ background: "#fff", borderRadius: 18, padding: "32px 36px", border: "1px solid #F0F2F5", transition: "border-color 0.4s, box-shadow 0.4s" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 18 }}>
-                      <div id={"proc-num-" + (i + 1)} style={{ width: 36, height: 36, borderRadius: 10, background: "#F9FAFB", border: "2px solid #E5E7EB", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 800, color: "#9CA3AF", flexShrink: 0, transition: "all 0.4s" }}>{num}</div>
-                      <div style={{ fontSize: 17, fontWeight: 700, color: NAVY }}>{t}</div>
-                    </div>
-                    <p style={{ fontSize: 14, color: "#6B7280", lineHeight: 1.75 }}>{d}</p>
+                  ["04", "Stay with you", "Reviewing progress, adapting strategies and supporting you through every important milestone."],
+                ];
+                // grid fills TL, TR, BL, BR — place so the line flows 1→2→3→4:
+                // TL=1, TR=2, BL=4, BR=3 (i.e. 3 sits below 2, 4 beside it)
+                const gridOrder = [0, 1, 3, 2];
+                return (
+                  <div className="sp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 28, position: "relative", zIndex: 2 }}>
+                    {gridOrder.map((si) => {
+                      const [num, t, d] = steps[si];
+                      const n = si + 1;
+                      return (
+                        <TiltCard key={n} max={7} radius={18}>
+                          <div id={"proc-card-" + n} style={{ background: "#fff", borderRadius: 18, padding: "32px 36px", border: "1px solid #F0F2F5", transition: "border-color 0.4s, box-shadow 0.4s" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 18 }}>
+                              <div id={"proc-num-" + n} style={{ width: 36, height: 36, borderRadius: 10, background: "#F9FAFB", border: "2px solid #E5E7EB", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 800, color: "#9CA3AF", flexShrink: 0, transition: "all 0.4s" }}>{num}</div>
+                              <div style={{ fontSize: 17, fontWeight: 700, color: NAVY }}>{t}</div>
+                            </div>
+                            <p style={{ fontSize: 14, color: "#6B7280", lineHeight: 1.75 }}>{d}</p>
+                          </div>
+                        </TiltCard>
+                      );
+                    })}
                   </div>
-                ))}
-              </div>
+                );
+              })()}
             </div>
           </div>
         </div>
@@ -1165,14 +1340,24 @@ function HeroChart() {
         </div>
         <div style={{ fontSize: 12, color: "#9CA3AF", marginBottom: 16 }}>1 year returns</div>
         <div style={{ position: "relative", height: 160, margin: "0 -4px" }}>
-          <svg viewBox="0 0 460 160" fill="none" style={{ width: "100%", height: "100%", display: "block" }}>
+          <svg viewBox="0 0 460 160" fill="none" style={{ width: "100%", height: "100%", display: "block", overflow: "visible" }}>
+            <defs>
+              <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={TEAL} stopOpacity="0.28"></stop><stop offset="100%" stopColor={TEAL} stopOpacity="0"></stop></linearGradient>
+              <linearGradient id="chartStroke" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#007D72"></stop><stop offset="55%" stopColor={TEAL}></stop><stop offset="100%" stopColor="#00C9B6"></stop></linearGradient>
+              <filter id="chartGlow" x="-20%" y="-60%" width="140%" height="240%"><feGaussianBlur stdDeviation="3.2" result="b"></feGaussianBlur><feMerge><feMergeNode in="b"></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge></filter>
+            </defs>
             {[130, 95, 60, 25].map((y) => <line key={y} x1="0" y1={y} x2="460" y2={y} stroke="#F3F4F6" strokeWidth="1"></line>)}
-            <path d="M0,130 C30,128 50,124 80,118 C110,112 130,108 155,100 C180,92 200,96 225,84 C250,72 270,76 295,62 C320,48 340,44 365,32 C390,20 420,18 460,14 L460,160 L0,160 Z" fill="url(#chartGrad)" opacity="0.4"></path>
-            <path d="M0,130 C30,128 50,124 80,118 C110,112 130,108 155,100 C180,92 200,96 225,84 C250,72 270,76 295,62 C320,48 340,44 365,32 C390,20 420,18 460,14" stroke={TEAL} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="600" style={{ animation: "drawLine 2s 0.5s cubic-bezier(0.4,0,0.2,1) both" }}></path>
-            <circle cx="460" cy="14" r="5" fill={TEAL} style={{ animation: "dotPulse 2s 2.5s ease-in-out infinite" }}></circle>
-            <circle cx="460" cy="14" r="10" fill={TEAL} opacity="0.15" style={{ animation: "dotPulse 2s 2.5s ease-in-out infinite" }}></circle>
-            <defs><linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={TEAL} stopOpacity="0.25"></stop><stop offset="100%" stopColor={TEAL} stopOpacity="0"></stop></linearGradient></defs>
+            <path d="M0,130 C30,128 50,124 80,118 C110,112 130,108 155,100 C180,92 200,96 225,84 C250,72 270,76 295,62 C320,48 340,44 365,32 C390,20 420,18 460,14 L460,160 L0,160 Z" fill="url(#chartGrad)" opacity="0.55"></path>
+            <path d="M0,130 C30,128 50,124 80,118 C110,112 130,108 155,100 C180,92 200,96 225,84 C250,72 270,76 295,62 C320,48 340,44 365,32 C390,20 420,18 460,14" stroke="url(#chartStroke)" strokeWidth="2.75" strokeLinecap="round" strokeLinejoin="round" filter="url(#chartGlow)" strokeDasharray="600" style={{ animation: "drawLine 2s 0.5s cubic-bezier(0.4,0,0.2,1) both" }}></path>
+            <g className="hero-dot-travel" style={{ offsetPath: "path('M0,130 C30,128 50,124 80,118 C110,112 130,108 155,100 C180,92 200,96 225,84 C250,72 270,76 295,62 C320,48 340,44 365,32 C390,20 420,18 460,14')" }}>
+              <circle r="8" fill={TEAL} opacity="0.2"><animate attributeName="r" values="7;16;7" dur="2.4s" begin="2.5s" repeatCount="indefinite"></animate><animate attributeName="opacity" values="0.3;0;0.3" dur="2.4s" begin="2.5s" repeatCount="indefinite"></animate></circle>
+              <circle r="5" fill={TEAL} stroke="#fff" strokeWidth="2.5"></circle>
+            </g>
           </svg>
+          <div style={{ position: "absolute", top: -6, right: 2, transform: "translateY(-100%)", background: NAVY, color: "#fff", fontSize: 11, fontWeight: 700, padding: "5px 9px", borderRadius: 8, boxShadow: "0 10px 26px rgba(15,23,41,0.32)", whiteSpace: "nowrap", animation: "fadeUp2 0.5s 2.5s both", pointerEvents: "none" }}>
+            ₹24,80,000
+            <span style={{ position: "absolute", bottom: -3, right: 13, width: 8, height: 8, background: NAVY, transform: "rotate(45deg)" }}></span>
+          </div>
           <div style={{ display: "flex", justifyContent: "space-between", padding: "0 4px", marginTop: -2 }}>
             {["Jul '24", "Oct '24", "Jan '25", "Apr '25", "Jul '25"].map((l) => <span key={l} style={{ fontSize: 10, color: "#C4CAD4" }}>{l}</span>)}
           </div>
@@ -1194,24 +1379,46 @@ function HeroChart() {
 
 /* ecosystem, 3-stage pyramid diagram (Protect → Build → Grow) */
 function Ecosystem({ go }) {
+  // One continuous pyramid (viewBox 600x440): all tiers share the same apex→base
+  // edges, so the outer silhouette is a single clean triangle. Thin gaps between
+  // bands read as tiers; a single vertical gradient keeps it cohesive.
+  const [hover, setHover] = React.useState(-1);
   const tiers = [
-    { label: "Grow", sub: "Securities · PMS / AIF", key: "securities", clip: "polygon(50% 0, 71% 100%, 29% 100%)", bg: "linear-gradient(90deg,#13c4b2,#00a596)" },
-    { label: "Build", sub: "Wealth Creation · Financial Planning", key: "wealth", clip: "polygon(29% 0, 71% 0, 84% 100%, 16% 100%)", bg: "linear-gradient(90deg,#00a596,#009B8D)" },
-    { label: "Protect", sub: "Insurance · Loans", key: "insurance", clip: "polygon(16% 0, 84% 0, 100% 100%, 0 100%)", bg: "linear-gradient(90deg,#0b8f83,#0c7d72)" },
+    { label: "Grow", sub: "Securities · PMS / AIF", key: "securities",
+      pts: "300,0 394.1,138 205.9,138",
+      band: { top: "0%", height: "31.4%", justify: "flex-end", padBottom: 14 } },
+    { label: "Build", sub: "Wealth Creation · Financial Planning", key: "wealth",
+      pts: "193.6,156 406.4,156 492.3,282 107.7,282",
+      band: { top: "35.5%", height: "28.6%", justify: "center", padBottom: 0 } },
+    { label: "Protect", sub: "Insurance · Loans", key: "insurance",
+      pts: "95.45,300 504.55,300 600,440 0,440",
+      band: { top: "68.2%", height: "31.8%", justify: "center", padBottom: 0 } },
   ];
   return (
-    <div style={{ maxWidth: 620, margin: "0 auto" }}>
-      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+    <div style={{ maxWidth: 560, margin: "8px auto 0" }}>
+      <div style={{ position: "relative", width: "100%", aspectRatio: "600 / 440" }}>
+        <svg viewBox="0 0 600 440" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", overflow: "visible" }}>
+          <defs>
+            <linearGradient id="sp-pyr" x1="0" y1="0" x2="0" y2="440" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#18cfbc" />
+              <stop offset="52%" stopColor="#009b8d" />
+              <stop offset="100%" stopColor="#0a6f64" />
+            </linearGradient>
+          </defs>
+          {tiers.map((t, i) => (
+            <polygon key={i} points={t.pts} fill="url(#sp-pyr)" stroke="url(#sp-pyr)" strokeWidth="9" strokeLinejoin="round"
+              style={{ filter: hover === i ? "brightness(1.1)" : "none", transition: "filter .18s" }} />
+          ))}
+        </svg>
         {tiers.map((t, i) => (
-          <S key={i} as="button" onClick={() => go("sol-" + t.key, t.key)}
-            css={`position:relative;height:${i === 0 ? 124 : 100}px;border:none;cursor:pointer;background:${t.bg};clip-path:${t.clip};-webkit-clip-path:${t.clip};display:flex;flex-direction:column;align-items:center;justify-content:${i === 0 ? "flex-end" : "center"};${i === 0 ? "padding-bottom:16px;" : ""}color:#fff;transition:filter .18s;`}
-            hover="filter:brightness(1.09);">
+          <button key={i} onClick={() => go("sol-" + t.key, t.key)} onMouseEnter={() => setHover(i)} onMouseLeave={() => setHover(-1)}
+            style={{ position: "absolute", left: 0, right: 0, top: t.band.top, height: t.band.height, background: "transparent", border: "none", cursor: "pointer", color: "#fff", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: t.band.justify, paddingBottom: t.band.padBottom }}>
             <div className="ff-serif" style={{ fontSize: i === 0 ? 18 : 22, fontWeight: 700, letterSpacing: "0.3px" }}>{t.label}</div>
             <div style={{ fontSize: 12, opacity: 0.92, marginTop: 3, fontWeight: 500, padding: "0 12px", textAlign: "center" }}>{t.sub}</div>
-          </S>
+          </button>
         ))}
       </div>
-      <p style={{ textAlign: "center", marginTop: 22, fontSize: 13, color: "rgba(255,255,255,0.45)", lineHeight: 1.6 }}>
+      <p style={{ textAlign: "center", marginTop: 26, fontSize: 13, color: "rgba(255,255,255,0.45)", lineHeight: 1.6 }}>
         Protection first, then building wealth, then growth, <br />every layer managed under one relationship.
       </p>
     </div>
@@ -1557,10 +1764,40 @@ function CalcSlider({ label, min, max, step, value, onChange, prefix, suffix }) 
   );
 }
 
+/* spring-physics animated number — eases toward target with a little natural overshoot */
+function useSpring(target, { stiffness = 130, damping = 18, mass = 1 } = {}) {
+  const [v, setV] = React.useState(target);
+  const st = React.useRef({ x: target, v: 0 });
+  const raf = React.useRef();
+  const last = React.useRef(null);
+  React.useEffect(() => {
+    const reduce = typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) { st.current.x = target; st.current.v = 0; setV(target); return; }
+    const step = (t) => {
+      if (last.current == null) last.current = t;
+      let dt = (t - last.current) / 1000; last.current = t;
+      if (dt > 0.032) dt = 0.032;
+      const s = st.current;
+      const a = (-stiffness * (s.x - target) - damping * s.v) / mass;
+      s.v += a * dt; s.x += s.v * dt;
+      if (Math.abs(s.v) < 0.0004 && Math.abs(s.x - target) < 0.0004) { s.x = target; s.v = 0; setV(target); last.current = null; return; }
+      setV(s.x);
+      raf.current = requestAnimationFrame(step);
+    };
+    last.current = null;
+    cancelAnimationFrame(raf.current);
+    raf.current = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf.current);
+  }, [target, stiffness, damping, mass]);
+  return v;
+}
+
 function Donut({ a, b, aLabel, bLabel, aColor, bColor }) {
   const total = a + b || 1;
-  const fA = a / total;
+  const fA = useSpring(a / total, { stiffness: 120, damping: 17 });
+  const fAc = Math.max(0, Math.min(1, fA));
   const r = 60, sw = 26, C = 2 * Math.PI * r, size = (r + sw / 2) * 2 + 4, c = size / 2;
+  const bPct = Math.round((1 - fAc) * 100);
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
       <div style={{ display: "flex", gap: 18, fontSize: 12, color: "#6B7280", flexWrap: "wrap", justifyContent: "center" }}>
@@ -1569,9 +1806,12 @@ function Donut({ a, b, aLabel, bLabel, aColor, bColor }) {
       </div>
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ maxWidth: "100%" }}>
         <g transform={`rotate(-90 ${c} ${c})`}>
-          <circle cx={c} cy={c} r={r} fill="none" stroke={aColor} strokeWidth={sw} strokeDasharray={`${fA * C} ${C}`} strokeLinecap="butt" />
-          <circle cx={c} cy={c} r={r} fill="none" stroke={bColor} strokeWidth={sw} strokeDasharray={`${(1 - fA) * C} ${C}`} strokeDashoffset={-fA * C} strokeLinecap="butt" />
+          <circle cx={c} cy={c} r={r} fill="none" stroke="#F0F2F5" strokeWidth={sw} />
+          <circle cx={c} cy={c} r={r} fill="none" stroke={aColor} strokeWidth={sw} strokeDasharray={`${fAc * C} ${C}`} strokeLinecap="butt" />
+          <circle cx={c} cy={c} r={r} fill="none" stroke={bColor} strokeWidth={sw} strokeDasharray={`${(1 - fAc) * C} ${C}`} strokeDashoffset={-fAc * C} strokeLinecap="butt" />
         </g>
+        <text x={c} y={c - 2} textAnchor="middle" style={{ fontFamily: "'Poppins',sans-serif", fontSize: 28, fontWeight: 800, fill: NAVY }}>{bPct}%</text>
+        <text x={c} y={c + 17} textAnchor="middle" style={{ fontFamily: "'Poppins',sans-serif", fontSize: 10, fontWeight: 500, fill: "#9CA3AF" }}>{bLabel}</text>
       </svg>
     </div>
   );
