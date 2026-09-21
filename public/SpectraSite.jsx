@@ -65,6 +65,22 @@ const PRINCIPLES = [
   { t: "Advice should evolve.", d: "As your life changes, your financial strategy should too." },
 ];
 
+/* icon per principle (index-matched to PRINCIPLES) */
+const PRINCIPLE_ICONS = [
+  <><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path><circle cx="8.5" cy="10" r="1"></circle><circle cx="12" cy="10" r="1"></circle><circle cx="15.5" cy="10" r="1"></circle></>,
+  <><circle cx="12" cy="12" r="3"></circle><circle cx="5" cy="6" r="2"></circle><circle cx="19" cy="6" r="2"></circle><circle cx="5" cy="18" r="2"></circle><circle cx="19" cy="18" r="2"></circle><path d="M10 10.5 6.5 7.5M14 10.5 17.5 7.5M10 13.5 6.5 16.5M14 13.5 17.5 16.5"></path></>,
+  <><circle cx="12" cy="12" r="9"></circle><path d="M8.3 12.4l2.6 2.6 4.8-5.3"></path></>,
+  <><circle cx="9" cy="8" r="3"></circle><circle cx="17" cy="9" r="2.4"></circle><path d="M3 20v-1a5 5 0 0 1 9-3"></path><path d="M13.5 20v-1a4 4 0 0 1 7-2.7"></path></>,
+  <><path d="M4 12a8 8 0 0 1 13.5-5.8L20 8"></path><path d="M20 4v4h-4"></path><path d="M20 12a8 8 0 0 1-13.5 5.8L4 16"></path><path d="M4 20v-4h4"></path></>,
+];
+
+const TESTIMONIALS = [
+  { name: "Maulik Mehta", role: "Individual Investor", rating: 5, quote: "I've been with Spectra from the start for my mutual funds, bonds and insurance. They've handled everything from health to travel insurance, and even helped me with a claim that wasn't under their policy. That kind of support is hard to find, and they've also helped with my loan requirement." },
+  { name: "Infinity Investors", role: "Corporate Client", rating: 5, quote: "As a firm, we needed someone who'd actually understand our cash-flow timing before recommending anything, not generic advice copy-pasted for every client. That's exactly what we got." },
+  { name: "Zurvan Tumbol", role: "Corporate Client", rating: 4, quote: "I compared premiums myself before signing up for car insurance, and the recommendation I got here still came out better. Bonds and mutual funds are handled the same way, someone actually comparing options instead of pushing whatever earns the highest commission." },
+  { name: "Verified Client", role: "Individual Investor", rating: 5, quote: "I don't have to juggle four different people for my funds, bonds, securities and health cover anymore. Everything sits under one roof and someone actually keeps track of it, which has saved me a fair number of headaches, especially around renewal time." },
+];
+
 const TEAM = [
   {
     name: "Nishit Mehta", role: "Mutual Funds & Financial Solutions", accent: TEAL,
@@ -248,17 +264,41 @@ function catMenu(cat) {
 }
 
 const FORMS = [
-  { t: "KYC Application Form", d: "PDF · Required for new investors" },
-  { t: "Mutual Fund SIP Mandate Form", d: "PDF · Set up auto-debit for SIPs" },
-  { t: "Demat Account Opening Form", d: "PDF · For securities trading" },
-  { t: "Loan Application Checklist", d: "PDF · Documents needed for home / personal loans" },
-  { t: "Insurance Proposal Form", d: "PDF · Term & health insurance applications" },
-  { t: "PMS / AIF Onboarding Form", d: "PDF · For HNI investors, min. ₹50L", gold: true },
+  {
+    group: "Onboarding & KYC",
+    items: [
+      { t: "CKYC Application Form", d: "PDF · Central KYC for new investors", f: "/forms/ckyc-application-form.pdf" },
+      { t: "KYC Declaration", d: "PDF · KYC declaration form", f: "/forms/kyc-declaration.pdf" },
+      { t: "FATCA / CRS Declaration", d: "PDF · For individual investors", f: "/forms/fatca-individuals.pdf" },
+      { t: "Mutual Fund Common Application (CAMS)", d: "PDF · Common application for mutual funds", f: "/forms/cams-common-application-form.pdf" },
+      { t: "Change of Broker", d: "PDF · Change your broker or distributor", f: "/forms/change-of-broker.pdf" },
+    ],
+  },
+  {
+    group: "Insurance Claims",
+    items: [
+      { t: "HDFC Ergo Health Claim (Form A)", d: "PDF · Health insurance claim form", f: "/forms/hdfc-ergo-claim-form-a.pdf" },
+      { t: "Care Health Claim (Form A)", d: "PDF · Health insurance claim form", f: "/forms/care-claim-form-a.pdf" },
+    ],
+  },
 ];
 
 const NETWORK = ["Motilal Oswal", "Prudent Advisories", "Leading AMCs", "Insurers", "Banks & NBFCs"];
 
 const INTERESTS = ["Wealth Creation", "Insurance", "Loans & Financing", "Retirement Planning", "Child Education Planning", "Other"];
+
+/* star rating row (filled = rating, out of 5) */
+function Stars({ n = 5 }) {
+  return (
+    <div style={{ display: "flex", gap: 3 }} aria-label={n + " out of 5"}>
+      {[1, 2, 3, 4, 5].map((i) => (
+        <svg key={i} width="16" height="16" viewBox="0 0 24 24" fill={i <= n ? GOLD : "#E5E7EB"}>
+          <path d="M12 2l2.9 6.26 6.85.72-5.1 4.6 1.42 6.72L12 17.77 5.93 20.3l1.42-6.72-5.1-4.6 6.85-.72z"></path>
+        </svg>
+      ))}
+    </div>
+  );
+}
 
 /* checkmark row used inside product cards / lists */
 function Check() {
@@ -549,8 +589,45 @@ const CAT_ICON = {
   securities: <><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="17 7 22 7 22 12"></polyline></>,
 };
 
+/* per-solution icon (stroke) — keyed by sub-solution name so each card's visual is distinct */
+const SOL_ICON = {
+  // Wealth Creation
+  "Mutual Funds": <><circle cx="12" cy="12" r="9"></circle><path d="M12 12V3"></path><path d="M12 12l7.8 4.5"></path></>,
+  "Bonds": <><rect x="4" y="5" width="16" height="14" rx="2"></rect><path d="M8 10h8"></path><path d="M8 14h5"></path></>,
+  "Portfolio Management Services (PMS)": <><rect x="3" y="7" width="18" height="13" rx="2"></rect><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><path d="M3 12h18"></path></>,
+  "Alternative Investment Funds (AIF)": <><path d="M12 2 4 9l8 13 8-13z"></path><path d="M4 9h16"></path></>,
+  "Unit Linked Insurance Plans (ULIPs)": <><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"></path><path d="M9 13l2-2 2 2 2-3"></path></>,
+  "Endowment Plans": <><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="5"></circle><circle cx="12" cy="12" r="1"></circle></>,
+  // Financial Planning
+  "Retirement Planning": <><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></>,
+  "Child Education Planning": <><path d="M22 10 12 5 2 10l10 5 10-5z"></path><path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5"></path></>,
+  "Estate Planning": <><path d="M8 3h8a2 2 0 0 1 2 2v15l-3-2-3 2-3-2-3 2V5a2 2 0 0 1 2-2z"></path><path d="M10 8h4"></path></>,
+  "Public Provident Fund (PPF)": <><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path><circle cx="12" cy="15" r="1.5"></circle></>,
+  "Senior Citizen Savings Scheme (SCSS)": <><circle cx="10" cy="7" r="3"></circle><path d="M4 21v-1a6 6 0 0 1 9-5"></path><circle cx="17" cy="16" r="4"></circle></>,
+  "Tax-Efficient Investment Strategies": <><circle cx="7" cy="7" r="2.5"></circle><circle cx="17" cy="17" r="2.5"></circle><path d="M18 6 6 18"></path></>,
+  "Pension": <><ellipse cx="12" cy="6" rx="7" ry="3"></ellipse><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6"></path><path d="M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"></path></>,
+  // Insurance (retail)
+  "Health Insurance": <><path d="M20 8.5a4.5 4.5 0 0 0-8-2.8A4.5 4.5 0 0 0 4 8.5c0 4.5 8 10 8 10s8-5.5 8-10z"></path><path d="M8.5 11h2l1-2 1.5 4 1-2h1.5"></path></>,
+  "Term Insurance": <><path d="M12 3v2"></path><path d="M3 12a9 9 0 0 1 18 0z"></path><path d="M12 12v5a2 2 0 0 0 4 0"></path></>,
+  "Motor Insurance": <><path d="M5 13l1.5-4.5A2 2 0 0 1 8.4 7h7.2a2 2 0 0 1 1.9 1.5L19 13"></path><path d="M4 13h16v4H4z"></path><circle cx="7.5" cy="17.5" r="1.5"></circle><circle cx="16.5" cy="17.5" r="1.5"></circle></>,
+  "Home Insurance": <><path d="M3 10l9-7 9 7"></path><path d="M5 9v11h14V9"></path><path d="M9 20v-6h6v6"></path></>,
+  "Personal Accident Insurance": <><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"></path><circle cx="12" cy="10" r="1.8"></circle><path d="M8.5 16a3.5 3.5 0 0 1 7 0"></path></>,
+  "Travel Insurance": <><path d="M22 2 11 13"></path><path d="M22 2l-7 20-4-9-9-4z"></path></>,
+  // Loans
+  "Home Loans": <><path d="M3 10l9-7 9 7"></path><path d="M5 9v11h14V9"></path><path d="M12 13v5M10 15h3.5a1.25 1.25 0 0 0 0-2.5"></path></>,
+  "Loan Against Property": <><path d="M4 9l8-6 8 6"></path><rect x="5" y="9" width="14" height="11" rx="1"></rect><rect x="10" y="14" width="4" height="6"></rect></>,
+  "Business Loans": <><rect x="3" y="7" width="18" height="13" rx="2"></rect><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><path d="M9 14l2 2 4-4"></path></>,
+  "Personal Loans": <><rect x="3" y="6" width="18" height="12" rx="2"></rect><circle cx="12" cy="12" r="2.5"></circle><path d="M3 10h2M19 10h2"></path></>,
+  "And More": <><circle cx="5" cy="12" r="1.6"></circle><circle cx="12" cy="12" r="1.6"></circle><circle cx="19" cy="12" r="1.6"></circle></>,
+  // Securities
+  "Equity Investing": <><path d="M3 17l6-6 4 4 8-8"></path><path d="M17 7h4v4"></path></>,
+  "Derivatives / Futures & Options": <><path d="M4 8h13l-3-3"></path><path d="M20 16H7l3 3"></path></>,
+  "Research & Market Insights": <><circle cx="10" cy="10" r="6"></circle><path d="M15 15l5 5"></path><path d="M7.5 11l2-2 1.5 1.5 2.5-3"></path></>,
+  "IPOs": <><path d="M12 2c3 2 5 5 5 9a5 5 0 0 1-10 0c0-4 2-7 5-9z"></path><path d="M9 20c0 1 1.5 2 3 2s3-1 3-2"></path><circle cx="12" cy="10" r="1.5"></circle></>,
+};
+
 /* decorative gradient visual panel for a product row */
-function CatVisual({ catKey, num }) {
+function CatVisual({ catKey, num, icon }) {
   return (
     <div className="sp-visual" style={{ position: "relative", borderRadius: 20, overflow: "hidden", minHeight: 220, background: "linear-gradient(145deg,#0F1729 0%,#132038 60%,#0c2b2a 100%)", display: "flex", alignItems: "center", justifyContent: "center" }}>
       <svg viewBox="0 0 320 220" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0.5 }}>
@@ -561,7 +638,7 @@ function CatVisual({ catKey, num }) {
       <div style={{ position: "absolute", top: -30, right: -30, width: 180, height: 180, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,155,141,0.28) 0%, transparent 70%)" }}></div>
       <div style={{ position: "relative", textAlign: "center", padding: 24 }}>
         <div style={{ width: 60, height: 60, borderRadius: 16, background: "rgba(0,155,141,0.15)", border: "1px solid rgba(0,155,141,0.3)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px" }}>
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#009B8D" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{CAT_ICON[catKey]}</svg>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#009B8D" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{icon || CAT_ICON[catKey]}</svg>
         </div>
         <div className="ff-serif" style={{ fontSize: 64, fontWeight: 800, color: "rgba(255,255,255,0.10)", lineHeight: 1, letterSpacing: "-2px" }}>{String(num).padStart(2, "0")}</div>
       </div>
@@ -671,15 +748,28 @@ export default function SpectraSite() {
   const pendingAnchor = React.useRef(null);
 
   const go = (p, t, anchor) => {
+    const samePage = p === page;
     pendingAnchor.current = anchor || null;
-    if (p !== page) setWipeKey((k) => k + 1);
+    if (!samePage) setWipeKey((k) => k + 1);
     setPage(p);
     if (t) setTab(t);
     setDrop(null);
     setSolHover(null);
     setMobileOpen(false);
     setMobSol(null);
-    if (typeof window !== "undefined" && !anchor) window.scrollTo(0, 0);
+    if (typeof window === "undefined") return;
+    if (!anchor) { window.scrollTo(0, 0); return; }
+    // Same page: the [page] effect won't re-run, so scroll to the anchor here.
+    if (samePage) {
+      pendingAnchor.current = null;
+      let tries = 0;
+      const tryScroll = () => {
+        const el = document.getElementById(anchor);
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+        else if (tries++ < 25) setTimeout(tryScroll, 40);
+      };
+      setTimeout(tryScroll, 30);
+    }
   };
 
   /* after a page renders, scroll to a pending product anchor (retries until it exists) */
@@ -970,18 +1060,8 @@ export default function SpectraSite() {
               )}
             </div>
 
-            {/* Forms dropdown */}
-            <div style={{ position: "relative" }}>
-              <S as="button" onClick={() => setDrop(drop === "forms" ? null : "forms")} css={`background:none;border:none;cursor:pointer;font-size:14px;font-weight:${navW(page === "forms")};color:${navC(page === "forms")};padding:8px 14px;border-radius:8px;transition:color 0.15s;display:flex;align-items:center;gap:5px;`} hover="color:#009B8D;">
-                Forms
-                <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: "transform 0.2s", transform: drop === "forms" ? "rotate(180deg)" : "rotate(0deg)" }}><polyline points="2,4 6,8 10,4"></polyline></svg>
-              </S>
-              {drop === "forms" && (
-                <div style={{ position: "absolute", top: "calc(100% + 8px)", left: "50%", transform: "translateX(-50%)", background: "#fff", border: "1px solid #F0F2F5", borderRadius: 14, padding: 8, boxShadow: "0 16px 48px rgba(15,23,41,0.12)", minWidth: 200, zIndex: 300 }}>
-                  <S as="button" onClick={() => go("forms")} css="width:100%;background:none;border:none;cursor:pointer;font-size:13px;font-weight:600;color:#009B8D;padding:10px 14px;border-radius:8px;text-align:left;transition:background 0.12s;" hover="background:#F0FAF9;">View all forms →</S>
-                </div>
-              )}
-            </div>
+            {/* Forms — direct link to the forms page */}
+            <S as="button" onClick={() => go("forms")} css={`background:none;border:none;cursor:pointer;font-size:14px;font-weight:${navW(page === "forms")};color:${navC(page === "forms")};padding:8px 14px;border-radius:8px;transition:color 0.15s;`} hover="color:#009B8D;">Forms</S>
 
             {/* Media dropdown */}
             <div style={{ position: "relative" }}>
@@ -991,9 +1071,8 @@ export default function SpectraSite() {
               </S>
               {drop === "media" && (
                 <div style={{ position: "absolute", top: "calc(100% + 8px)", left: "50%", transform: "translateX(-50%)", background: "#fff", border: "1px solid #F0F2F5", borderRadius: 14, padding: 8, boxShadow: "0 16px 48px rgba(15,23,41,0.12)", minWidth: 190, zIndex: 300 }}>
-                  {[["Instagram", "https://instagram.com", <><rect x="2" y="2" width="20" height="20" rx="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></>],
-                    ["Facebook", "https://facebook.com", <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>],
-                    ["LinkedIn", "https://linkedin.com", <><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></>],
+                  {[["Instagram", "https://www.instagram.com/_spectraassets_", <><rect x="2" y="2" width="20" height="20" rx="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></>],
+                    ["LinkedIn", "https://www.linkedin.com/company/spectra-assets-private-limited/", <><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></>],
                   ].map(([label, href, icon]) => (
                     <S key={label} as="a" href={href} target="_blank" rel="noopener" css="width:100%;box-sizing:border-box;font-size:13px;font-weight:500;color:#374151;padding:10px 14px;border-radius:8px;text-align:left;display:flex;align-items:center;gap:10px;transition:all 0.12s;text-decoration:none;" hover="background:#F9FAFB;color:#009B8D;">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{icon}</svg>{label}
@@ -1071,6 +1150,59 @@ export default function SpectraSite() {
   );
 }
 
+/* testimonials carousel — one card at a time, auto-advances, arrows + dots, pause on hover */
+function TestimonialsSlider() {
+  const n = TESTIMONIALS.length;
+  const [i, setI] = React.useState(0);
+  const [paused, setPaused] = React.useState(false);
+  const goTo = (idx) => setI(((idx % n) + n) % n);
+  React.useEffect(() => {
+    if (paused || n <= 1) return;
+    const reduce = typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) return;
+    const t = setInterval(() => setI((x) => (x + 1) % n), 5500);
+    return () => clearInterval(t);
+  }, [paused, n]);
+  return (
+    <div style={{ maxWidth: 760, margin: "0 auto" }} onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+      <div style={{ overflow: "hidden", borderRadius: 22 }}>
+        <div style={{ display: "flex", transform: `translateX(-${i * 100}%)`, transition: "transform 0.6s cubic-bezier(0.16,1,0.3,1)" }}>
+          {TESTIMONIALS.map((t, k) => (
+            <div key={k} style={{ flex: "0 0 100%", minWidth: 0 }}>
+              <div style={{ background: "#fff", border: "1px solid #F0F2F5", borderRadius: 22, padding: "48px 52px", boxShadow: "0 10px 40px rgba(15,23,41,0.06)", textAlign: "center" }}>
+                <div className="ff-serif" style={{ fontSize: 56, lineHeight: 0.5, color: TEAL, marginBottom: 22 }}>&ldquo;</div>
+                <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}><Stars n={t.rating} /></div>
+                <p style={{ fontSize: "clamp(17px,2.1vw,22px)", color: NAVY, fontWeight: 500, lineHeight: 1.6, letterSpacing: "-0.2px", marginBottom: 28, minHeight: 132 }}>{t.quote}</p>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12 }}>
+                  <div style={{ width: 44, height: 44, borderRadius: "50%", background: "#E5F7F5", color: TEAL, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 16, flexShrink: 0 }}>{t.name.charAt(0)}</div>
+                  <div style={{ textAlign: "left" }}>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: NAVY }}>{t.name}</div>
+                    <div style={{ fontSize: 13, color: "#9CA3AF", marginTop: 1 }}>{t.role}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* controls */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 20, marginTop: 28 }}>
+        <button onClick={() => goTo(i - 1)} aria-label="Previous testimonial" style={{ width: 42, height: 42, borderRadius: "50%", border: "1px solid #E5E7EB", background: "#fff", cursor: "pointer", color: NAVY, display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.18s" }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
+        <div style={{ display: "flex", gap: 8 }}>
+          {TESTIMONIALS.map((_, k) => (
+            <button key={k} onClick={() => goTo(k)} aria-label={"Go to testimonial " + (k + 1)} style={{ width: k === i ? 22 : 8, height: 8, borderRadius: 99, border: "none", padding: 0, cursor: "pointer", background: k === i ? TEAL : "#D9DEE6", transition: "all 0.3s ease" }} />
+          ))}
+        </div>
+        <button onClick={() => goTo(i + 1)} aria-label="Next testimonial" style={{ width: 42, height: 42, borderRadius: "50%", border: "1px solid #E5E7EB", background: "#fff", cursor: "pointer", color: NAVY, display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.18s" }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+      </div>
+    </div>
+  );
+}
+
 /* ============================ HOME ============================ */
 function Home({ go, openMember, setOpenMember, CtaBanner }) {
   const wrap = { maxWidth: 1100, margin: "0 auto" };
@@ -1082,7 +1214,7 @@ function Home({ go, openMember, setOpenMember, CtaBanner }) {
         <Aurora />
         <HeroNumbersBg rows={marketRows} />
         <div aria-hidden="true" className="sp-hero-veil" style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "linear-gradient(90deg, rgba(255,255,255,0.96) 0%, rgba(255,255,255,0.92) 44%, rgba(255,255,255,0.55) 62%, rgba(255,255,255,0) 78%)" }}></div>
-        <div className="sp-grid-2" style={{ position: "relative", zIndex: 1, padding: "64px 32px 44px", maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "center" }}>
+        <div className="sp-grid-2" style={{ position: "relative", zIndex: 1, padding: "72px 32px", maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "center" }}>
           <div>
           <WordReveal as="h1" text="Financial advice that looks at the bigger picture." emFrom={6} baseDelay={200} style={{ fontSize: "clamp(40px,5vw,68px)", fontWeight: 800, color: NAVY, lineHeight: 1.08, marginBottom: 26 }} />
           <p style={{ fontSize: 17, color: "#6B7280", lineHeight: 1.75, maxWidth: 440, marginBottom: 24, fontWeight: 400 }}>Money rarely comes with just one goal. We help individuals, families and businesses make informed decisions across wealth creation, insurance, lending and financial planning, with the bigger picture always in focus.</p>
@@ -1112,7 +1244,7 @@ function Home({ go, openMember, setOpenMember, CtaBanner }) {
 
       {/* OUR STORY */}
       <section style={{ background: "#F9FAFB", borderTop: "1px solid #F0F2F5", borderBottom: "1px solid #F0F2F5", padding: "80px 32px" }}>
-        <div className="sp-grid-2" style={{ ...wrap, display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: 96, alignItems: "start" }}>
+        <div className="sp-grid-2" style={{ ...wrap, display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: 96, alignItems: "center" }}>
           <div>
             <p style={{ fontSize: 13, fontWeight: 500, color: TEAL, marginBottom: 20 }}>Our story</p>
             <h2 style={{ fontSize: "clamp(28px,3.5vw,42px)", fontWeight: 800, color: NAVY, letterSpacing: "-1px", lineHeight: 1.1, marginBottom: 28 }}>We didn't start with products. We started with <em style={{ fontStyle: "normal", color: TEAL }}>people.</em></h2>
@@ -1136,9 +1268,8 @@ function Home({ go, openMember, setOpenMember, CtaBanner }) {
       <section style={{ background: NAVY, padding: "88px 32px", position: "relative", overflow: "hidden" }}>
         <div className="parallax-slow" style={{ position: "absolute", top: -120, right: -80, width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,155,141,0.10) 0%, transparent 70%)", pointerEvents: "none" }}></div>
         <div style={{ ...wrap, position: "relative", zIndex: 1, textAlign: "center" }}>
-          <p style={{ fontSize: 13, fontWeight: 500, color: TEAL, marginBottom: 14 }}>The Spectra ecosystem</p>
-          <h2 style={{ fontSize: "clamp(28px,3.5vw,44px)", fontWeight: 800, color: "#fff", letterSpacing: "-1px", lineHeight: 1.1, marginBottom: 16 }}>One advisory system. One relationship.<br /><em style={{ fontStyle: "normal", color: TEAL }}>A complete financial perspective.</em></h2>
-          <p style={{ fontSize: 16, color: "rgba(255,255,255,0.5)", maxWidth: 520, margin: "0 auto 56px", lineHeight: 1.7 }}>Wealth, protection, lending and planning, connected around you, not sold in silos.</p>
+          <p style={{ fontSize: 13, fontWeight: 500, color: TEAL, marginBottom: 12 }}>The Spectra ecosystem</p>
+          <p style={{ fontSize: 16, color: "rgba(255,255,255,0.55)", maxWidth: 520, margin: "0 auto 44px", lineHeight: 1.7 }}>Wealth, protection, lending and planning, connected around you, not sold in silos.</p>
           <Ecosystem go={go} />
         </div>
       </section>
@@ -1210,10 +1341,31 @@ function Home({ go, openMember, setOpenMember, CtaBanner }) {
             {PRINCIPLES.map((p, i) => {
               const last = i === PRINCIPLES.length - 1;
               return (
-                <div key={i} id={"stack-card-" + i} style={{ position: "absolute", inset: 0, background: last ? "#0A1929" : "#fff", border: last ? "1px solid rgba(0,155,141,0.25)" : "none", borderRadius: 20, padding: "44px 52px", display: "flex", flexDirection: "column", justifyContent: "center", willChange: "transform, opacity", transform: "translateY(120px)", opacity: 0, boxShadow: "0 24px 64px rgba(0,0,0,0.4)" }}>
-                  <div style={{ fontSize: 12, fontWeight: 800, color: TEAL, letterSpacing: "2px", textTransform: "uppercase", marginBottom: 18 }}>{String(i + 1).padStart(2, "0")}</div>
-                  <h3 style={{ fontSize: "clamp(22px,3vw,34px)", fontWeight: 800, color: last ? "#fff" : NAVY, letterSpacing: "-0.6px", lineHeight: 1.15, marginBottom: 16, maxWidth: 640 }}>{p.t}</h3>
-                  <p style={{ fontSize: 16, color: last ? "#8A9BB0" : "#6B7280", lineHeight: 1.75, maxWidth: 620 }}>{p.d}</p>
+                <div key={i} id={"stack-card-" + i} style={{ position: "absolute", inset: 0, background: last ? "#0A1929" : "#fff", border: last ? "1px solid rgba(0,155,141,0.25)" : "none", borderRadius: 20, padding: "44px 56px", overflow: "hidden", willChange: "transform, opacity", transform: "translateY(120px)", opacity: 0, boxShadow: "0 24px 64px rgba(0,0,0,0.4)" }}>
+                  {/* giant ghost number watermark */}
+                  <div aria-hidden="true" className="ff-serif" style={{ position: "absolute", right: 36, bottom: -56, fontSize: 280, fontWeight: 800, lineHeight: 1, letterSpacing: "-10px", color: last ? "rgba(255,255,255,0.045)" : "rgba(15,23,41,0.035)", pointerEvents: "none", userSelect: "none" }}>{String(i + 1).padStart(2, "0")}</div>
+                  <div className="sp-grid-2" style={{ position: "relative", height: "100%", display: "grid", gridTemplateColumns: "1.05fr 0.95fr", gap: 48, alignItems: "center" }}>
+                    {/* left: text */}
+                    <div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 22 }}>
+                        <span style={{ fontSize: 13, fontWeight: 800, color: TEAL, letterSpacing: "1px" }}>{String(i + 1).padStart(2, "0")}</span>
+                        <span style={{ width: 26, height: 1, background: last ? "rgba(255,255,255,0.2)" : "#D9DEE6" }}></span>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: TEAL, letterSpacing: "1.4px", textTransform: "uppercase" }}>Principle</span>
+                      </div>
+                      <h3 style={{ fontSize: "clamp(24px,3vw,36px)", fontWeight: 800, color: last ? "#fff" : NAVY, letterSpacing: "-0.6px", lineHeight: 1.15, marginBottom: 18, maxWidth: 460 }}>{p.t}</h3>
+                      <p style={{ fontSize: 16, color: last ? "#8A9BB0" : "#6B7280", lineHeight: 1.8, maxWidth: 440 }}>{p.d}</p>
+                    </div>
+                    {/* right: icon visual */}
+                    <div className="sp-visual" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+                      <div style={{ position: "relative", width: 220, height: 220, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <div style={{ position: "absolute", inset: 0, borderRadius: "50%", border: last ? "1px solid rgba(0,155,141,0.2)" : "1px solid rgba(0,155,141,0.14)" }}></div>
+                        <div style={{ position: "absolute", inset: 34, borderRadius: "50%", border: last ? "1px solid rgba(0,155,141,0.28)" : "1px solid rgba(0,155,141,0.2)" }}></div>
+                        <div style={{ position: "relative", width: 108, height: 108, borderRadius: 28, background: last ? "rgba(0,155,141,0.16)" : "rgba(0,155,141,0.08)", border: "1px solid rgba(0,155,141,0.25)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: last ? "0 0 40px rgba(0,155,141,0.15)" : "0 10px 30px rgba(0,155,141,0.12)" }}>
+                          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke={TEAL} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">{PRINCIPLE_ICONS[i]}</svg>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               );
             })}
@@ -1222,15 +1374,16 @@ function Home({ go, openMember, setOpenMember, CtaBanner }) {
       </section>
 
       {/* spacer between sections */}
-      <div style={{ height: 96, background: "#fff" }}></div>
+      <div style={{ height: 140, background: "#fff" }}></div>
 
       {/* WHY CLIENTS CHOOSE SPECTRA */}
-      <section style={{ padding: "88px 32px", ...wrap }}>
+      <section style={{ padding: "40px 32px 96px", ...wrap }}>
         <div className="sp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 72, alignItems: "center" }}>
           <div>
             <p style={{ fontSize: 13, fontWeight: 500, color: TEAL, marginBottom: 16 }}>Why clients choose Spectra</p>
             <h2 style={{ fontSize: "clamp(26px,3vw,40px)", fontWeight: 800, color: NAVY, letterSpacing: "-0.8px", lineHeight: 1.1, marginBottom: 20 }}>Good advice doesn't end after the first meeting.</h2>
             <p style={{ fontSize: 16, color: "#6B7280", lineHeight: 1.8, marginBottom: 16 }}>Our commitment extends beyond recommendations. We believe in staying connected, reviewing progress, adapting strategies and supporting clients through every important financial milestone.</p>
+            <p style={{ fontSize: 16, color: "#6B7280", lineHeight: 1.8, marginBottom: 16 }}>Whether it's helping you make your first investment, assisting during an insurance claim or reviewing your financial plan as your goals evolve, our team remains by your side.</p>
             <p style={{ fontSize: 16, color: "#6B7280", lineHeight: 1.8 }}>Because lasting financial confidence is built through continuous guidance, not one-time conversations.</p>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
@@ -1309,13 +1462,15 @@ function Home({ go, openMember, setOpenMember, CtaBanner }) {
         })}
       </section>
 
-      {/* TESTIMONIALS placeholder */}
+      {/* TESTIMONIALS */}
       <section style={{ padding: "0 32px 88px", ...wrap }}>
-        <div style={{ background: "#F9FAFB", border: "1px solid #F0F2F5", borderRadius: 20, padding: "56px 48px", textAlign: "center" }}>
-          <p style={{ fontSize: 13, fontWeight: 500, color: TEAL, marginBottom: 12 }}>Client stories</p>
-          <h2 style={{ fontSize: "clamp(24px,3vw,34px)", fontWeight: 800, color: NAVY, letterSpacing: "-0.7px", marginBottom: 12 }}>Trusted by families & businesses across Mumbai.</h2>
-          <p style={{ fontSize: 15, color: "#6B7280", maxWidth: 520, margin: "0 auto", lineHeight: 1.7 }}>We're collecting stories from the clients we work with. Testimonials will appear here soon.</p>
-        </div>
+        <Reveal>
+          <div style={{ textAlign: "center", marginBottom: 44 }}>
+            <p style={{ fontSize: 13, fontWeight: 500, color: TEAL, marginBottom: 12 }}>Client stories</p>
+            <h2 style={{ fontSize: "clamp(26px,3.2vw,40px)", fontWeight: 800, color: NAVY, letterSpacing: "-0.8px", lineHeight: 1.1 }}>Trusted by families &amp; businesses across Mumbai.</h2>
+          </div>
+        </Reveal>
+        <TestimonialsSlider />
       </section>
 
       <CtaBanner head="Ready to take the next step?" sub="Talk to an advisor for an honest, no-obligation conversation about your money." label="Talk to an Advisor" />
@@ -1384,15 +1539,15 @@ function Ecosystem({ go }) {
   // bands read as tiers; a single vertical gradient keeps it cohesive.
   const [hover, setHover] = React.useState(-1);
   const tiers = [
-    { label: "Grow", sub: "Securities · PMS / AIF", key: "securities",
+    { label: "One advisory system", key: "securities",
       pts: "300,0 394.1,138 205.9,138",
-      band: { top: "0%", height: "31.4%", justify: "flex-end", padBottom: 14 } },
-    { label: "Build", sub: "Wealth Creation · Financial Planning", key: "wealth",
+      band: { top: "0%", height: "31.4%", justify: "flex-end", padBottom: 14 }, size: 13, mw: "7.5em" },
+    { label: "One relationship", key: "wealth",
       pts: "193.6,156 406.4,156 492.3,282 107.7,282",
-      band: { top: "35.5%", height: "28.6%", justify: "center", padBottom: 0 } },
-    { label: "Protect", sub: "Insurance · Loans", key: "insurance",
+      band: { top: "35.5%", height: "28.6%", justify: "center", padBottom: 0 }, size: 20 },
+    { label: "A complete financial perspective", key: "insurance",
       pts: "95.45,300 504.55,300 600,440 0,440",
-      band: { top: "68.2%", height: "31.8%", justify: "center", padBottom: 0 } },
+      band: { top: "68.2%", height: "31.8%", justify: "center", padBottom: 0 }, size: 20 },
   ];
   return (
     <div style={{ maxWidth: 560, margin: "8px auto 0" }}>
@@ -1413,8 +1568,7 @@ function Ecosystem({ go }) {
         {tiers.map((t, i) => (
           <button key={i} onClick={() => go("sol-" + t.key, t.key)} onMouseEnter={() => setHover(i)} onMouseLeave={() => setHover(-1)}
             style={{ position: "absolute", left: 0, right: 0, top: t.band.top, height: t.band.height, background: "transparent", border: "none", cursor: "pointer", color: "#fff", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: t.band.justify, paddingBottom: t.band.padBottom }}>
-            <div className="ff-serif" style={{ fontSize: i === 0 ? 18 : 22, fontWeight: 700, letterSpacing: "0.3px" }}>{t.label}</div>
-            <div style={{ fontSize: 12, opacity: 0.92, marginTop: 3, fontWeight: 500, padding: "0 12px", textAlign: "center" }}>{t.sub}</div>
+            <div className="ff-serif" style={{ fontSize: t.size, fontWeight: 700, letterSpacing: "0.2px", textAlign: "center", padding: "0 12px", lineHeight: 1.18, maxWidth: t.mw || "90%" }}>{t.label}</div>
           </button>
         ))}
       </div>
@@ -1631,7 +1785,7 @@ function StackedGroups({ cat, go }) {
                 <button onClick={() => go("contact")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 14, fontWeight: 600, color: TEAL, padding: 0 }}>Talk to an advisor →</button>
               </div>
             );
-            const Visual = <CatVisual key="v" catKey={cat.key} num={num} />;
+            const Visual = <CatVisual key="v" catKey={cat.key} num={num} icon={SOL_ICON[it.name]} />;
             return (
               <div key={i} id={anchorId(cat.key, it.name)} style={{ scrollMarginTop: 90, marginBottom: 30 }}>
                 <Reveal>
@@ -1938,30 +2092,62 @@ function ToolLoan({ loan, setLoan, fmt, inr, loanEmi, go }) {
 
 /* ============================ FORMS ============================ */
 function Forms({ go }) {
+  const [q, setQ] = React.useState("");
+  const query = q.trim().toLowerCase();
+  const groups = FORMS.map((grp) => ({
+    ...grp,
+    items: query ? grp.items.filter((f) => (f.t + " " + f.d).toLowerCase().includes(query)) : grp.items,
+  })).filter((grp) => grp.items.length);
+  const totalMatches = groups.reduce((n, g) => n + g.items.length, 0);
   return (
     <div className="page-wrap" style={{ paddingTop: 64 }}>
       <section style={{ background: NAVY, padding: "72px 40px 60px", textAlign: "center" }}>
         <p style={{ fontSize: 13, fontWeight: 500, color: TEAL, marginBottom: 14 }}>Resources</p>
         <h1 style={{ fontSize: "clamp(32px,4.5vw,52px)", fontWeight: 800, color: "#fff", letterSpacing: "-1.5px", marginBottom: 14 }}>Downloadable Forms</h1>
-        <p style={{ fontSize: 16, color: "rgba(255,255,255,0.5)", maxWidth: 480, margin: "0 auto" }}>All the forms you need to get started, in one place.</p>
+        <p style={{ fontSize: 16, color: "rgba(255,255,255,0.5)", maxWidth: 480, margin: "0 auto 28px" }}>All the forms you need to get started, in one place.</p>
+        {/* search */}
+        <div style={{ maxWidth: 440, margin: "0 auto", position: "relative" }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>
+          <input
+            type="text"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Search forms..."
+            aria-label="Search forms"
+            style={{ width: "100%", background: "rgba(255,255,255,0.08)", border: "1.5px solid rgba(255,255,255,0.15)", borderRadius: 12, padding: "13px 44px 13px 44px", fontSize: 15, color: "#fff", outline: "none" }}
+          />
+          {q && (
+            <button onClick={() => setQ("")} aria-label="Clear search" style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.6)", fontSize: 18, lineHeight: 1, padding: 4 }}>×</button>
+          )}
+        </div>
       </section>
-      <section style={{ padding: "64px 40px 96px", background: "#F9FAFB" }}>
-        <div style={{ maxWidth: 800, margin: "0 auto", display: "flex", flexDirection: "column", gap: 12 }}>
-          {FORMS.map((f, i) => (
-            <Reveal key={i} delay={i * 70}>
-            <S as="a" href="#" onClick={(e) => e.preventDefault()} css="background:#fff;border:1px solid #F0F2F5;border-radius:14px;padding:22px 26px;display:flex;align-items:center;justify-content:space-between;text-decoration:none;transition:all 0.18s;" hover="border-color:#009B8D;box-shadow:0 12px 30px rgba(0,155,141,0.12);transform:translateY(-2px);">
-              <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                <div style={{ width: 44, height: 44, borderRadius: 10, background: f.gold ? "#FEF9EC" : "#E5F7F5", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={f.gold ? GOLD : TEAL} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
-                </div>
-                <div>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: NAVY }}>{f.t}</div>
-                  <div style={{ fontSize: 13, color: "#9CA3AF", marginTop: 2 }}>{f.d}</div>
-                </div>
+      <section style={{ padding: "56px 40px 96px", background: "#F9FAFB" }}>
+        <div style={{ maxWidth: 800, margin: "0 auto" }}>
+          {totalMatches === 0 ? (
+            <div style={{ textAlign: "center", padding: "40px 0", color: "#9CA3AF" }}>
+              <p style={{ fontSize: 16, color: NAVY, fontWeight: 600, marginBottom: 6 }}>No forms found for "{q}"</p>
+              <p style={{ fontSize: 14 }}>Try a different keyword, or <button onClick={() => go("contact")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 14, fontWeight: 600, color: TEAL }}>ask an advisor →</button></p>
+            </div>
+          ) : groups.map((grp, gi) => (
+            <div key={grp.group} style={{ marginBottom: gi < groups.length - 1 ? 40 : 0 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#9CA3AF", letterSpacing: "1.2px", textTransform: "uppercase", marginBottom: 14 }}>{grp.group}</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {grp.items.map((f, i) => (
+                  <S key={f.t} as="a" href={f.f} target="_blank" rel="noopener" download css="background:#fff;border:1px solid #F0F2F5;border-radius:14px;padding:22px 26px;display:flex;align-items:center;justify-content:space-between;text-decoration:none;transition:all 0.18s;" hover="border:1px solid #009B8D;box-shadow:0 12px 30px rgba(0,155,141,0.12);transform:translateY(-2px);">
+                    <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                      <div style={{ width: 44, height: 44, borderRadius: 10, background: "#E5F7F5", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={TEAL} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 15, fontWeight: 700, color: NAVY }}>{f.t}</div>
+                        <div style={{ fontSize: 13, color: "#9CA3AF", marginTop: 2 }}>{f.d}</div>
+                      </div>
+                    </div>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: TEAL, whiteSpace: "nowrap" }}>Download ↓</span>
+                  </S>
+                ))}
               </div>
-              <span style={{ fontSize: 13, fontWeight: 600, color: f.gold ? GOLD : TEAL }}>Download ↓</span>
-            </S>
-            </Reveal>
+            </div>
           ))}
         </div>
         <p style={{ textAlign: "center", fontSize: 13, color: "#9CA3AF", marginTop: 32 }}>Need help filling a form? <button onClick={() => go("contact")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, color: TEAL }}>Talk to an advisor →</button></p>
@@ -1996,9 +2182,8 @@ function Contact({ form, setForm, formDone, submitForm, toggleInterest }) {
             <div>
               <div style={{ fontSize: 11, fontWeight: 700, color: "#9CA3AF", letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: 12 }}>Follow</div>
               <div style={{ display: "flex", gap: 10 }}>
-                {[["https://instagram.com", <><rect x="2" y="2" width="20" height="20" rx="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></>],
-                  ["https://facebook.com", <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>],
-                  ["https://linkedin.com", <><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></>]].map(([href, icon], i) => (
+                {[["https://www.instagram.com/_spectraassets_", <><rect x="2" y="2" width="20" height="20" rx="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></>],
+                  ["https://www.linkedin.com/company/spectra-assets-private-limited/", <><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></>]].map(([href, icon], i) => (
                   <S key={i} as="a" href={href} target="_blank" rel="noopener" css="width:40px;height:40px;border-radius:10px;border:1px solid #E5E7EB;display:flex;align-items:center;justify-content:center;color:#374151;transition:all 0.15s;" hover="border-color:#009B8D;color:#009B8D;">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{icon}</svg>
                   </S>

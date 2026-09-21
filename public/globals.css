@@ -18,6 +18,10 @@ input, textarea, select { font-family: 'Poppins', sans-serif; }
 input::placeholder, textarea::placeholder { color: #C4CAD4; }
 input:focus, textarea:focus, select:focus { outline: none; border-color: #009B8D !important; }
 
+/* focus rings: kill the default navy (reads as black) outline that appears on click; keep a subtle teal ring for keyboard users only */
+a:focus, button:focus, [role="button"]:focus, [tabindex]:focus { outline: none; }
+a:focus-visible, button:focus-visible, [role="button"]:focus-visible, [tabindex]:focus-visible { outline: 2px solid rgba(0,155,141,0.7); outline-offset: 2px; }
+
 /* range sliders */
 input[type="range"] { accent-color: #009B8D; }
 
