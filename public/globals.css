@@ -90,6 +90,24 @@ h1, h2 { font-family: 'Poppins', sans-serif; letter-spacing: -0.02em !important;
 .sp-ticker-track { display: flex; width: max-content; animation: tickerScroll 46s linear infinite; }
 .sp-ticker:hover .sp-ticker-track { animation-play-state: paused; }
 
+/* partner logo wall — two rows scrolling in opposite directions */
+.sp-logo-wall { display: flex; flex-direction: column; gap: 16px; margin-top: 8px;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 9%, #000 91%, transparent 100%);
+          mask-image: linear-gradient(90deg, transparent 0, #000 9%, #000 91%, transparent 100%); }
+.sp-logo-row { overflow: hidden; }
+/* the offset is driven per frame in JS; spacing is a margin on the cards rather
+   than a flex gap so the duplicated half is exactly half the track width */
+.sp-logo-track { display: flex; width: max-content; will-change: transform; backface-visibility: hidden; }
+.sp-logo-card { flex: 0 0 auto; height: 76px; margin-right: 16px; padding: 0 22px; background: #fff; border: 1px solid #F0F2F5;
+  border-radius: 14px; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 12px rgba(15,23,41,0.04); transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease; }
+.sp-logo-card:hover { transform: translateY(-4px); box-shadow: 0 14px 32px rgba(15,23,41,0.12); border-color: rgba(0,155,141,0.32); }
+.sp-logo-card img { height: 42px; width: auto; max-width: 168px; object-fit: contain; display: block; user-select: none; }
+@media (max-width: 860px) {
+  .sp-logo-card { height: 64px; margin-right: 12px; padding: 0 16px; }
+  .sp-logo-card img { height: 34px; max-width: 132px; }
+}
+
 /* floating whatsapp button */
 .sp-wa { position: fixed; right: 22px; bottom: 22px; z-index: 200; width: 56px; height: 56px; border-radius: 50%; background: #25D366; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(37,211,102,0.45); cursor: pointer; border: none; transition: transform .18s ease, box-shadow .18s ease; }
 .sp-wa:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 16px 40px rgba(37,211,102,0.55); }

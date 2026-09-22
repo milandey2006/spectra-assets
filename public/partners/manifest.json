@@ -1,0 +1,444 @@
+{
+ "insurers": [
+  {
+   "n": "Landmark Group",
+   "f": "landmark-group.png",
+   "w": 247,
+   "h": 140
+  },
+  {
+   "n": "ICICI Lombard",
+   "f": "icici-lombard.png",
+   "w": 436,
+   "h": 140
+  },
+  {
+   "n": "HDFC ERGO",
+   "f": "hdfc-ergo.png",
+   "w": 188,
+   "h": 140
+  },
+  {
+   "n": "IndusInd General Insurance",
+   "f": "indusind-general-insurance.png",
+   "w": 385,
+   "h": 140
+  },
+  {
+   "n": "Digit",
+   "f": "digit.png",
+   "w": 263,
+   "h": 140
+  },
+  {
+   "n": "Generali Central",
+   "f": "generali-central.png",
+   "w": 235,
+   "h": 140
+  },
+  {
+   "n": "United India",
+   "f": "united-india.png",
+   "w": 182,
+   "h": 140
+  },
+  {
+   "n": "National Insurance",
+   "f": "national-insurance.png",
+   "w": 304,
+   "h": 140
+  },
+  {
+   "n": "TATA AIG",
+   "f": "tata-aig.png",
+   "w": 161,
+   "h": 140
+  },
+  {
+   "n": "Bajaj Allianz",
+   "f": "bajaj-allianz.png",
+   "w": 436,
+   "h": 140
+  },
+  {
+   "n": "Aditya Birla Capital Health",
+   "f": "aditya-birla-capital-health.png",
+   "w": 148,
+   "h": 140
+  },
+  {
+   "n": "Zurich Kotak",
+   "f": "zurich-kotak.png",
+   "w": 436,
+   "h": 140
+  },
+  {
+   "n": "Oriental Insurance",
+   "f": "oriental-insurance.png",
+   "w": 409,
+   "h": 140
+  },
+  {
+   "n": "SBI General",
+   "f": "sbi-general.png",
+   "w": 373,
+   "h": 140
+  },
+  {
+   "n": "Royal Sundaram",
+   "f": "royal-sundaram.png",
+   "w": 414,
+   "h": 140
+  },
+  {
+   "n": "New India Assurance",
+   "f": "new-india-assurance.png",
+   "w": 148,
+   "h": 140
+  },
+  {
+   "n": "Care Health Insurance",
+   "f": "care-health-insurance.png",
+   "w": 271,
+   "h": 140
+  },
+  {
+   "n": "Niva Bupa",
+   "f": "niva-bupa.png",
+   "w": 241,
+   "h": 140
+  },
+  {
+   "n": "Manipal Cigna",
+   "f": "manipal-cigna.png",
+   "w": 415,
+   "h": 140
+  },
+  {
+   "n": "Star Health",
+   "f": "star-health.png",
+   "w": 286,
+   "h": 140
+  },
+  {
+   "n": "Liberty General Insurance",
+   "f": "liberty-general-insurance.png",
+   "w": 214,
+   "h": 140
+  },
+  {
+   "n": "IFFCO-Tokio",
+   "f": "iffco-tokio.png",
+   "w": 294,
+   "h": 140
+  },
+  {
+   "n": "Bajaj Life",
+   "f": "bajaj-life.png",
+   "w": 237,
+   "h": 140
+  },
+  {
+   "n": "LIC",
+   "f": "lic.png",
+   "w": 340,
+   "h": 140
+  },
+  {
+   "n": "Axis Max Life",
+   "f": "axis-max-life.png",
+   "w": 386,
+   "h": 140
+  },
+  {
+   "n": "Aditya Birla Capital Life",
+   "f": "aditya-birla-capital-life.png",
+   "w": 329,
+   "h": 140
+  },
+  {
+   "n": "Kotak Life",
+   "f": "kotak-life.png",
+   "w": 363,
+   "h": 140
+  },
+  {
+   "n": "Chola MS",
+   "f": "chola-ms.png",
+   "w": 405,
+   "h": 140
+  },
+  {
+   "n": "ICICI Prudential Life",
+   "f": "icici-prudential-life.png",
+   "w": 436,
+   "h": 140
+  },
+  {
+   "n": "HDFC Life",
+   "f": "hdfc-life.png",
+   "w": 326,
+   "h": 140
+  },
+  {
+   "n": "TATA AIA",
+   "f": "tata-aia.png",
+   "w": 383,
+   "h": 140
+  },
+  {
+   "n": "SBI Life",
+   "f": "sbi-life.png",
+   "w": 391,
+   "h": 140
+  },
+  {
+   "n": "Magma HDI",
+   "f": "magma-hdi.png",
+   "w": 436,
+   "h": 140
+  }
+ ],
+ "amcs": [
+  {
+   "n": "Aditya Birla Capital Mutual Fund",
+   "f": "aditya-birla-capital-mutual-fund.png",
+   "w": 137,
+   "h": 140
+  },
+  {
+   "n": "Axis Mutual Fund",
+   "f": "axis-mutual-fund.png",
+   "w": 440,
+   "h": 140
+  },
+  {
+   "n": "Baroda Pioneer Mutual Fund",
+   "f": "baroda-pioneer-mutual-fund.png",
+   "w": 232,
+   "h": 140
+  },
+  {
+   "n": "BNP Paribas Mutual Fund",
+   "f": "bnp-paribas-mutual-fund.png",
+   "w": 236,
+   "h": 140
+  },
+  {
+   "n": "BOI AXA Investment Managers",
+   "f": "boi-axa-investment-managers.png",
+   "w": 223,
+   "h": 140
+  },
+  {
+   "n": "Canara Robeco Mutual Fund",
+   "f": "canara-robeco-mutual-fund.png",
+   "w": 439,
+   "h": 140
+  },
+  {
+   "n": "DHFL Pramerica Mutual Fund",
+   "f": "dhfl-pramerica-mutual-fund.png",
+   "w": 424,
+   "h": 140
+  },
+  {
+   "n": "DSP BlackRock Mutual Fund",
+   "f": "dsp-blackrock-mutual-fund.png",
+   "w": 440,
+   "h": 140
+  },
+  {
+   "n": "Nippon India Mutual Fund",
+   "f": "nippon-india-mutual-fund.png",
+   "w": 294,
+   "h": 140
+  },
+  {
+   "n": "Essel Mutual Fund",
+   "f": "essel-mutual-fund.png",
+   "w": 391,
+   "h": 140
+  },
+  {
+   "n": "Franklin Templeton Investments",
+   "f": "franklin-templeton-investments.png",
+   "w": 268,
+   "h": 140
+  },
+  {
+   "n": "HDFC Mutual Fund",
+   "f": "hdfc-mutual-fund.png",
+   "w": 307,
+   "h": 140
+  },
+  {
+   "n": "HSBC Global Asset Management",
+   "f": "hsbc-global-asset-management.png",
+   "w": 357,
+   "h": 140
+  },
+  {
+   "n": "ICICI Prudential Mutual Fund",
+   "f": "icici-prudential-mutual-fund.png",
+   "w": 271,
+   "h": 140
+  },
+  {
+   "n": "IDBI Mutual",
+   "f": "idbi-mutual.png",
+   "w": 440,
+   "h": 140
+  },
+  {
+   "n": "IDFC Mutual Fund",
+   "f": "idfc-mutual-fund.png",
+   "w": 308,
+   "h": 140
+  },
+  {
+   "n": "Bandhan Bank",
+   "f": "bandhan-bank.png",
+   "w": 440,
+   "h": 140
+  },
+  {
+   "n": "UTI International",
+   "f": "uti-international.png",
+   "w": 286,
+   "h": 140
+  },
+  {
+   "n": "SAMCO Mutual Fund",
+   "f": "samco-mutual-fund.png",
+   "w": 209,
+   "h": 140
+  },
+  {
+   "n": "The Investment Trust of India",
+   "f": "the-investment-trust-of-india.png",
+   "w": 440,
+   "h": 140
+  },
+  {
+   "n": "Invesco Mutual Fund",
+   "f": "invesco-mutual-fund.png",
+   "w": 161,
+   "h": 140
+  },
+  {
+   "n": "JM Financial",
+   "f": "jm-financial.png",
+   "w": 263,
+   "h": 140
+  },
+  {
+   "n": "Kotak Asset Management",
+   "f": "kotak-asset-management.png",
+   "w": 408,
+   "h": 140
+  },
+  {
+   "n": "L&T Mutual Fund",
+   "f": "l-t-mutual-fund.png",
+   "w": 399,
+   "h": 140
+  },
+  {
+   "n": "LIC Mutual Fund",
+   "f": "lic-mutual-fund.png",
+   "w": 268,
+   "h": 140
+  },
+  {
+   "n": "Mahindra Mutual Fund",
+   "f": "mahindra-mutual-fund.png",
+   "w": 305,
+   "h": 140
+  },
+  {
+   "n": "Mirae Asset",
+   "f": "mirae-asset.png",
+   "w": 268,
+   "h": 140
+  },
+  {
+   "n": "Motilal Oswal",
+   "f": "motilal-oswal.png",
+   "w": 404,
+   "h": 140
+  },
+  {
+   "n": "PPFAS Mutual Fund",
+   "f": "ppfas-mutual-fund.png",
+   "w": 321,
+   "h": 140
+  },
+  {
+   "n": "Principal Mutual Funds",
+   "f": "principal-mutual-funds.png",
+   "w": 217,
+   "h": 140
+  },
+  {
+   "n": "quant Mutual Fund",
+   "f": "quant-mutual-fund.png",
+   "w": 255,
+   "h": 140
+  },
+  {
+   "n": "Quantum Mutual Fund",
+   "f": "quantum-mutual-fund.png",
+   "w": 161,
+   "h": 140
+  },
+  {
+   "n": "Reliance Mutual Fund",
+   "f": "reliance-mutual-fund.png",
+   "w": 268,
+   "h": 140
+  },
+  {
+   "n": "Sahara Mutual Fund",
+   "f": "sahara-mutual-fund.png",
+   "w": 280,
+   "h": 140
+  },
+  {
+   "n": "SBI Mutual Fund",
+   "f": "sbi-mutual-fund.png",
+   "w": 268,
+   "h": 140
+  },
+  {
+   "n": "Shriram Mutual Fund",
+   "f": "shriram-mutual-fund.png",
+   "w": 332,
+   "h": 140
+  },
+  {
+   "n": "Sundaram Mutual",
+   "f": "sundaram-mutual.png",
+   "w": 225,
+   "h": 140
+  },
+  {
+   "n": "TATA Mutual Fund",
+   "f": "tata-mutual-fund.png",
+   "w": 230,
+   "h": 140
+  },
+  {
+   "n": "Taurus Mutual Fund",
+   "f": "taurus-mutual-fund.png",
+   "w": 209,
+   "h": 140
+  },
+  {
+   "n": "Union Asset Management",
+   "f": "union-asset-management.png",
+   "w": 232,
+   "h": 140
+  }
+ ]
+}

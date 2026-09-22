@@ -283,9 +283,176 @@ const FORMS = [
   },
 ];
 
-const NETWORK = ["Motilal Oswal", "Prudent Advisories", "Leading AMCs", "Insurers", "Banks & NBFCs"];
+/* partner logos, cropped from the two logo collages in the client content doc */
+const PARTNER_INSURERS = [
+  { n: "Landmark Group", f: "landmark-group.png", w: 247, h: 140 },
+  { n: "ICICI Lombard", f: "icici-lombard.png", w: 436, h: 140 },
+  { n: "HDFC ERGO", f: "hdfc-ergo.png", w: 188, h: 140 },
+  { n: "IndusInd General Insurance", f: "indusind-general-insurance.png", w: 385, h: 140 },
+  { n: "Digit", f: "digit.png", w: 263, h: 140 },
+  { n: "Generali Central", f: "generali-central.png", w: 235, h: 140 },
+  { n: "United India", f: "united-india.png", w: 182, h: 140 },
+  { n: "National Insurance", f: "national-insurance.png", w: 304, h: 140 },
+  { n: "TATA AIG", f: "tata-aig.png", w: 161, h: 140 },
+  { n: "Bajaj Allianz", f: "bajaj-allianz.png", w: 436, h: 140 },
+  { n: "Aditya Birla Capital Health", f: "aditya-birla-capital-health.png", w: 148, h: 140 },
+  { n: "Zurich Kotak", f: "zurich-kotak.png", w: 436, h: 140 },
+  { n: "Oriental Insurance", f: "oriental-insurance.png", w: 409, h: 140 },
+  { n: "SBI General", f: "sbi-general.png", w: 373, h: 140 },
+  { n: "Royal Sundaram", f: "royal-sundaram.png", w: 414, h: 140 },
+  { n: "New India Assurance", f: "new-india-assurance.png", w: 148, h: 140 },
+  { n: "Care Health Insurance", f: "care-health-insurance.png", w: 271, h: 140 },
+  { n: "Niva Bupa", f: "niva-bupa.png", w: 241, h: 140 },
+  { n: "Manipal Cigna", f: "manipal-cigna.png", w: 415, h: 140 },
+  { n: "Star Health", f: "star-health.png", w: 286, h: 140 },
+  { n: "Liberty General Insurance", f: "liberty-general-insurance.png", w: 214, h: 140 },
+  { n: "IFFCO-Tokio", f: "iffco-tokio.png", w: 294, h: 140 },
+  { n: "Bajaj Life", f: "bajaj-life.png", w: 237, h: 140 },
+  { n: "LIC", f: "lic.png", w: 340, h: 140 },
+  { n: "Axis Max Life", f: "axis-max-life.png", w: 386, h: 140 },
+  { n: "Aditya Birla Capital Life", f: "aditya-birla-capital-life.png", w: 329, h: 140 },
+  { n: "Kotak Life", f: "kotak-life.png", w: 363, h: 140 },
+  { n: "Chola MS", f: "chola-ms.png", w: 405, h: 140 },
+  { n: "ICICI Prudential Life", f: "icici-prudential-life.png", w: 436, h: 140 },
+  { n: "HDFC Life", f: "hdfc-life.png", w: 326, h: 140 },
+  { n: "TATA AIA", f: "tata-aia.png", w: 383, h: 140 },
+  { n: "SBI Life", f: "sbi-life.png", w: 391, h: 140 },
+  { n: "Magma HDI", f: "magma-hdi.png", w: 436, h: 140 },
+];
+
+const PARTNER_AMCS = [
+  { n: "Aditya Birla Capital Mutual Fund", f: "aditya-birla-capital-mutual-fund.png", w: 137, h: 140 },
+  { n: "Axis Mutual Fund", f: "axis-mutual-fund.png", w: 440, h: 140 },
+  { n: "Baroda Pioneer Mutual Fund", f: "baroda-pioneer-mutual-fund.png", w: 232, h: 140 },
+  { n: "BNP Paribas Mutual Fund", f: "bnp-paribas-mutual-fund.png", w: 236, h: 140 },
+  { n: "BOI AXA Investment Managers", f: "boi-axa-investment-managers.png", w: 223, h: 140 },
+  { n: "Canara Robeco Mutual Fund", f: "canara-robeco-mutual-fund.png", w: 439, h: 140 },
+  { n: "DHFL Pramerica Mutual Fund", f: "dhfl-pramerica-mutual-fund.png", w: 424, h: 140 },
+  { n: "DSP BlackRock Mutual Fund", f: "dsp-blackrock-mutual-fund.png", w: 440, h: 140 },
+  { n: "Nippon India Mutual Fund", f: "nippon-india-mutual-fund.png", w: 294, h: 140 },
+  { n: "Essel Mutual Fund", f: "essel-mutual-fund.png", w: 391, h: 140 },
+  { n: "Franklin Templeton Investments", f: "franklin-templeton-investments.png", w: 268, h: 140 },
+  { n: "HDFC Mutual Fund", f: "hdfc-mutual-fund.png", w: 307, h: 140 },
+  { n: "HSBC Global Asset Management", f: "hsbc-global-asset-management.png", w: 357, h: 140 },
+  { n: "ICICI Prudential Mutual Fund", f: "icici-prudential-mutual-fund.png", w: 271, h: 140 },
+  { n: "IDBI Mutual", f: "idbi-mutual.png", w: 440, h: 140 },
+  { n: "IDFC Mutual Fund", f: "idfc-mutual-fund.png", w: 308, h: 140 },
+  { n: "Bandhan Bank", f: "bandhan-bank.png", w: 440, h: 140 },
+  { n: "UTI International", f: "uti-international.png", w: 286, h: 140 },
+  { n: "SAMCO Mutual Fund", f: "samco-mutual-fund.png", w: 209, h: 140 },
+  { n: "The Investment Trust of India", f: "the-investment-trust-of-india.png", w: 440, h: 140 },
+  { n: "Invesco Mutual Fund", f: "invesco-mutual-fund.png", w: 161, h: 140 },
+  { n: "JM Financial", f: "jm-financial.png", w: 263, h: 140 },
+  { n: "Kotak Asset Management", f: "kotak-asset-management.png", w: 408, h: 140 },
+  { n: "L&T Mutual Fund", f: "l-t-mutual-fund.png", w: 399, h: 140 },
+  { n: "LIC Mutual Fund", f: "lic-mutual-fund.png", w: 268, h: 140 },
+  { n: "Mahindra Mutual Fund", f: "mahindra-mutual-fund.png", w: 305, h: 140 },
+  { n: "Mirae Asset", f: "mirae-asset.png", w: 268, h: 140 },
+  { n: "Motilal Oswal", f: "motilal-oswal.png", w: 404, h: 140 },
+  { n: "PPFAS Mutual Fund", f: "ppfas-mutual-fund.png", w: 321, h: 140 },
+  { n: "Principal Mutual Funds", f: "principal-mutual-funds.png", w: 217, h: 140 },
+  { n: "quant Mutual Fund", f: "quant-mutual-fund.png", w: 255, h: 140 },
+  { n: "Quantum Mutual Fund", f: "quantum-mutual-fund.png", w: 161, h: 140 },
+  { n: "Reliance Mutual Fund", f: "reliance-mutual-fund.png", w: 268, h: 140 },
+  { n: "Sahara Mutual Fund", f: "sahara-mutual-fund.png", w: 280, h: 140 },
+  { n: "SBI Mutual Fund", f: "sbi-mutual-fund.png", w: 268, h: 140 },
+  { n: "Shriram Mutual Fund", f: "shriram-mutual-fund.png", w: 332, h: 140 },
+  { n: "Sundaram Mutual", f: "sundaram-mutual.png", w: 225, h: 140 },
+  { n: "TATA Mutual Fund", f: "tata-mutual-fund.png", w: 230, h: 140 },
+  { n: "Taurus Mutual Fund", f: "taurus-mutual-fund.png", w: 209, h: 140 },
+  { n: "Union Asset Management", f: "union-asset-management.png", w: 232, h: 140 },
+];
 
 const INTERESTS = ["Wealth Creation", "Insurance", "Loans & Financing", "Retirement Planning", "Child Education Planning", "Other"];
+
+/* which way the page is being scrolled: 1 = down, -1 = up (sticks at the last
+   direction once scrolling stops). The page scrolls the body, not the document,
+   so read whichever offset actually moves. */
+function useScrollDirection() {
+  const [dir, setDir] = React.useState(1);
+  React.useEffect(() => {
+    const pos = () => Math.max(window.scrollY || 0, document.body.scrollTop || 0, document.documentElement.scrollTop || 0);
+    let last = pos();
+    const onScroll = () => {
+      const p = pos();
+      const d = p - last;
+      if (Math.abs(d) < 2) return;          // ignore scroll noise
+      last = p;
+      const next = d > 0 ? 1 : -1;
+      setDir((cur) => (cur === next ? cur : next));   // only re-render on a real flip
+    };
+    window.addEventListener("scroll", onScroll, { passive: true, capture: true });
+    return () => window.removeEventListener("scroll", onScroll, { capture: true });
+  }, []);
+  return dir;
+}
+
+/* One continuously scrolling row of partner logos.
+   The list is duplicated and the offset wraps at exactly half the track width,
+   so the loop is seamless. Driving the transform per frame (instead of a CSS
+   animation) keeps it smooth and lets the direction flip mid-run without a jump.
+   `base` is the row's resting direction; it multiplies by the page scroll
+   direction, so scrolling up reverses the row and scrolling down restores it. */
+function LogoRow({ items, speed = 84, base = -1, scrollDir = 1 }) {
+  const trackRef = React.useRef(null);
+  const offset = React.useRef(0);
+  const dirRef = React.useRef(base * scrollDir);
+  const hoverRef = React.useRef(false);
+  dirRef.current = base * scrollDir;
+
+  React.useEffect(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    if (typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let raf, prev = null;
+    const step = (t) => {
+      if (prev === null) prev = t;
+      const dt = Math.min(64, t - prev) / 1000;   // clamp so a background tab doesn't jump
+      prev = t;
+      // subpixel-precise: scrollWidth is rounded to an integer, and being even a
+      // fraction of a pixel off makes the seam visibly hitch on every loop
+      const half = el.getBoundingClientRect().width / 2;
+      if (half > 0 && !hoverRef.current) {
+        let o = offset.current + dirRef.current * speed * dt;
+        o %= half;
+        if (o < 0) o += half;
+        offset.current = o;
+        el.style.transform = "translate3d(" + -o.toFixed(2) + "px,0,0)";
+      }
+      raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [speed]);
+
+  const loop = [...items, ...items];
+  return (
+    <div
+      className="sp-logo-row"
+      onMouseEnter={() => { hoverRef.current = true; }}
+      onMouseLeave={() => { hoverRef.current = false; }}
+    >
+      <div className="sp-logo-track" ref={trackRef}>
+        {loop.map((it, i) => (
+          <div key={i} className="sp-logo-card" title={it.n}>
+            <img src={"/partners/" + it.f} alt={it.n} width={it.w} height={it.h} draggable="false" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* partner wall: insurers scroll one way, AMCs the other */
+function LogoMarquee() {
+  const dir = useScrollDirection();
+  return (
+    <div className="sp-logo-wall">
+      <LogoRow items={PARTNER_INSURERS} speed={82} base={-1} scrollDir={dir} />
+      <LogoRow items={PARTNER_AMCS} speed={94} base={1} scrollDir={dir} />
+    </div>
+  );
+}
 
 /* star rating row (filled = rating, out of 5) */
 function Stars({ n = 5 }) {
@@ -1409,12 +1576,8 @@ function Home({ go, openMember, setOpenMember, CtaBanner }) {
           <p style={{ fontSize: 13, fontWeight: 500, color: TEAL, marginBottom: 14 }}>Our network of financial institutions</p>
           <h2 style={{ fontSize: "clamp(22px,2.6vw,32px)", fontWeight: 800, color: NAVY, letterSpacing: "-0.6px", maxWidth: 640, margin: "0 auto 16px", lineHeight: 1.2 }}>The right advice is strengthened by the right financial ecosystem.</h2>
           <p style={{ fontSize: 15, color: "#6B7280", maxWidth: 620, margin: "0 auto 40px", lineHeight: 1.7 }}>We work with established institutions across investments, insurance and capital markets, giving clients access to a broad range of products while ensuring every recommendation stays aligned with your goals.</p>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 12, justifyContent: "center" }}>
-            {NETWORK.map((n, i) => (
-              <div key={i} style={{ background: "#fff", border: "1px solid #F0F2F5", borderRadius: 12, padding: "16px 28px", fontSize: 15, fontWeight: 700, color: "#374151", boxShadow: "0 2px 12px rgba(15,23,41,0.04)" }}>{n}</div>
-            ))}
-          </div>
         </div>
+        <LogoMarquee />
       </section>
 
       {/* LEADERSHIP */}
