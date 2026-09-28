@@ -52,6 +52,11 @@ grays `#6B7280 / #374151 / #9CA3AF`. Font: **Poppins** (headings + body).
   scroll-reveal (`Reveal`), count-up stats, the **scroll-driven "Our approach" timeline**
   and the **stacking "What we believe" cards**, the leadership cascade accordion, the
   3-stage **Protect→Build→Grow pyramid** (top tier is a real triangle apex).
+- **Hero is centred text only** (the hero chart was removed at the client's request, Sept 2026).
+  Section labels ("Our numbers", "Our story"...) use the larger `.sp-kicker` style.
+- **Photos:** solution rows alternate image/text (N26 "/spaces" style, `Photo` component, 24px radius).
+  Files go in `public/images/solutions/` named per `design-source/image-prompts.md`; a missing file
+  falls back to the dark icon panel.
 - **Calculators:** donut chart (invested vs returns), editable amount inputs, sliders;
   amount fields are **uncapped** (type any value); SIP/Lumpsum share one page with a toggle.
 - **Spacing:** keep clear space between sections (96px spacers around the two big scroll

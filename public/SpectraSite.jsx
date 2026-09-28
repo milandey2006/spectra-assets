@@ -12,6 +12,21 @@ const TEAL = "#009B8D";
 const NAVY = "#0F1729";
 const GOLD = "#C9A84C";
 const LOGO = "/assets/logo.png";
+const MARK = "/assets/mark.png";
+
+/* logo lockup: monogram mark + wordmark ("SPECTRA / ASSETS"). Sizes scale with `size`. */
+function Brand({ size = 34, color = NAVY, subColor, gap = 10 }) {
+  const sub = subColor || (color === NAVY ? TEAL : "rgba(255,255,255,0.6)");
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap }}>
+      <img src={MARK} alt="" style={{ height: size, width: "auto", display: "block" }} />
+      <span style={{ display: "inline-flex", flexDirection: "column", lineHeight: 1, letterSpacing: "0.14em" }}>
+        <span style={{ fontSize: Math.round(size * 0.42), fontWeight: 800, color }}>SPECTRA</span>
+        <span style={{ fontSize: Math.round(size * 0.30), fontWeight: 600, color: sub, marginTop: Math.round(size * 0.06) }}>ASSETS</span>
+      </span>
+    </span>
+  );
+}
 
 /* parse a CSS string into a React style object (mirrors dc-runtime cssToObj) */
 function cssObj(css) {
@@ -28,6 +43,46 @@ function cssObj(css) {
   return o;
 }
 
+/* When the hover style uses a CSS shorthand (e.g. `border`), React can't tell
+   that the base longhand values (borderColor, borderTopColor, etc.) should be
+   cleared first; the two conflict and the browser ends up showing whichever
+   won last, which is often "the base longhand still wins on that side". Strip
+   the affected base longhand keys whenever the hover uses a matching shorthand. */
+const SHORTHAND_KEYS = {
+  border: ["borderColor", "borderStyle", "borderWidth", "borderTop", "borderRight", "borderBottom", "borderLeft", "borderTopColor", "borderRightColor", "borderBottomColor", "borderLeftColor", "borderTopStyle", "borderRightStyle", "borderBottomStyle", "borderLeftStyle", "borderTopWidth", "borderRightWidth", "borderBottomWidth", "borderLeftWidth"],
+  background: ["backgroundColor", "backgroundImage", "backgroundPosition", "backgroundSize", "backgroundRepeat", "backgroundOrigin", "backgroundClip", "backgroundAttachment"],
+  padding: ["paddingTop", "paddingRight", "paddingBottom", "paddingLeft"],
+  margin: ["marginTop", "marginRight", "marginBottom", "marginLeft"],
+  font: ["fontStyle", "fontVariant", "fontWeight", "fontSize", "lineHeight", "fontFamily"],
+};
+/* Expand `border: 1px solid #xxx` into width/style/color longhands. When a hover
+   sets only `borderColor`, React clears it on mouse-leave (sets it to ""), and with
+   the shorthand the browser falls back to currentColor (navy text), leaving a black
+   border on every card that was ever hovered. With explicit longhands in the base,
+   leaving hover restores the real base colour. */
+function expandBorder(o) {
+  if (!o || typeof o.border !== "string") return o;
+  const v = o.border.trim();
+  const out = { ...o };
+  delete out.border;
+  if (v === "none" || v === "0") { out.borderStyle = "none"; return out; }
+  const m = v.match(/^(\S+)\s+(\S+)\s+(.+)$/);
+  if (!m) return o;
+  out.borderWidth = m[1]; out.borderStyle = m[2]; out.borderColor = m[3];
+  return out;
+}
+
+function mergeHover(base, hover) {
+  base = expandBorder(base);
+  hover = expandBorder(hover);
+  if (!hover) return base;
+  const out = { ...base };
+  for (const k of Object.keys(hover)) {
+    if (SHORTHAND_KEYS[k]) for (const lh of SHORTHAND_KEYS[k]) delete out[lh];
+  }
+  return { ...out, ...hover };
+}
+
 /* styled element with optional hover style string. `as` picks the tag. */
 function S({ as = "div", css = "", hover = "", style, children, onMouseEnter, onMouseLeave, ...rest }) {
   const [h, setH] = React.useState(false);
@@ -39,7 +94,7 @@ function S({ as = "div", css = "", hover = "", style, children, onMouseEnter, on
       {...rest}
       onMouseEnter={(e) => { setH(true); onMouseEnter && onMouseEnter(e); }}
       onMouseLeave={(e) => { setH(false); onMouseLeave && onMouseLeave(e); }}
-      style={{ ...base, ...(ho || {}), ...(style || {}) }}
+      style={{ ...mergeHover(base, ho), ...(style || {}) }}
     >
       {children}
     </Tag>
@@ -63,6 +118,18 @@ const PRINCIPLES = [
   { t: "Simplicity builds confidence.", d: "Finance shouldn't be confusing. Our responsibility is to make complex decisions easier to understand." },
   { t: "Relationships matter more than transactions.", d: "Our success is measured by long-term client relationships, not the number of products we recommend." },
   { t: "Advice should evolve.", d: "As your life changes, your financial strategy should too." },
+];
+
+/* file-name slug per principle — images live in public/images/principles/{key}.jpg */
+const PRINCIPLE_KEYS = ["listen", "connected", "simplicity", "relationships", "evolve"];
+
+/* N26-style floating pill shown over each principle image (index-matched) */
+const PRINCIPLE_WIDGETS = [
+  { label: "We listen first", sub: "No sales pitch" },
+  { label: "All under one roof", sub: "5 services, 1 plan" },
+  { label: "Plain language", sub: "No jargon, ever" },
+  { label: "300+ families", sub: "Long-term partners" },
+  { label: "Reviewed yearly", sub: "Adapts with you" },
 ];
 
 /* icon per principle (index-matched to PRINCIPLES) */
@@ -793,6 +860,73 @@ const SOL_ICON = {
   "IPOs": <><path d="M12 2c3 2 5 5 5 9a5 5 0 0 1-10 0c0-4 2-7 5-9z"></path><path d="M9 20c0 1 1.5 2 3 2s3-1 3-2"></path><circle cx="12" cy="10" r="1.5"></circle></>,
 };
 
+/* fires once when the element scrolls into view */
+function useInView(threshold = 0.25) {
+  const ref = React.useRef(null);
+  const [seen, setSeen] = React.useState(false);
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === "undefined") { setSeen(true); return; }
+    const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { setSeen(true); io.disconnect(); } }), { threshold });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [threshold]);
+  return [ref, seen];
+}
+
+/* photo slot (N26 /spaces style: 24px radius, no shadow). Images live in
+   public/images/solutions/ (see design-source/image-prompts.md). If the file is
+   missing it falls back to `fallback`, so the page never shows a broken image. */
+function Photo({ src, alt, fallback, ratio = "4 / 3" }) {
+  const ref = React.useRef(null);
+  const [ok, setOk] = React.useState(true);
+  React.useEffect(() => {
+    // the error event can fire before hydration, so also check the loaded state
+    const img = ref.current;
+    if (img && img.complete && img.naturalWidth === 0) setOk(false);
+  }, [src]);
+  if (!ok) return fallback || null;
+  return (
+    <div className="sp-photo" style={{ aspectRatio: ratio }}>
+      <img ref={ref} src={src} alt={alt} loading="lazy" onError={() => setOk(false)} />
+    </div>
+  );
+}
+const solImg = (name) => "/images/solutions/" + name + ".jpg";
+
+/* light photo placeholder shown until the real image is added */
+function PhotoPlaceholder({ icon }) {
+  return (
+    <div className="sp-photo sp-photo-ph" style={{ aspectRatio: "7 / 5" }}>
+      <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke={TEAL} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.35 }}>{icon}</svg>
+    </div>
+  );
+}
+
+/* one solution row: photo + text column, sides alternate row by row */
+function SolRow({ catKey, it, num, go }) {
+  const imageLeft = num % 2 === 1;
+  const icon = SOL_ICON[it.name] || CAT_ICON[catKey];
+  const Visual = (
+    <div key="v" className="sp-photo-cell">
+      <Photo src={solImg(anchorId(catKey, it.name))} alt={it.name} ratio="7 / 5" fallback={<PhotoPlaceholder icon={icon} />} />
+    </div>
+  );
+  const Text = (
+    <div key="t" className="sp-sol-text">
+      <div style={{ fontSize: 13, fontWeight: 600, color: TEAL, letterSpacing: "0.4px", marginBottom: 14 }}>{it.name}</div>
+      {it.head && <h3 style={{ fontSize: "clamp(28px,3vw,40px)", fontWeight: 500, color: "#1b1b1b", letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 20 }}>{it.head}</h3>}
+      <p style={{ fontSize: 17, color: "#1b1b1b", lineHeight: 1.75, letterSpacing: "0.01em", marginBottom: 24, opacity: 0.85 }}>{it.body}</p>
+      <button className="sp-sol-link" onClick={() => go("contact")}>Talk to an advisor <span aria-hidden="true">→</span></button>
+    </div>
+  );
+  return (
+    <div className="sp-sol-row" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 120, alignItems: "center" }}>
+      {imageLeft ? [Visual, Text] : [Text, Visual]}
+    </div>
+  );
+}
+
 /* decorative gradient visual panel for a product row */
 function CatVisual({ catKey, num, icon }) {
   return (
@@ -810,85 +944,6 @@ function CatVisual({ catKey, num, icon }) {
         <div className="ff-serif" style={{ fontSize: 64, fontWeight: 800, color: "rgba(255,255,255,0.10)", lineHeight: 1, letterSpacing: "-2px" }}>{String(num).padStart(2, "0")}</div>
       </div>
     </div>
-  );
-}
-
-/* minimal line-art illustrations for the feature section */
-function ArtFrame({ children }) {
-  return <div style={{ width: "100%", maxWidth: 340, aspectRatio: "3 / 2", display: "flex", alignItems: "center", justifyContent: "center" }}><svg viewBox="0 0 300 200" style={{ width: "100%", height: "auto" }}>{children}</svg></div>;
-}
-const PlainLangArt = () => (
-  <ArtFrame>
-    <path d="M40 80 q12 -14 24 0 t24 0 t24 0" fill="none" stroke="#C9A84C" strokeWidth="2.5" strokeLinecap="round"></path>
-    <path d="M40 100 q12 -14 24 0 t24 0 t24 0" fill="none" stroke="#C9A84C" strokeWidth="2.5" strokeLinecap="round" opacity="0.7"></path>
-    <path d="M40 120 q12 -14 24 0 t24 0 t24 0" fill="none" stroke="#C9A84C" strokeWidth="2.5" strokeLinecap="round" opacity="0.45"></path>
-    <path d="M138 100 h34" stroke="#009B8D" strokeWidth="2.5" strokeLinecap="round"></path>
-    <path d="M166 92 l10 8 -10 8" fill="none" stroke="#009B8D" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"></path>
-    <line x1="196" y1="84" x2="262" y2="84" stroke="#0F1729" strokeWidth="2.5" strokeLinecap="round"></line>
-    <line x1="196" y1="100" x2="248" y2="100" stroke="#0F1729" strokeWidth="2.5" strokeLinecap="round" opacity="0.55"></line>
-    <line x1="196" y1="116" x2="258" y2="116" stroke="#0F1729" strokeWidth="2.5" strokeLinecap="round" opacity="0.35"></line>
-  </ArtFrame>
-);
-const HubArt = () => (
-  <ArtFrame>
-    {[[80, 50], [220, 50], [70, 150], [230, 150], [150, 30]].map(([x, y], i) => (
-      <g key={i}><line x1="150" y1="100" x2={x} y2={y} stroke="#E4D9BC" strokeWidth="2"></line><circle cx={x} cy={y} r="12" fill="#fff" stroke="#009B8D" strokeWidth="2"></circle></g>
-    ))}
-    <circle cx="150" cy="100" r="26" fill="#009B8D"></circle>
-    <circle cx="150" cy="100" r="26" fill="none" stroke="#009B8D" strokeWidth="6" opacity="0.2"></circle>
-    <path d="M150 92 v16 M142 100 h16" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"></path>
-  </ArtFrame>
-);
-const PathArt = () => (
-  <ArtFrame>
-    <path d="M30 150 C90 150 90 60 150 60 C210 60 210 140 270 140" fill="none" stroke="#E4D9BC" strokeWidth="2.5" strokeDasharray="5 6"></path>
-    {[[30, 150], [150, 60], [270, 140]].map(([x, y], i) => (<circle key={i} cx={x} cy={y} r="7" fill="#009B8D"></circle>))}
-    <circle cx="270" cy="140" r="18" fill="none" stroke="#009B8D" strokeWidth="2.5"></circle>
-    <path d="M262 140 l6 6 10 -12" fill="none" stroke="#009B8D" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"></path>
-  </ArtFrame>
-);
-const EvolveArt = () => (
-  <ArtFrame>
-    <path d="M150 55 a45 45 0 1 1 -42 29" fill="none" stroke="#009B8D" strokeWidth="2.5" strokeLinecap="round"></path>
-    <path d="M150 40 l4 15 -16 2 z" fill="#009B8D"></path>
-    <path d="M150 145 a45 45 0 0 1 -18 -12" fill="none" stroke="#C9A84C" strokeWidth="2.5" strokeLinecap="round" opacity="0.7"></path>
-    <circle cx="150" cy="100" r="6" fill="#0F1729"></circle>
-    <circle cx="150" cy="100" r="20" fill="none" stroke="#0F1729" strokeWidth="1.5" opacity="0.15"></circle>
-  </ArtFrame>
-);
-
-function FeatureRows() {
-  const feats = [
-    { t: "We speak plain language, not jargon", d: "Every recommendation is explained in words you'd actually use, never product codes or fine print. You'll always understand exactly what you own and why.", art: <PlainLangArt /> },
-    { t: "One relationship for every decision", d: "Investments, insurance, loans and planning under a single trusted point of contact. No switching between firms, no repeating your story.", art: <HubArt /> },
-    { t: "We stay with you, not just at the start", d: "From your first investment to a claim to a plan review, we're by your side through every milestone: reviewing, adapting and supporting.", art: <PathArt /> },
-    { t: "Advice that evolves with your life", d: "As your goals change, your strategy changes with them. We revisit your plan regularly so it always fits where you are now.", art: <EvolveArt /> },
-  ];
-  return (
-    <section style={{ background: "#F7F5F0", padding: "88px 32px", borderTop: "1px solid #EFEBE0" }}>
-      <div style={{ maxWidth: 1000, margin: "0 auto" }}>
-        <Reveal><h2 style={{ textAlign: "center", fontSize: "clamp(30px,4vw,48px)", fontWeight: 600, color: NAVY, letterSpacing: "-0.5px", marginBottom: 64 }}>What working with Spectra feels like</h2></Reveal>
-        <div style={{ display: "flex", flexDirection: "column", gap: 64 }}>
-          {feats.map((f, i) => {
-            const artFirst = i % 2 === 0;
-            const Text = (
-              <div key="t">
-                <h3 className="ff-serif" style={{ fontSize: "clamp(22px,2.6vw,30px)", fontWeight: 600, color: NAVY, marginBottom: 14, letterSpacing: "-0.3px", lineHeight: 1.2 }}>{f.t}</h3>
-                <p style={{ fontSize: 16, color: "#5B6472", lineHeight: 1.8, maxWidth: 440 }}>{f.d}</p>
-              </div>
-            );
-            const Art = <div key="a" className="sp-visual" style={{ display: "flex", justifyContent: "center" }}>{f.art}</div>;
-            return (
-              <Reveal key={i}>
-                <div className="sp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 56, alignItems: "center" }}>
-                  {artFirst ? [Art, Text] : [Text, Art]}
-                </div>
-              </Reveal>
-            );
-          })}
-        </div>
-      </div>
-    </section>
   );
 }
 
@@ -911,7 +966,6 @@ export default function SpectraSite() {
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [solHover, setSolHover] = React.useState(null);
   const [mobSol, setMobSol] = React.useState(null); // expanded category in mobile menu
-  const fillRef = React.useRef(null);
   const pendingAnchor = React.useRef(null);
 
   const go = (p, t, anchor) => {
@@ -967,21 +1021,6 @@ export default function SpectraSite() {
     const t = setTimeout(() => setLoaderState("gone"), 2750);
     return () => clearTimeout(t);
   }, []);
-
-  /* scroll progress line */
-  React.useEffect(() => {
-    const onScroll = () => {
-      const el = fillRef.current;
-      if (!el) return;
-      const scrolled = window.scrollY;
-      const total = document.body.scrollHeight - window.innerHeight;
-      const pct = total > 0 ? Math.min(100, (scrolled / total) * 100) : 0;
-      el.style.height = pct + "%";
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [page]);
 
   /* parallax glows */
   React.useEffect(() => {
@@ -1123,25 +1162,9 @@ export default function SpectraSite() {
   const navC = (active) => (active ? TEAL : "#374151");
   const navW = (active) => (active ? 600 : 400);
 
-  /* ---------- shared building blocks ---------- */
-  const CtaBanner = ({ head, em, sub, label = "Talk to an Advisor" }) => (
-    <section style={{ padding: "0 32px 88px", maxWidth: 1100, margin: "0 auto" }}>
-      <div style={{ background: TEAL, borderRadius: 20, padding: "56px 60px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 32, flexWrap: "wrap" }}>
-        <div>
-          <h2 style={{ fontSize: "clamp(24px,3vw,36px)", fontWeight: 800, color: "#fff", letterSpacing: "-0.7px", marginBottom: 10, lineHeight: 1.1 }}>{head}{em ? <em style={{ fontStyle: "normal", opacity: 0.85 }}> {em}</em> : null}</h2>
-          <p style={{ fontSize: 16, color: "rgba(255,255,255,0.78)", maxWidth: 380, lineHeight: 1.65 }}>{sub}</p>
-        </div>
-        <div style={{ flexShrink: 0 }}>
-          <CtaPrimary onClick={() => go("contact")} base="#fff" color={TEAL} sweep="linear-gradient(90deg,#0F1729,#132a3a)" glow="rgba(0,0,0,0.28)" fontSize={15} pad="15px 30px">{label} →</CtaPrimary>
-        </div>
-      </div>
-    </section>
-  );
-
   /* ============================ RENDER ============================ */
   return (
     <div style={{ background: "#fff" }}>
-      <CustomCursor />
       {/* PAGE TRANSITION WIPE (two-tone teal + navy sweep on navigation) */}
       {wipeKey > 0 && (
         <div key={wipeKey} aria-hidden="true">
@@ -1156,20 +1179,19 @@ export default function SpectraSite() {
             <div key={i} className="pl-strip" style={{ left: `${i * (100 / 6)}%`, width: "calc(16.6667% + 1px)", animationDelay: `${1.2 + i * 0.09}s` }}></div>
           ))}
           <div className="pl-logo">
-            <img src={LOGO} alt="Spectra Assets" style={{ height: 58, width: "auto", animation: "plLogoIn 0.7s 0.1s cubic-bezier(0.16,1,0.3,1) both" }} />
+            <img src={MARK} alt="Spectra Assets" style={{ height: 74, width: "auto", animation: "plLogoIn 0.7s 0.1s cubic-bezier(0.16,1,0.3,1) both" }} />
             <div style={{ fontSize: "clamp(30px,5vw,52px)", fontWeight: 800, color: "#fff", letterSpacing: "-1px", textAlign: "center", lineHeight: 1.1, animation: "plLogoIn 0.7s 0.25s cubic-bezier(0.16,1,0.3,1) both" }}>Spectra <em style={{ fontStyle: "normal", color: TEAL }}>Assets</em></div>
           </div>
         </div>
       )}
 
       {/* SCROLL PROGRESS LINE */}
-      <div id="scroll-line-track"><div id="scroll-line-fill" ref={fillRef} style={{ height: "0%" }}></div></div>
 
       {/* NAV */}
       <nav data-navbar style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, height: 64, background: "#fff", borderBottom: "1px solid #F0F2F5", display: "flex", alignItems: "center", padding: "0 32px" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto", width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <button onClick={() => go("home")} style={{ background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center" }}>
-            <img src={LOGO} alt="Spectra Assets" style={{ height: 38, width: "auto" }} />
+          <button onClick={() => go("home")} aria-label="Spectra Assets home" style={{ background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center" }}>
+            <Brand size={38} color={NAVY} />
           </button>
           <div className="sp-nav-links" style={{ display: "flex", alignItems: "center", gap: 2, position: "relative" }}>
             <S as="button" onClick={() => go("home")} css={`background:none;border:none;cursor:pointer;font-size:14px;font-weight:${navW(page === "home")};color:${navC(page === "home")};padding:8px 14px;border-radius:8px;transition:color 0.15s;`} hover="color:#009B8D;">Home</S>
@@ -1257,7 +1279,6 @@ export default function SpectraSite() {
                 {mobileOpen ? <><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></> : <><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></>}
               </svg>
             </button>
-            <S as="button" onClick={() => go("contact")} css="background:#009B8D;color:#fff;border:none;cursor:pointer;font-weight:600;font-size:13px;padding:9px 20px;border-radius:8px;letter-spacing:0.1px;transition:opacity 0.15s;" hover="opacity:0.85;">Get in touch</S>
           </div>
         </div>
       </nav>
@@ -1301,10 +1322,10 @@ export default function SpectraSite() {
         </div>
       )}
 
-      {page === "home" && <Home go={go} openMember={openMember} setOpenMember={setOpenMember} CtaBanner={CtaBanner} />}
-      {page === "about" && <About go={go} CtaBanner={CtaBanner} />}
-      {page === "solutions" && <Solutions go={go} tab={tab} setTab={setTab} CtaBanner={CtaBanner} />}
-      {page.startsWith("sol-") && <Category cat={CATS[page.slice(4)]} go={go} faq={faq} toggleFaq={toggleFaq} CtaBanner={CtaBanner} />}
+      {page === "home" && <Home go={go} openMember={openMember} setOpenMember={setOpenMember} />}
+      {page === "about" && <About go={go} />}
+      {page === "solutions" && <Solutions go={go} tab={tab} setTab={setTab} />}
+      {page.startsWith("sol-") && <Category cat={CATS[page.slice(4)]} go={go} faq={faq} toggleFaq={toggleFaq} />}
       {page === "tool-invest" && <ToolInvest mode={investMode} setMode={setInvestMode} sip={sip} setSip={setSip} lump={lump} setLump={setLump} fmt={fmt} inr={inr} sipFV={sipFV} lumpFV={lumpFV} go={go} />}
       {page === "tool-swp" && <ToolSwp swp={swp} setSwp={setSwp} fmt={fmt} inr={inr} swpBal={swpBal} go={go} />}
       {page === "tool-loan" && <ToolLoan loan={loan} setLoan={setLoan} fmt={fmt} inr={inr} loanEmi={loanEmi} go={go} />}
@@ -1371,7 +1392,7 @@ function TestimonialsSlider() {
 }
 
 /* ============================ HOME ============================ */
-function Home({ go, openMember, setOpenMember, CtaBanner }) {
+function Home({ go, openMember, setOpenMember }) {
   const wrap = { maxWidth: 1100, margin: "0 auto" };
   const marketRows = useMarketData();
   return (
@@ -1380,24 +1401,23 @@ function Home({ go, openMember, setOpenMember, CtaBanner }) {
       <section style={{ position: "relative", overflow: "hidden", background: "#fff" }}>
         <Aurora />
         <HeroNumbersBg rows={marketRows} />
-        <div aria-hidden="true" className="sp-hero-veil" style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "linear-gradient(90deg, rgba(255,255,255,0.96) 0%, rgba(255,255,255,0.92) 44%, rgba(255,255,255,0.55) 62%, rgba(255,255,255,0) 78%)" }}></div>
-        <div className="sp-grid-2" style={{ position: "relative", zIndex: 1, padding: "72px 32px", maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "center" }}>
+        <div aria-hidden="true" className="sp-hero-veil" style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "radial-gradient(ellipse 62% 70% at 50% 50%, rgba(255,255,255,0.97) 0%, rgba(255,255,255,0.93) 55%, rgba(255,255,255,0.6) 80%, rgba(255,255,255,0.25) 100%)" }}></div>
+        <div style={{ position: "relative", zIndex: 1, padding: "112px 32px 120px", maxWidth: 860, margin: "0 auto", textAlign: "center" }}>
           <div>
-          <WordReveal as="h1" text="Financial advice that looks at the bigger picture." emFrom={6} baseDelay={200} style={{ fontSize: "clamp(40px,5vw,68px)", fontWeight: 800, color: NAVY, lineHeight: 1.08, marginBottom: 26 }} />
-          <p style={{ fontSize: 17, color: "#6B7280", lineHeight: 1.75, maxWidth: 440, marginBottom: 24, fontWeight: 400 }}>Money rarely comes with just one goal. We help individuals, families and businesses make informed decisions across wealth creation, insurance, lending and financial planning, with the bigger picture always in focus.</p>
-          <p style={{ fontSize: 15, color: "#9CA3AF", lineHeight: 1.7, maxWidth: 440, marginBottom: 36 }}>Because a financial product may solve one need. A well-thought-out strategy can connect them all.</p>
-          <div style={{ display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
+          <WordReveal as="h1" text="Financial advice that looks at the bigger picture." emFrom={6} baseDelay={200} style={{ fontSize: "clamp(40px,5.6vw,72px)", fontWeight: 800, color: NAVY, lineHeight: 1.08, marginBottom: 28 }} />
+          <p style={{ fontSize: 18, color: "#6B7280", lineHeight: 1.75, maxWidth: 620, margin: "0 auto 20px", fontWeight: 400 }}>Money rarely comes with just one goal. We help individuals, families and businesses make informed decisions across wealth creation, insurance, lending and financial planning, with the bigger picture always in focus.</p>
+          <p style={{ fontSize: 15, color: "#9CA3AF", lineHeight: 1.7, maxWidth: 520, margin: "0 auto 40px" }}>Because a financial product may solve one need. A well-thought-out strategy can connect them all.</p>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 20, flexWrap: "wrap" }}>
             <CtaPrimary onClick={() => go("contact")}>Talk to an Advisor</CtaPrimary>
-            <S as="button" onClick={() => go("solutions")} css="background:none;border:none;cursor:pointer;font-size:14px;font-weight:500;color:#6B7280;padding:0;letter-spacing:-0.1px;transition:color 0.15s;" hover="color:#0F1729;">Explore our solutions →</S>
+            <S as="button" onClick={() => go("solutions")} css="background:none;border:none;cursor:pointer;font-size:14px;font-weight:500;color:#6B7280;padding:0;letter-spacing:-0.1px;transition:color 0.15s;" hover="color:#0F1729;">Explore our solutions</S>
           </div>
         </div>
-          <HeroChart />
         </div>
       </section>
 
       {/* OUR NUMBERS (centered) */}
       <section style={{ maxWidth: 1100, margin: "0 auto", padding: "68px 32px", textAlign: "center", borderTop: "1px solid #F0F2F5" }}>
-        <p style={{ fontSize: 13, fontWeight: 500, color: TEAL, marginBottom: 12, letterSpacing: "0.3px" }}>Our numbers</p>
+        <p className="sp-kicker" style={{ color: TEAL, marginBottom: 14 }}>Our numbers</p>
         <h2 style={{ fontSize: "clamp(26px,3.2vw,40px)", fontWeight: 600, color: NAVY, letterSpacing: "-0.5px", marginBottom: 44 }}>Built on relationships. Growing with purpose.</h2>
         <div className="sp-numrow" style={{ display: "flex", justifyContent: "center", alignItems: "center", flexWrap: "wrap", gap: 0 }}>
           {[{ p: "₹", v: 140, s: "Cr+", l: "Assets under management" }, { p: "", v: 350, s: "+", l: "Client families & businesses" }, { p: "", v: 600, s: "+", l: "Portfolios managed" }].map((it, i) => (
@@ -1413,7 +1433,7 @@ function Home({ go, openMember, setOpenMember, CtaBanner }) {
       <section style={{ background: "#F9FAFB", borderTop: "1px solid #F0F2F5", borderBottom: "1px solid #F0F2F5", padding: "80px 32px" }}>
         <div className="sp-grid-2" style={{ ...wrap, display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: 96, alignItems: "center" }}>
           <div>
-            <p style={{ fontSize: 13, fontWeight: 500, color: TEAL, marginBottom: 20 }}>Our story</p>
+            <p className="sp-kicker" style={{ color: TEAL, marginBottom: 20 }}>Our story</p>
             <h2 style={{ fontSize: "clamp(28px,3.5vw,42px)", fontWeight: 800, color: NAVY, letterSpacing: "-1px", lineHeight: 1.1, marginBottom: 28 }}>We didn't start with products. We started with <em style={{ fontStyle: "normal", color: TEAL }}>people.</em></h2>
             <p style={{ fontSize: 16, color: "#6B7280", lineHeight: 1.8, marginBottom: 20 }}>Every individual has a different story. A young professional wants to build wealth. Parents dream of giving their children the best education. Entrepreneurs work tirelessly to grow their businesses.</p>
             <p style={{ fontSize: 16, color: "#6B7280", lineHeight: 1.8 }}>Yet most financial advice is delivered in pieces, investments here, insurance there, loans somewhere else. Spectra Assets was built to bring every financial decision together under one trusted relationship.</p>
@@ -1435,7 +1455,7 @@ function Home({ go, openMember, setOpenMember, CtaBanner }) {
       <section style={{ background: NAVY, padding: "88px 32px", position: "relative", overflow: "hidden" }}>
         <div className="parallax-slow" style={{ position: "absolute", top: -120, right: -80, width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,155,141,0.10) 0%, transparent 70%)", pointerEvents: "none" }}></div>
         <div style={{ ...wrap, position: "relative", zIndex: 1, textAlign: "center" }}>
-          <p style={{ fontSize: 13, fontWeight: 500, color: TEAL, marginBottom: 12 }}>The Spectra ecosystem</p>
+          <p className="sp-kicker" style={{ color: TEAL, marginBottom: 14 }}>The Spectra ecosystem</p>
           <p style={{ fontSize: 16, color: "rgba(255,255,255,0.55)", maxWidth: 520, margin: "0 auto 44px", lineHeight: 1.7 }}>Wealth, protection, lending and planning, connected around you, not sold in silos.</p>
           <Ecosystem go={go} />
         </div>
@@ -1446,7 +1466,7 @@ function Home({ go, openMember, setOpenMember, CtaBanner }) {
         <div style={{ position: "sticky", top: 64, height: "calc(100vh - 64px)", display: "flex", flexDirection: "column", justifyContent: "center", padding: "48px 40px", overflow: "hidden" }}>
           <div style={{ maxWidth: 880, margin: "0 auto", width: "100%" }}>
             <div style={{ marginBottom: 48 }}>
-              <p style={{ fontSize: 13, fontWeight: 500, color: TEAL, marginBottom: 12 }}>Our approach</p>
+              <p className="sp-kicker" style={{ color: TEAL, marginBottom: 14 }}>Our approach</p>
               <h2 style={{ fontSize: "clamp(26px,3.5vw,42px)", fontWeight: 800, color: NAVY, letterSpacing: "-1px", lineHeight: 1.08 }}>It begins with understanding you, <br />then building around it.</h2>
             </div>
             <div style={{ position: "relative" }}>
@@ -1501,35 +1521,57 @@ function Home({ go, openMember, setOpenMember, CtaBanner }) {
       <section id="stack-section" style={{ position: "relative", height: "500vh", background: NAVY }}>
         <div style={{ position: "sticky", top: 64, height: "calc(100vh - 64px)", display: "flex", flexDirection: "column", alignItems: "center", overflow: "hidden", padding: "48px 40px 32px" }}>
           <div style={{ textAlign: "center", marginBottom: 36, flexShrink: 0, width: "100%" }}>
-            <p style={{ fontSize: 13, fontWeight: 500, color: TEAL, letterSpacing: "0.2px", marginBottom: 12 }}>What we believe</p>
+            <p className="sp-kicker" style={{ color: TEAL, marginBottom: 14 }}>What we believe</p>
             <h2 style={{ fontSize: "clamp(30px,4vw,52px)", fontWeight: 800, color: "#fff", letterSpacing: "-1.5px", lineHeight: 1.06 }}>Five principles that guide <em style={{ fontStyle: "normal", color: TEAL }}>every conversation.</em></h2>
           </div>
           <div style={{ position: "relative", width: "100%", maxWidth: 960, flex: 1, minHeight: 0 }}>
             {PRINCIPLES.map((p, i) => {
-              const last = i === PRINCIPLES.length - 1;
               return (
-                <div key={i} id={"stack-card-" + i} style={{ position: "absolute", inset: 0, background: last ? "#0A1929" : "#fff", border: last ? "1px solid rgba(0,155,141,0.25)" : "none", borderRadius: 20, padding: "44px 56px", overflow: "hidden", willChange: "transform, opacity", transform: "translateY(120px)", opacity: 0, boxShadow: "0 24px 64px rgba(0,0,0,0.4)" }}>
+                <div key={i} id={"stack-card-" + i} style={{ position: "absolute", inset: 0, background: "#fff", borderRadius: 20, padding: "44px 56px", overflow: "hidden", willChange: "transform, opacity", transform: "translateY(120px)", opacity: 0, boxShadow: "0 24px 64px rgba(0,0,0,0.4)" }}>
                   {/* giant ghost number watermark */}
-                  <div aria-hidden="true" className="ff-serif" style={{ position: "absolute", right: 36, bottom: -56, fontSize: 280, fontWeight: 800, lineHeight: 1, letterSpacing: "-10px", color: last ? "rgba(255,255,255,0.045)" : "rgba(15,23,41,0.035)", pointerEvents: "none", userSelect: "none" }}>{String(i + 1).padStart(2, "0")}</div>
+                  <div aria-hidden="true" className="ff-serif" style={{ position: "absolute", right: 36, bottom: -56, fontSize: 280, fontWeight: 800, lineHeight: 1, letterSpacing: "-10px", color: "rgba(15,23,41,0.035)", pointerEvents: "none", userSelect: "none" }}>{String(i + 1).padStart(2, "0")}</div>
                   <div className="sp-grid-2" style={{ position: "relative", height: "100%", display: "grid", gridTemplateColumns: "1.05fr 0.95fr", gap: 48, alignItems: "center" }}>
                     {/* left: text */}
                     <div>
                       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 22 }}>
                         <span style={{ fontSize: 13, fontWeight: 800, color: TEAL, letterSpacing: "1px" }}>{String(i + 1).padStart(2, "0")}</span>
-                        <span style={{ width: 26, height: 1, background: last ? "rgba(255,255,255,0.2)" : "#D9DEE6" }}></span>
                         <span style={{ fontSize: 12, fontWeight: 700, color: TEAL, letterSpacing: "1.4px", textTransform: "uppercase" }}>Principle</span>
                       </div>
-                      <h3 style={{ fontSize: "clamp(24px,3vw,36px)", fontWeight: 800, color: last ? "#fff" : NAVY, letterSpacing: "-0.6px", lineHeight: 1.15, marginBottom: 18, maxWidth: 460 }}>{p.t}</h3>
-                      <p style={{ fontSize: 16, color: last ? "#8A9BB0" : "#6B7280", lineHeight: 1.8, maxWidth: 440 }}>{p.d}</p>
+                      <h3 style={{ fontSize: "clamp(24px,3vw,36px)", fontWeight: 800, color: NAVY, letterSpacing: "-0.6px", lineHeight: 1.15, marginBottom: 18, maxWidth: 460 }}>{p.t}</h3>
+                      <p style={{ fontSize: 16, color: "#6B7280", lineHeight: 1.8, maxWidth: 440 }}>{p.d}</p>
                     </div>
-                    {/* right: icon visual */}
-                    <div className="sp-visual" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-                      <div style={{ position: "relative", width: 220, height: 220, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <div style={{ position: "absolute", inset: 0, borderRadius: "50%", border: last ? "1px solid rgba(0,155,141,0.2)" : "1px solid rgba(0,155,141,0.14)" }}></div>
-                        <div style={{ position: "absolute", inset: 34, borderRadius: "50%", border: last ? "1px solid rgba(0,155,141,0.28)" : "1px solid rgba(0,155,141,0.2)" }}></div>
-                        <div style={{ position: "relative", width: 108, height: 108, borderRadius: 28, background: last ? "rgba(0,155,141,0.16)" : "rgba(0,155,141,0.08)", border: "1px solid rgba(0,155,141,0.25)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: last ? "0 0 40px rgba(0,155,141,0.15)" : "0 10px 30px rgba(0,155,141,0.12)" }}>
-                          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke={TEAL} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">{PRINCIPLE_ICONS[i]}</svg>
-                        </div>
+                    {/* right: N26-style photo card */}
+                    <div className="sp-visual" style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }}>
+                      <div className="sp-principle-photo" style={{ width: "100%", maxWidth: 380, aspectRatio: "4 / 5", borderRadius: 24, overflow: "hidden", position: "relative", boxShadow: "0 20px 60px rgba(15,23,41,0.28)" }}>
+                        <Photo
+                          src={"/images/principles/" + PRINCIPLE_KEYS[i] + ".jpg"}
+                          alt={p.t}
+                          ratio="4 / 5"
+                          fallback={
+                            <div style={{ width: "100%", height: "100%", background: "linear-gradient(140deg,#0F1729 0%,#132a3a 55%,#0c4a44 100%)", position: "relative", display: "flex", alignItems: "flex-end", padding: 28 }}>
+                              <div aria-hidden="true" style={{ position: "absolute", top: -60, right: -60, width: 260, height: 260, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,155,141,0.28) 0%, transparent 70%)" }}></div>
+                              <div aria-hidden="true" style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)", backgroundSize: "40px 40px", maskImage: "radial-gradient(ellipse 90% 70% at 50% 40%, #000 30%, transparent 80%)" }}></div>
+                              <div style={{ position: "relative", display: "flex", alignItems: "center", gap: 14 }}>
+                                <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(0,155,141,0.18)", border: "1px solid rgba(0,155,141,0.35)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={TEAL} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">{PRINCIPLE_ICONS[i]}</svg>
+                                </div>
+                                <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.55)", letterSpacing: "1.4px", textTransform: "uppercase" }}>Image placeholder</div>
+                              </div>
+                            </div>
+                          }
+                        />
+                        {/* floating N26-style widget pill */}
+                        {PRINCIPLE_WIDGETS[i] && (
+                          <div style={{ position: "absolute", left: 18, bottom: 18, display: "flex", alignItems: "center", gap: 11, background: "rgba(255,255,255,0.96)", backdropFilter: "blur(6px)", borderRadius: 14, padding: "11px 16px 11px 12px", boxShadow: "0 12px 30px rgba(15,23,41,0.22)", animation: "floatA 4s ease-in-out infinite" }}>
+                            <div style={{ width: 34, height: 34, borderRadius: 10, background: "#ECFDF5", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={TEAL} strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">{PRINCIPLE_ICONS[i]}</svg>
+                            </div>
+                            <div>
+                              <div style={{ fontSize: 13, fontWeight: 700, color: NAVY, lineHeight: 1.2 }}>{PRINCIPLE_WIDGETS[i].label}</div>
+                              <div style={{ fontSize: 11, color: "#9CA3AF", marginTop: 1 }}>{PRINCIPLE_WIDGETS[i].sub}</div>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -1547,33 +1589,32 @@ function Home({ go, openMember, setOpenMember, CtaBanner }) {
       <section style={{ padding: "40px 32px 96px", ...wrap }}>
         <div className="sp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 72, alignItems: "center" }}>
           <div>
-            <p style={{ fontSize: 13, fontWeight: 500, color: TEAL, marginBottom: 16 }}>Why clients choose Spectra</p>
-            <h2 style={{ fontSize: "clamp(26px,3vw,40px)", fontWeight: 800, color: NAVY, letterSpacing: "-0.8px", lineHeight: 1.1, marginBottom: 20 }}>Good advice doesn't end after the first meeting.</h2>
-            <p style={{ fontSize: 16, color: "#6B7280", lineHeight: 1.8, marginBottom: 16 }}>Our commitment extends beyond recommendations. We believe in staying connected, reviewing progress, adapting strategies and supporting clients through every important financial milestone.</p>
-            <p style={{ fontSize: 16, color: "#6B7280", lineHeight: 1.8, marginBottom: 16 }}>Whether it's helping you make your first investment, assisting during an insurance claim or reviewing your financial plan as your goals evolve, our team remains by your side.</p>
-            <p style={{ fontSize: 16, color: "#6B7280", lineHeight: 1.8 }}>Because lasting financial confidence is built through continuous guidance, not one-time conversations.</p>
+            <Reveal><p className="sp-kicker" style={{ color: TEAL, marginBottom: 16 }}>Why clients choose Spectra</p></Reveal>
+            <Reveal delay={80}><h2 style={{ fontSize: "clamp(26px,3vw,40px)", fontWeight: 800, color: NAVY, letterSpacing: "-0.8px", lineHeight: 1.1, marginBottom: 20 }}>Good advice doesn't end after the first meeting.</h2></Reveal>
+            <Reveal delay={150}><p style={{ fontSize: 16, color: "#6B7280", lineHeight: 1.8, marginBottom: 16 }}>Our commitment extends beyond recommendations. We believe in staying connected, reviewing progress, adapting strategies and supporting clients through every important financial milestone.</p></Reveal>
+            <Reveal delay={200}><p style={{ fontSize: 16, color: "#6B7280", lineHeight: 1.8, marginBottom: 16 }}>Whether it's helping you make your first investment, assisting during an insurance claim or reviewing your financial plan as your goals evolve, our team remains by your side.</p></Reveal>
+            <Reveal delay={250}><p style={{ fontSize: 16, color: "#6B7280", lineHeight: 1.8 }}>Because lasting financial confidence is built through continuous guidance, not one-time conversations.</p></Reveal>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
             {[["First investment", "We help you take the first step with clarity and confidence."],
               ["At claim time", "We assist and stay by your side when an insurance claim matters most."],
               ["As goals evolve", "We review and adapt your financial plan as your life changes."],
               ["Every milestone", "Continuous guidance through each important financial decision."]].map(([t, d], i) => (
-              <div key={i} style={{ background: "#F9FAFB", borderRadius: 14, padding: 22 }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: TEAL, marginBottom: 8 }}>{t}</div>
-                <div style={{ fontSize: 13, color: "#6B7280", lineHeight: 1.65 }}>{d}</div>
-              </div>
+              <Reveal key={i} delay={i * 120}>
+                <S css="background:#F9FAFB;border:1px solid #F0F2F5;border-radius:14px;padding:22px;height:100%;transition:transform .2s, box-shadow .2s, border-color .2s;" hover="transform:translateY(-4px);box-shadow:0 14px 32px rgba(15,23,41,0.08);border-color:rgba(0,155,141,0.3);">
+                  <div style={{ fontSize: 14, fontWeight: 700, color: TEAL, marginBottom: 8 }}>{t}</div>
+                  <div style={{ fontSize: 13, color: "#6B7280", lineHeight: 1.65 }}>{d}</div>
+                </S>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
 
-      {/* WHAT WORKING WITH SPECTRA FEELS LIKE */}
-      <FeatureRows />
-
       {/* OUR NETWORK */}
       <section style={{ background: "#F9FAFB", borderTop: "1px solid #F0F2F5", borderBottom: "1px solid #F0F2F5", padding: "72px 32px" }}>
         <div style={{ ...wrap, textAlign: "center" }}>
-          <p style={{ fontSize: 13, fontWeight: 500, color: TEAL, marginBottom: 14 }}>Our network of financial institutions</p>
+          <p className="sp-kicker" style={{ color: TEAL, marginBottom: 14 }}>Our network of financial institutions</p>
           <h2 style={{ fontSize: "clamp(22px,2.6vw,32px)", fontWeight: 800, color: NAVY, letterSpacing: "-0.6px", maxWidth: 640, margin: "0 auto 16px", lineHeight: 1.2 }}>The right advice is strengthened by the right financial ecosystem.</h2>
           <p style={{ fontSize: 15, color: "#6B7280", maxWidth: 620, margin: "0 auto 40px", lineHeight: 1.7 }}>We work with established institutions across investments, insurance and capital markets, giving clients access to a broad range of products while ensuring every recommendation stays aligned with your goals.</p>
         </div>
@@ -1584,7 +1625,7 @@ function Home({ go, openMember, setOpenMember, CtaBanner }) {
       <section style={{ padding: "80px 32px", ...wrap }}>
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 48, gap: 24, flexWrap: "wrap" }}>
           <div>
-            <p style={{ fontSize: 13, fontWeight: 500, color: TEAL, marginBottom: 10 }}>Leadership</p>
+            <p className="sp-kicker" style={{ color: TEAL, marginBottom: 14 }}>Leadership</p>
             <h2 style={{ fontSize: "clamp(26px,3vw,38px)", fontWeight: 800, color: NAVY, letterSpacing: "-0.8px" }}>Expertise across every financial need.</h2>
           </div>
         </div>
@@ -1629,121 +1670,65 @@ function Home({ go, openMember, setOpenMember, CtaBanner }) {
       <section style={{ padding: "0 32px 88px", ...wrap }}>
         <Reveal>
           <div style={{ textAlign: "center", marginBottom: 44 }}>
-            <p style={{ fontSize: 13, fontWeight: 500, color: TEAL, marginBottom: 12 }}>Client stories</p>
+            <p className="sp-kicker" style={{ color: TEAL, marginBottom: 14 }}>Client stories</p>
             <h2 style={{ fontSize: "clamp(26px,3.2vw,40px)", fontWeight: 800, color: NAVY, letterSpacing: "-0.8px", lineHeight: 1.1 }}>Trusted by families &amp; businesses across Mumbai.</h2>
           </div>
         </Reveal>
         <TestimonialsSlider />
       </section>
 
-      <CtaBanner head="Ready to take the next step?" sub="Talk to an advisor for an honest, no-obligation conversation about your money." label="Talk to an Advisor" />
     </div>
   );
 }
 
-/* hero animated chart (from design) */
-function HeroChart() {
-  return (
-    <div className="parallax-slow" style={{ position: "relative", height: 420, animation: "fadeUp2 0.8s 0.2s both" }}>
-      <div style={{ background: "#fff", border: "1px solid #F0F2F5", borderRadius: 20, padding: "24px 24px 16px", boxShadow: "0 4px 40px rgba(15,23,41,0.07)", position: "absolute", top: 20, left: 0, right: 0, bottom: 0 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
-          <div>
-            <div style={{ fontSize: 11, fontWeight: 600, color: "#9CA3AF", letterSpacing: "1px", textTransform: "uppercase", marginBottom: 6 }}>Portfolio Value</div>
-            <div style={{ fontSize: 32, fontWeight: 800, color: NAVY, letterSpacing: "-1px", lineHeight: 1 }}>₹24,80,000</div>
-          </div>
-          <div style={{ background: "#ECFDF5", borderRadius: 8, padding: "6px 12px", display: "flex", alignItems: "center", gap: 5 }}>
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="1,9 5,4 8,7 11,2" stroke={TEAL} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></polyline></svg>
-            <span style={{ fontSize: 13, fontWeight: 700, color: TEAL }}>+18.4%</span>
-          </div>
-        </div>
-        <div style={{ fontSize: 12, color: "#9CA3AF", marginBottom: 16 }}>1 year returns</div>
-        <div style={{ position: "relative", height: 160, margin: "0 -4px" }}>
-          <svg viewBox="0 0 460 160" fill="none" style={{ width: "100%", height: "100%", display: "block", overflow: "visible" }}>
-            <defs>
-              <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={TEAL} stopOpacity="0.28"></stop><stop offset="100%" stopColor={TEAL} stopOpacity="0"></stop></linearGradient>
-              <linearGradient id="chartStroke" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#007D72"></stop><stop offset="55%" stopColor={TEAL}></stop><stop offset="100%" stopColor="#00C9B6"></stop></linearGradient>
-              <filter id="chartGlow" x="-20%" y="-60%" width="140%" height="240%"><feGaussianBlur stdDeviation="3.2" result="b"></feGaussianBlur><feMerge><feMergeNode in="b"></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge></filter>
-            </defs>
-            {[130, 95, 60, 25].map((y) => <line key={y} x1="0" y1={y} x2="460" y2={y} stroke="#F3F4F6" strokeWidth="1"></line>)}
-            <path d="M0,130 C30,128 50,124 80,118 C110,112 130,108 155,100 C180,92 200,96 225,84 C250,72 270,76 295,62 C320,48 340,44 365,32 C390,20 420,18 460,14 L460,160 L0,160 Z" fill="url(#chartGrad)" opacity="0.55"></path>
-            <path d="M0,130 C30,128 50,124 80,118 C110,112 130,108 155,100 C180,92 200,96 225,84 C250,72 270,76 295,62 C320,48 340,44 365,32 C390,20 420,18 460,14" stroke="url(#chartStroke)" strokeWidth="2.75" strokeLinecap="round" strokeLinejoin="round" filter="url(#chartGlow)" strokeDasharray="600" style={{ animation: "drawLine 2s 0.5s cubic-bezier(0.4,0,0.2,1) both" }}></path>
-            <g className="hero-dot-travel" style={{ offsetPath: "path('M0,130 C30,128 50,124 80,118 C110,112 130,108 155,100 C180,92 200,96 225,84 C250,72 270,76 295,62 C320,48 340,44 365,32 C390,20 420,18 460,14')" }}>
-              <circle r="8" fill={TEAL} opacity="0.2"><animate attributeName="r" values="7;16;7" dur="2.4s" begin="2.5s" repeatCount="indefinite"></animate><animate attributeName="opacity" values="0.3;0;0.3" dur="2.4s" begin="2.5s" repeatCount="indefinite"></animate></circle>
-              <circle r="5" fill={TEAL} stroke="#fff" strokeWidth="2.5"></circle>
-            </g>
-          </svg>
-          <div style={{ position: "absolute", top: -6, right: 2, transform: "translateY(-100%)", background: NAVY, color: "#fff", fontSize: 11, fontWeight: 700, padding: "5px 9px", borderRadius: 8, boxShadow: "0 10px 26px rgba(15,23,41,0.32)", whiteSpace: "nowrap", animation: "fadeUp2 0.5s 2.5s both", pointerEvents: "none" }}>
-            ₹24,80,000
-            <span style={{ position: "absolute", bottom: -3, right: 13, width: 8, height: 8, background: NAVY, transform: "rotate(45deg)" }}></span>
-          </div>
-          <div style={{ display: "flex", justifyContent: "space-between", padding: "0 4px", marginTop: -2 }}>
-            {["Jul '24", "Oct '24", "Jan '25", "Apr '25", "Jul '25"].map((l) => <span key={l} style={{ fontSize: 10, color: "#C4CAD4" }}>{l}</span>)}
-          </div>
-        </div>
-      </div>
-      <div style={{ position: "absolute", bottom: 24, left: -24, background: "#fff", border: "1px solid #F0F2F5", borderRadius: 14, padding: "14px 18px", boxShadow: "0 8px 32px rgba(15,23,41,0.1)", zIndex: 2, animation: "floatA 4s 1s ease-in-out infinite", minWidth: 150 }}>
-        <div style={{ fontSize: 10, fontWeight: 600, color: "#9CA3AF", letterSpacing: "0.8px", textTransform: "uppercase", marginBottom: 6 }}>Monthly SIP</div>
-        <div style={{ fontSize: 20, fontWeight: 800, color: NAVY, letterSpacing: "-0.5px" }}>₹25,000</div>
-        <div style={{ fontSize: 11, color: TEAL, fontWeight: 500, marginTop: 3 }}>Active · 3 funds</div>
-      </div>
-      <div style={{ position: "absolute", top: 0, right: -16, background: NAVY, borderRadius: 14, padding: "14px 18px", boxShadow: "0 8px 32px rgba(15,23,41,0.2)", zIndex: 2, animation: "floatB 5s 0.5s ease-in-out infinite", minWidth: 130 }}>
-        <div style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.45)", letterSpacing: "0.8px", textTransform: "uppercase", marginBottom: 6 }}>XIRR</div>
-        <div style={{ fontSize: 22, fontWeight: 800, color: TEAL, letterSpacing: "-0.5px" }}>26.4%</div>
-        <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 3 }}>2 year avg.</div>
-      </div>
-    </div>
-  );
-}
-
-/* ecosystem, 3-stage pyramid diagram (Protect → Build → Grow) */
+/* ecosystem — concentric rings with the two outer labels curved along their ring
+   (SVG textPath, gently rotating) so they never collide with the solid core. */
 function Ecosystem({ go }) {
-  // One continuous pyramid (viewBox 600x440): all tiers share the same apex→base
-  // edges, so the outer silhouette is a single clean triangle. Thin gaps between
-  // bands read as tiers; a single vertical gradient keeps it cohesive.
-  const [hover, setHover] = React.useState(-1);
-  const tiers = [
-    { label: "One advisory system", key: "securities",
-      pts: "300,0 394.1,138 205.9,138",
-      band: { top: "0%", height: "31.4%", justify: "flex-end", padBottom: 14 }, size: 13, mw: "7.5em" },
-    { label: "One relationship", key: "wealth",
-      pts: "193.6,156 406.4,156 492.3,282 107.7,282",
-      band: { top: "35.5%", height: "28.6%", justify: "center", padBottom: 0 }, size: 20 },
-    { label: "A complete financial perspective", key: "insurance",
-      pts: "95.45,300 504.55,300 600,440 0,440",
-      band: { top: "68.2%", height: "31.8%", justify: "center", padBottom: 0 }, size: 20 },
-  ];
+  const [ref, seen] = useInView(0.3);
+  const C = 210; // viewBox centre (420x420)
+  // top arc path for a given radius (text reads left→right over the top, upright)
+  const topArc = (r) => `M ${C - r},${C} A ${r},${r} 0 0,1 ${C + r},${C}`;
   return (
-    <div style={{ maxWidth: 560, margin: "8px auto 0" }}>
-      <div style={{ position: "relative", width: "100%", aspectRatio: "600 / 440" }}>
-        <svg viewBox="0 0 600 440" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", overflow: "visible" }}>
+    <div ref={ref} style={{ maxWidth: 460, margin: "0 auto" }}>
+      <div style={{ position: "relative", width: "100%", aspectRatio: "1 / 1", opacity: seen ? 1 : 0, transform: seen ? "scale(1)" : "scale(0.88)", transition: "opacity .8s cubic-bezier(.16,1,.3,1), transform .8s cubic-bezier(.16,1,.3,1)" }}>
+        <svg viewBox="0 0 420 420" style={{ width: "100%", height: "100%", overflow: "visible" }}>
           <defs>
-            <linearGradient id="sp-pyr" x1="0" y1="0" x2="0" y2="440" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#18cfbc" />
-              <stop offset="52%" stopColor="#009b8d" />
+            <radialGradient id="sp-core" cx="50%" cy="42%" r="65%">
+              <stop offset="0%" stopColor="#1ad3c0" />
               <stop offset="100%" stopColor="#0a6f64" />
-            </linearGradient>
+            </radialGradient>
+            <path id="sp-arc-outer" d={topArc(168)} fill="none" />
+            <path id="sp-arc-mid" d={topArc(104)} fill="none" />
           </defs>
-          {tiers.map((t, i) => (
-            <polygon key={i} points={t.pts} fill="url(#sp-pyr)" stroke="url(#sp-pyr)" strokeWidth="9" strokeLinejoin="round"
-              style={{ filter: hover === i ? "brightness(1.1)" : "none", transition: "filter .18s" }} />
-          ))}
+
+          {/* rings */}
+          <circle cx={C} cy={C} r="196" fill="rgba(0,155,141,0.03)" stroke="rgba(0,155,141,0.22)" strokeWidth="1" />
+          <circle cx={C} cy={C} r="134" fill="rgba(0,155,141,0.05)" stroke="rgba(0,155,141,0.3)" strokeWidth="1" />
+          <circle cx={C} cy={C} r="72" fill="url(#sp-core)" />
+
+          {/* curved labels along each ring's top arc (no collision with the core) */}
+          <text fill="rgba(255,255,255,0.82)" style={{ fontSize: 15, fontWeight: 600, letterSpacing: "3px", textTransform: "uppercase" }}>
+            <textPath href="#sp-arc-outer" startOffset="50%" textAnchor="middle">A complete financial perspective</textPath>
+          </text>
+          <text fill="#fff" style={{ fontSize: 15, fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase" }}>
+            <textPath href="#sp-arc-mid" startOffset="50%" textAnchor="middle">One relationship</textPath>
+          </text>
+
+          {/* core label */}
+          <text x={C} y={C - 8} textAnchor="middle" className="ff-serif" fill="#fff" style={{ fontSize: 17, fontWeight: 700 }}>One</text>
+          <text x={C} y={C + 14} textAnchor="middle" className="ff-serif" fill="#fff" style={{ fontSize: 17, fontWeight: 700 }}>advisory</text>
+          <text x={C} y={C + 36} textAnchor="middle" className="ff-serif" fill="#fff" style={{ fontSize: 17, fontWeight: 700 }}>system</text>
         </svg>
-        {tiers.map((t, i) => (
-          <button key={i} onClick={() => go("sol-" + t.key, t.key)} onMouseEnter={() => setHover(i)} onMouseLeave={() => setHover(-1)}
-            style={{ position: "absolute", left: 0, right: 0, top: t.band.top, height: t.band.height, background: "transparent", border: "none", cursor: "pointer", color: "#fff", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: t.band.justify, paddingBottom: t.band.padBottom }}>
-            <div className="ff-serif" style={{ fontSize: t.size, fontWeight: 700, letterSpacing: "0.2px", textAlign: "center", padding: "0 12px", lineHeight: 1.18, maxWidth: t.mw || "90%" }}>{t.label}</div>
-          </button>
-        ))}
       </div>
-      <p style={{ textAlign: "center", marginTop: 26, fontSize: 13, color: "rgba(255,255,255,0.45)", lineHeight: 1.6 }}>
-        Protection first, then building wealth, then growth, <br />every layer managed under one relationship.
+      <p style={{ textAlign: "center", marginTop: 30, fontSize: 13, color: "rgba(255,255,255,0.45)", lineHeight: 1.6, opacity: seen ? 1 : 0, transition: "opacity .8s ease 700ms" }}>
+        Every layer of your finances, wealth, protection, lending and planning,<br />managed together under one relationship.
       </p>
     </div>
   );
 }
 
 /* ============================ ABOUT ============================ */
-function About({ go, CtaBanner }) {
+function About({ go }) {
   const wrap = { maxWidth: 1100, margin: "0 auto" };
   return (
     <div className="page-wrap" style={{ paddingTop: 64 }}>
@@ -1752,7 +1737,7 @@ function About({ go, CtaBanner }) {
         <div className="parallax-slow" style={{ position: "absolute", top: -80, right: -80, width: 520, height: 520, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,155,141,0.14) 0%, transparent 70%)", pointerEvents: "none" }}></div>
         <div className="parallax-fast" style={{ position: "absolute", bottom: -120, left: -60, width: 360, height: 360, borderRadius: "50%", background: "radial-gradient(circle, rgba(201,168,76,0.08) 0%, transparent 70%)", pointerEvents: "none" }}></div>
         <div style={{ ...wrap, position: "relative", zIndex: 1 }}>
-          <Reveal><p style={{ fontSize: 13, fontWeight: 600, color: TEAL, marginBottom: 16, letterSpacing: "0.4px" }}>About Spectra Assets</p></Reveal>
+          <Reveal><p className="sp-kicker" style={{ color: TEAL, marginBottom: 16 }}>About Spectra Assets</p></Reveal>
           <Reveal delay={80}><h1 style={{ fontSize: "clamp(36px,5vw,64px)", fontWeight: 800, color: "#fff", lineHeight: 1.06, marginBottom: 24, maxWidth: 760 }}>Your investment partner <em style={{ fontStyle: "normal", color: TEAL }}>for life.</em></h1></Reveal>
           <Reveal delay={160}><p style={{ fontSize: 18, color: "rgba(255,255,255,0.55)", maxWidth: 580, lineHeight: 1.75, marginBottom: 48 }}>Money rarely comes with just one goal. Spectra Assets brings every financial decision together under one trusted relationship, so the bigger picture always stays in focus.</p></Reveal>
           <div className="sp-numrow" style={{ display: "flex", gap: 44, flexWrap: "wrap", borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: 40 }}>
@@ -1771,7 +1756,7 @@ function About({ go, CtaBanner }) {
         <div className="sp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "center" }}>
           <Reveal>
             <div>
-              <p style={{ fontSize: 13, fontWeight: 600, color: TEAL, marginBottom: 16 }}>Our story</p>
+              <p className="sp-kicker" style={{ color: TEAL, marginBottom: 16 }}>Our story</p>
               <h2 style={{ fontSize: "clamp(26px,3vw,40px)", fontWeight: 700, color: NAVY, lineHeight: 1.15, marginBottom: 22 }}>We didn't start with products. We started with people.</h2>
               <p style={{ fontSize: 16, color: "#6B7280", lineHeight: 1.85, marginBottom: 16 }}>Most financial advice is delivered in pieces, investments here, insurance there, loans somewhere else. We saw an opportunity to do things differently.</p>
               <p style={{ fontSize: 16, color: "#6B7280", lineHeight: 1.85 }}>Spectra Assets helps clients navigate life with clarity, confidence and purpose. Because when every decision works together, financial progress becomes more meaningful.</p>
@@ -1792,7 +1777,7 @@ function About({ go, CtaBanner }) {
       <section style={{ background: "#F7F5F0", borderTop: "1px solid #EFEBE0", borderBottom: "1px solid #EFEBE0", padding: "84px 40px" }}>
         <div style={wrap}>
           <Reveal><div style={{ textAlign: "center", marginBottom: 52 }}>
-            <p style={{ fontSize: 13, fontWeight: 600, color: TEAL, marginBottom: 12 }}>What we believe</p>
+            <p className="sp-kicker" style={{ color: TEAL, marginBottom: 14 }}>What we believe</p>
             <h2 style={{ fontSize: "clamp(28px,3.5vw,44px)", fontWeight: 700, color: NAVY, lineHeight: 1.1 }}>Five principles behind every conversation.</h2>
           </div></Reveal>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 18 }}>
@@ -1813,20 +1798,19 @@ function About({ go, CtaBanner }) {
       <section style={{ background: NAVY, padding: "88px 32px", position: "relative", overflow: "hidden" }}>
         <div className="parallax-slow" style={{ position: "absolute", top: -120, right: -80, width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,155,141,0.10) 0%, transparent 70%)", pointerEvents: "none" }}></div>
         <div style={{ ...wrap, position: "relative", zIndex: 1, textAlign: "center" }}>
-          <Reveal><p style={{ fontSize: 13, fontWeight: 600, color: TEAL, marginBottom: 14 }}>The Spectra ecosystem</p></Reveal>
+          <Reveal><p className="sp-kicker" style={{ color: TEAL, marginBottom: 14 }}>The Spectra ecosystem</p></Reveal>
           <Reveal delay={80}><h2 style={{ fontSize: "clamp(28px,3.5vw,44px)", fontWeight: 700, color: "#fff", lineHeight: 1.12, marginBottom: 16 }}>One advisory system. One relationship.</h2></Reveal>
           <Reveal delay={140}><p style={{ fontSize: 16, color: "rgba(255,255,255,0.5)", maxWidth: 520, margin: "0 auto 52px", lineHeight: 1.7 }}>Protection, wealth and growth, layered around you and managed together.</p></Reveal>
-          <Reveal delay={200}><Ecosystem go={go} /></Reveal>
+          <Ecosystem go={go} />
         </div>
       </section>
 
-      <CtaBanner head="Let's build your plan together." sub="Talk to an advisor about where you are today and where you want to go." label="Talk to an Advisor" />
     </div>
   );
 }
 
 /* ============================ SOLUTIONS OVERVIEW (tabbed) ============================ */
-function Solutions({ go, tab, setTab, CtaBanner }) {
+function Solutions({ go, tab, setTab }) {
   const wrap = { maxWidth: 1100, margin: "0 auto" };
   const cat = CATS[tab];
   return (
@@ -1835,7 +1819,7 @@ function Solutions({ go, tab, setTab, CtaBanner }) {
         <div className="parallax-fast" style={{ position: "absolute", top: -80, right: -80, width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,155,141,0.15) 0%, transparent 70%)", pointerEvents: "none" }}></div>
         <div className="parallax-slow" style={{ position: "absolute", bottom: -60, left: "20%", width: 300, height: 300, borderRadius: "50%", background: "radial-gradient(circle, rgba(201,168,76,0.08) 0%, transparent 70%)", pointerEvents: "none" }}></div>
         <div style={{ ...wrap, position: "relative", zIndex: 1 }}>
-          <p style={{ fontSize: 13, fontWeight: 500, color: TEAL, marginBottom: 16 }}>Our solutions</p>
+          <p className="sp-kicker" style={{ color: TEAL, marginBottom: 16 }}>Our solutions</p>
           <h1 style={{ fontSize: "clamp(36px,5vw,64px)", fontWeight: 800, color: "#fff", letterSpacing: "-2px", marginBottom: 20, lineHeight: 1.03 }}>Everything you need,<br /><em style={{ fontStyle: "normal", color: TEAL }}>in one place.</em></h1>
           <p style={{ fontSize: 17, color: "rgba(255,255,255,0.5)", maxWidth: 460, lineHeight: 1.7 }}>Five connected solution lines. One advisory relationship, no switching between firms.</p>
         </div>
@@ -1853,19 +1837,19 @@ function Solutions({ go, tab, setTab, CtaBanner }) {
       </div>
 
       <section key={tab} style={{ padding: "64px 32px 8px", ...wrap, animation: "tabIn 0.35s ease-out both" }}>
-        <div style={{ maxWidth: 640, marginBottom: 40 }}>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#ECFDF5", borderRadius: 100, padding: "5px 14px", marginBottom: 20 }}>
-            <span style={{ width: 6, height: 6, borderRadius: "50%", background: TEAL, display: "inline-block", animation: "blink 1.5s ease-in-out infinite" }}></span>
-            <span style={{ fontSize: 12, fontWeight: 600, color: TEAL }}>{cat.badge}</span>
-          </div>
+        <div className="sp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "center", marginBottom: 56 }}>
+        <div>
           <h2 style={{ fontSize: "clamp(28px,3.5vw,44px)", fontWeight: 800, color: NAVY, letterSpacing: "-1px", lineHeight: 1.08, marginBottom: 18 }}>{cat.titleA} <em style={{ fontStyle: "normal", color: TEAL }}>{cat.titleEm}</em></h2>
           {cat.intro.map((p, i) => <p key={i} style={{ fontSize: 16, color: "#6B7280", lineHeight: 1.8, marginBottom: 12 }}>{p}</p>)}
           <S as="button" onClick={() => go("sol-" + cat.key, cat.key)} css="margin-top:12px;background:#009B8D;color:#fff;border:none;cursor:pointer;font-weight:700;font-size:14px;padding:13px 26px;border-radius:10px;transition:all 0.18s;" hover="background:#007D72;transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,155,141,0.3);">Explore {cat.nav} →</S>
         </div>
+        <div className="sp-photo-cell">
+          <Photo src={solImg(cat.key)} alt={cat.nav} ratio="7 / 5" fallback={<PhotoPlaceholder icon={CAT_ICON[cat.key]} />} />
+        </div>
+        </div>
         <ProductGrid groups={cat.groups} />
       </section>
 
-      <CtaBanner head="Not sure where to begin?" sub="Talk to an advisor and we'll help you find the right starting point." label="Talk to an Advisor" />
     </div>
   );
 }
@@ -1892,10 +1876,89 @@ function CompactCard({ name, body, gold }) {
     </S>
   );
 }
-function ProductGrid({ groups }) {
+/* icons for the Business & Corporate Insurance covers (keyed by item name) */
+const BIZ_ICON = {
+  "Fire Insurance": <path d="M12 22c4 0 7-2.7 7-6.8 0-4-3-6.3-4.2-9.2-.4 2-1.6 3.2-2.8 3.8C12 7 11.3 4.6 9.5 2 9.2 6 5 8.6 5 15.2 5 19.3 8 22 12 22z"></path>,
+  "Marine Insurance": <><circle cx="12" cy="5" r="2"></circle><path d="M12 7v14"></path><path d="M5 13a7 7 0 0 0 14 0"></path><path d="M8 11H5v2M16 11h3v2"></path></>,
+  "Plant & Machinery": <><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1 7 17M17 7l2.1-2.1"></path></>,
+  "Contractors' All Risk (CAR)": <><path d="M2 20h20"></path><path d="M5 20V9h5v11"></path><path d="M5 9l7-5 9 5"></path><path d="M17 20v-6"></path><path d="M14 14h6"></path></>,
+  "Burglary Insurance": <><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path><circle cx="12" cy="16" r="1.4"></circle></>,
+  "Jewellers' Block": <><path d="M6 3h12l4 6-10 12L2 9z"></path><path d="M2 9h20"></path><path d="M9 3l3 6 3-6"></path></>,
+  "Group Health Insurance": <><path d="M20 8.5a4.5 4.5 0 0 0-8-2.8A4.5 4.5 0 0 0 4 8.5c0 4.5 8 10 8 10s8-5.5 8-10z"></path><path d="M12 8v5M9.5 10.5h5"></path></>,
+  "Group Personal Accident": <><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"></path><circle cx="12" cy="10" r="1.8"></circle><path d="M8.5 16a3.5 3.5 0 0 1 7 0"></path></>,
+  "Group Term Life": <><path d="M12 3v2"></path><path d="M3 12a9 9 0 0 1 18 0z"></path><path d="M12 12v5a2 2 0 0 0 4 0"></path></>,
+  "Workmen's Compensation": <><path d="M4 15a8 8 0 0 1 16 0"></path><path d="M2 15h20v3H2z"></path><path d="M12 7V4"></path></>,
+  "Cyber Insurance": <><rect x="3" y="4" width="18" height="12" rx="2"></rect><path d="M8 20h8M12 16v4"></path><path d="M12 7.5l2.5 1v2c0 1.5-1 2.6-2.5 3.2-1.5-.6-2.5-1.7-2.5-3.2v-2z"></path></>,
+  "Liability Insurance": <><path d="M12 3v18"></path><path d="M5 7h14"></path><path d="M5 7l-3 6a3 3 0 0 0 6 0z"></path><path d="M19 7l-3 6a3 3 0 0 0 6 0z"></path><path d="M8 21h8"></path></>,
+  "Directors & Officers (D&O)": <><rect x="3" y="7" width="18" height="13" rx="2"></rect><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><path d="M12 11v4"></path></>,
+  "Professional Indemnity": <><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="M9 15l2 2 4-4"></path></>,
+  "Fleet Insurance": <><path d="M1 16V6h13v10"></path><path d="M14 9h4l3 4v3h-7"></path><circle cx="5.5" cy="17.5" r="1.8"></circle><circle cx="17.5" cy="17.5" r="1.8"></circle></>,
+};
+
+/* Business & Corporate Insurance: light beige panel, simple rectangular tabs,
+   clean white cards. Kept intentionally plain (no gradients / dark drama). */
+function BizCover({ g, go }) {
+  const [tab, setTab] = React.useState(0);
+  const sub = g.sub[tab];
+  return (
+    <div className="sp-biz" style={{ width: "100vw", marginLeft: "calc(50% - 50vw)", background: "#F7F5F0", borderTop: "1px solid #EFEBE0", borderBottom: "1px solid #EFEBE0", padding: "64px 40px" }}>
+    <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+      <p className="sp-kicker" style={{ color: TEAL, marginBottom: 12 }}>For businesses</p>
+      <h3 style={{ fontSize: "clamp(24px,3vw,36px)", fontWeight: 800, color: NAVY, letterSpacing: "-0.7px", lineHeight: 1.12, marginBottom: 14 }}>{g.title}</h3>
+      {g.intro && <p style={{ fontSize: 16, color: "#6B7280", lineHeight: 1.75, maxWidth: 720, marginBottom: 32 }}>{g.intro}</p>}
+
+      {/* simple rectangular tabs */}
+      <div role="tablist" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 28 }}>
+        {g.sub.map((s, i) => {
+          const on = i === tab;
+          return (
+            <button key={i} role="tab" aria-selected={on} onClick={() => setTab(i)}
+              style={{ cursor: "pointer", borderRadius: 8, padding: "10px 18px", fontSize: 14, fontWeight: 600, transition: "background .18s, color .18s, border-color .18s",
+                background: on ? TEAL : "#fff", color: on ? "#fff" : "#6B7280", border: on ? "1px solid " + TEAL : "1px solid #E4DFD2" }}>
+              {s.title}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* cards for the active tab */}
+      <div key={tab} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(240px,1fr))", gap: 14 }}>
+        {sub.items.map((it, i) => (
+          <S key={it.name} css="background:#fff;border:1px solid #EFEBE0;border-radius:12px;padding:22px 24px;transition:border-color .18s, box-shadow .18s;"
+            hover="border-color:rgba(0,155,141,0.4);box-shadow:0 8px 24px rgba(15,23,41,0.06);">
+            <div style={{ width: 42, height: 42, borderRadius: 10, background: "#ECFDF5", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={TEAL} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{BIZ_ICON[it.name] || CAT_ICON.insurance}</svg>
+            </div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: NAVY, marginBottom: 8, lineHeight: 1.3 }}>{it.name}</div>
+            <p style={{ fontSize: 14, color: "#6B7280", lineHeight: 1.65 }}>{it.body}</p>
+          </S>
+        ))}
+      </div>
+
+      {/* and more */}
+      {g.note && (
+        <div style={{ marginTop: 28, borderTop: "1px solid #E4DFD2", paddingTop: 26, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 24, flexWrap: "wrap" }}>
+          <div style={{ maxWidth: 620 }}>
+            <div style={{ fontSize: 15, fontWeight: 700, color: NAVY, marginBottom: 6 }}>{g.note.name}</div>
+            <p style={{ fontSize: 14, color: "#6B7280", lineHeight: 1.7 }}>{g.note.body}</p>
+          </div>
+          {go && (
+            <S as="button" onClick={() => go("contact")} css="background:#009B8D;color:#fff;border:none;cursor:pointer;font-weight:700;font-size:14px;padding:12px 24px;border-radius:8px;transition:all 0.18s;white-space:nowrap;" hover="background:#007D72;transform:translateY(-1px);">Talk to an advisor</S>
+          )}
+        </div>
+      )}
+    </div>
+    </div>
+  );
+}
+
+function ProductGrid({ groups, go }) {
   return (
     <>
       {groups.map((g, gi) => (
+        g.sub ? (
+          <div key={gi} style={{ marginBottom: 40 }}><BizCover g={g} go={go} /></div>
+        ) : (
         <div key={gi} style={{ marginBottom: 40 }}>
           {g.title && <h3 style={{ fontSize: "clamp(20px,2.4vw,28px)", fontWeight: 800, color: NAVY, letterSpacing: "-0.6px", marginBottom: g.intro ? 12 : 24 }}>{g.title}</h3>}
           {g.intro && <p style={{ fontSize: 15, color: "#6B7280", lineHeight: 1.75, maxWidth: 760, marginBottom: 28 }}>{g.intro}</p>}
@@ -1904,16 +1967,9 @@ function ProductGrid({ groups }) {
               {g.items.map((it, i) => <ProductCard key={i} {...it} />)}
             </div>
           )}
-          {g.sub && g.sub.map((sub, si) => (
-            <div key={si} style={{ marginTop: si === 0 ? 8 : 36 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: TEAL, letterSpacing: "1px", textTransform: "uppercase", marginBottom: 16 }}>{sub.title}</div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(240px,1fr))", gap: 14 }}>
-                {sub.items.map((it, i) => <CompactCard key={i} {...it} />)}
-              </div>
-            </div>
-          ))}
           {g.note && <div style={{ marginTop: 24 }}><CompactCard {...g.note} gold /></div>}
         </div>
+        )
       ))}
     </>
   );
@@ -1926,7 +1982,7 @@ function StackedGroups({ cat, go }) {
     <>
       {cat.groups.map((g, gi) => (
         <div key={gi} style={{ marginBottom: 8 }}>
-          {g.title && (
+          {g.title && !g.sub && (
             <div id={anchorId(cat.key, g.title)} style={{ scrollMarginTop: 90, margin: gi === 0 ? "0 0 24px" : "44px 0 24px" }}>
               <h3 style={{ fontSize: "clamp(22px,2.6vw,30px)", fontWeight: 800, color: NAVY, letterSpacing: "-0.6px", marginBottom: g.intro ? 12 : 0 }}>{g.title}</h3>
               {g.intro && <p style={{ fontSize: 15, color: "#6B7280", lineHeight: 1.75, maxWidth: 760 }}>{g.intro}</p>}
@@ -1935,39 +1991,13 @@ function StackedGroups({ cat, go }) {
           {g.items && g.items.map((it, i) => {
             n++;
             const num = n;
-            const flip = num % 2 === 0;
-            const Text = (
-              <div key="t">
-                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-                  <span style={{ fontSize: 12, fontWeight: 800, color: TEAL, letterSpacing: "1px" }}>{String(num).padStart(2, "0")}</span>
-                  <span style={{ width: 24, height: 1, background: "#D9DEE6" }}></span>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: TEAL, letterSpacing: "0.6px", textTransform: "uppercase" }}>{it.name}</span>
-                </div>
-                {it.head && <h3 className="ff-serif" style={{ fontSize: "clamp(21px,2.4vw,32px)", fontWeight: 600, color: NAVY, letterSpacing: "-0.4px", lineHeight: 1.18, marginBottom: 14 }}>{it.head}</h3>}
-                <p style={{ fontSize: 15, color: "#5B6472", lineHeight: 1.85, marginBottom: 20, maxWidth: 480 }}>{it.body}</p>
-                <button onClick={() => go("contact")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 14, fontWeight: 600, color: TEAL, padding: 0 }}>Talk to an advisor →</button>
-              </div>
-            );
-            const Visual = <CatVisual key="v" catKey={cat.key} num={num} icon={SOL_ICON[it.name]} />;
             return (
-              <div key={i} id={anchorId(cat.key, it.name)} style={{ scrollMarginTop: 90, marginBottom: 30 }}>
-                <Reveal>
-                  <div className="sp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "center" }}>
-                    {flip ? [Visual, Text] : [Text, Visual]}
-                  </div>
-                </Reveal>
+              <div key={i} id={anchorId(cat.key, it.name)} className="sp-sol-wrap" style={{ scrollMarginTop: 110 }}>
+                <Reveal><SolRow catKey={cat.key} it={it} num={num} go={go} /></Reveal>
               </div>
             );
           })}
-          {g.sub && g.sub.map((sub, si) => (
-            <div key={si} style={{ marginTop: si === 0 ? 8 : 32 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: TEAL, letterSpacing: "1px", textTransform: "uppercase", marginBottom: 16 }}>{sub.title}</div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(250px,1fr))", gap: 14 }}>
-                {sub.items.map((x, j) => <CompactCard key={j} {...x} />)}
-              </div>
-            </div>
-          ))}
-          {g.note && <div style={{ marginTop: 20 }}><CompactCard {...g.note} gold /></div>}
+          {g.sub && <div id={anchorId(cat.key, g.title)} style={{ marginTop: 40, scrollMarginTop: 90 }}><BizCover g={g} go={go} /></div>}
         </div>
       ))}
     </>
@@ -1998,30 +2028,28 @@ function FaqList({ items, kp, faq, toggleFaq }) {
 }
 
 /* ============================ CATEGORY PAGE ============================ */
-function Category({ cat, go, faq, toggleFaq, CtaBanner }) {
+function Category({ cat, go, faq, toggleFaq }) {
   const wrap = { maxWidth: 1100, margin: "0 auto" };
-  const others = CAT_ORDER.filter((k) => k !== cat.key);
   return (
     <div className="page-wrap" style={{ paddingTop: 64 }}>
-      <section style={{ background: NAVY, padding: "96px 40px 100px", position: "relative", overflow: "hidden", textAlign: "center" }}>
-        <div className="parallax-slow" style={{ position: "absolute", top: -80, left: "50%", transform: "translateX(-50%)", width: 700, height: 700, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,155,141,0.1) 0%, transparent 65%)", pointerEvents: "none" }}></div>
-        <div style={{ maxWidth: 720, margin: "0 auto", position: "relative", zIndex: 1 }}>
+      <section style={{ background: NAVY, padding: "120px 40px 120px", position: "relative", overflow: "hidden", textAlign: "center" }}>
+        {/* full-bleed cinematic hero image; falls back to a soft radial glow if the file isn't in public/images/heroes/{catKey}.jpg */}
+        <div aria-hidden="true" style={{ position: "absolute", inset: 0, backgroundImage: `url(/images/heroes/${cat.key}.jpg)`, backgroundSize: "cover", backgroundPosition: "center", opacity: 0.42, filter: "saturate(1.05)" }}></div>
+        <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(15,23,41,0.35) 0%, rgba(15,23,41,0.55) 45%, rgba(15,23,41,0.9) 100%)" }}></div>
+        <div className="parallax-slow" style={{ position: "absolute", top: -80, left: "50%", transform: "translateX(-50%)", width: 700, height: 700, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,155,141,0.14) 0%, transparent 65%)", pointerEvents: "none" }}></div>
+        <div style={{ maxWidth: 940, margin: "0 auto", position: "relative", zIndex: 1 }}>
           <div style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", marginBottom: 14, letterSpacing: "1px" }}>
             Home › <button onClick={() => go("solutions")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "rgba(255,255,255,0.35)" }}>Solutions</button> › {cat.nav}
           </div>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,155,141,0.15)", borderRadius: 100, padding: "5px 14px", marginBottom: 20 }}>
-            <span style={{ width: 6, height: 6, borderRadius: "50%", background: TEAL, display: "inline-block" }}></span>
-            <span style={{ fontSize: 12, fontWeight: 600, color: TEAL }}>{cat.badge}</span>
-          </div>
-          <h1 style={{ fontSize: "clamp(36px,5.5vw,64px)", fontWeight: 800, color: "#fff", letterSpacing: "-2px", lineHeight: 1.05, marginBottom: 22 }}>{cat.titleA} <em style={{ fontStyle: "italic", color: TEAL }}>{cat.titleEm}</em></h1>
+          <h1 style={{ fontSize: "clamp(32px,4.6vw,54px)", fontWeight: 800, color: "#fff", letterSpacing: "-1.5px", lineHeight: 1.1, marginBottom: 22, maxWidth: 900, marginLeft: "auto", marginRight: "auto" }}>{cat.titleA} <span style={{ color: TEAL }}>{cat.titleEm}</span></h1>
           <p style={{ fontSize: 17, color: "rgba(255,255,255,0.5)", lineHeight: 1.75, marginBottom: 36, maxWidth: 540, marginLeft: "auto", marginRight: "auto" }}>{cat.hero}</p>
           <S as="button" onClick={() => go("contact")} css="background:#fff;color:#0F1729;border:none;cursor:pointer;font-weight:700;font-size:15px;padding:15px 34px;border-radius:10px;transition:all 0.18s;" hover="background:#F0FAF9;color:#009B8D;transform:translateY(-2px);">Talk to an Advisor →</S>
         </div>
       </section>
 
-      <section style={{ background: "#F9FAFB", padding: "72px 40px" }}>
+      <section style={{ background: "#fff", padding: "96px 40px 40px" }}>
         <div style={wrap}>
-          <div style={{ maxWidth: 760, marginBottom: 44 }}>
+          <div style={{ maxWidth: 760, marginBottom: 96 }}>
             {cat.intro.map((p, i) => <p key={i} style={{ fontSize: 17, color: i === 0 ? NAVY : "#6B7280", fontWeight: i === 0 ? 600 : 400, lineHeight: 1.75, marginBottom: 14 }}>{p}</p>)}
           </div>
           <StackedGroups cat={cat} go={go} />
@@ -2037,20 +2065,6 @@ function Category({ cat, go, faq, toggleFaq, CtaBanner }) {
         <FaqList items={GENERIC_FAQ} kp={cat.key} faq={faq} toggleFaq={toggleFaq} />
       </section>
 
-      {/* other solutions */}
-      <section style={{ padding: "0 40px 80px", ...wrap }}>
-        <div style={{ background: NAVY, borderRadius: 20, padding: "48px 52px" }}>
-          <h3 style={{ fontSize: 22, fontWeight: 800, color: "#fff", letterSpacing: "-0.5px", marginBottom: 6 }}>We do more than {cat.nav.toLowerCase()}.</h3>
-          <p style={{ fontSize: 15, color: "rgba(255,255,255,0.45)", marginBottom: 24 }}>Explore the rest of the Spectra ecosystem.</p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))", gap: 10 }}>
-            {others.map((k) => (
-              <S key={k} as="button" onClick={() => go("sol-" + k, k)} css="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:13px 18px;cursor:pointer;font-size:13px;font-weight:600;color:rgba(255,255,255,0.75);transition:all 0.18s;text-align:left;" hover="background:rgba(0,155,141,0.15);border-color:rgba(0,155,141,0.3);color:#fff;">{CATS[k].nav} <span style={{ opacity: 0.5 }}>→</span></S>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <CtaBanner head="Experience the impact" em="of expert guidance." sub="Talk to an advisor today. No obligation, no sales pitch." label="Talk to an Advisor" />
     </div>
   );
 }
@@ -2158,7 +2172,7 @@ function CalcCard({ toggle, title, subtitle, sliders, donut, results, ctaLabel, 
   return (
     <div className="page-wrap" style={{ paddingTop: 64 }}>
       <section style={{ padding: "56px 32px 30px", textAlign: "center", background: "#fff" }}>
-        <p style={{ fontSize: 13, fontWeight: 500, color: TEAL, marginBottom: 12 }}>Tools</p>
+        <p className="sp-kicker" style={{ color: TEAL, marginBottom: 14 }}>Tools</p>
         <h1 style={{ fontSize: "clamp(30px,4vw,46px)", fontWeight: 700, color: NAVY, letterSpacing: "-0.5px", marginBottom: 12 }}>{title}</h1>
         <p style={{ fontSize: 16, color: "#6B7280", maxWidth: 480, margin: "0 auto" }}>{subtitle}</p>
       </section>
@@ -2265,7 +2279,7 @@ function Forms({ go }) {
   return (
     <div className="page-wrap" style={{ paddingTop: 64 }}>
       <section style={{ background: NAVY, padding: "72px 40px 60px", textAlign: "center" }}>
-        <p style={{ fontSize: 13, fontWeight: 500, color: TEAL, marginBottom: 14 }}>Resources</p>
+        <p className="sp-kicker" style={{ color: TEAL, marginBottom: 14 }}>Resources</p>
         <h1 style={{ fontSize: "clamp(32px,4.5vw,52px)", fontWeight: 800, color: "#fff", letterSpacing: "-1.5px", marginBottom: 14 }}>Downloadable Forms</h1>
         <p style={{ fontSize: 16, color: "rgba(255,255,255,0.5)", maxWidth: 480, margin: "0 auto 28px" }}>All the forms you need to get started, in one place.</p>
         {/* search */}
@@ -2327,7 +2341,7 @@ function Contact({ form, setForm, formDone, submitForm, toggleInterest }) {
     <div className="page-wrap" style={{ paddingTop: 64 }}>
       <section style={{ padding: "72px 32px 80px", ...wrap }}>
         <div style={{ maxWidth: 560, marginBottom: 56 }}>
-          <p style={{ fontSize: 13, fontWeight: 500, color: TEAL, marginBottom: 16 }}>Contact us</p>
+          <p className="sp-kicker" style={{ color: TEAL, marginBottom: 16 }}>Contact us</p>
           <h1 style={{ fontSize: "clamp(32px,4.5vw,54px)", fontWeight: 800, color: NAVY, letterSpacing: "-1.5px", lineHeight: 1.06, marginBottom: 20 }}>Let's talk about what matters to <em style={{ fontStyle: "normal", color: TEAL }}>you.</em></h1>
           <p style={{ fontSize: 16, color: "#6B7280", lineHeight: 1.75 }}>Whether you're looking to build wealth, protect what you've built, plan for the future, or arrange funding, we're here to understand your requirements and help you take the right next step.</p>
         </div>
@@ -2421,37 +2435,39 @@ function Footer({ go }) {
       <div style={{ maxWidth: 1100, margin: "0 auto" }}>
         <div style={{ display: "flex", justifyContent: "space-between", gap: 48, marginBottom: 48, flexWrap: "wrap", alignItems: "start" }}>
           <div style={{ flex: "1.5 1 240px" }}>
-            <img src={LOGO} alt="Spectra Assets" style={{ height: 38, width: "auto", marginBottom: 16, display: "block", opacity: 0.95 }} />
-            <p style={{ fontSize: 14, color: "#4B5563", lineHeight: 1.75, maxWidth: 280 }}>Your investment partner for life. Wealth, protection, lending and planning, connected around you. Girgaon, Mumbai.</p>
+            <div style={{ marginBottom: 16 }}>
+              <Brand size={38} color="#fff" subColor="rgba(255,255,255,0.55)" />
+            </div>
+            <p style={{ fontSize: 14, color: "rgba(255,255,255,0.68)", lineHeight: 1.75, maxWidth: 280 }}>Your investment partner for life. Wealth, protection, lending and planning, connected around you. Girgaon, Mumbai.</p>
           </div>
           <div style={{ flex: "1 1 140px" }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "#374151", letterSpacing: "1.2px", textTransform: "uppercase", marginBottom: 16 }}>Solutions</div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.55)", letterSpacing: "1.2px", textTransform: "uppercase", marginBottom: 16 }}>Solutions</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {CAT_ORDER.map((k) => (
-                <S key={k} as="button" onClick={() => go("sol-" + k, k)} css="background:none;border:none;cursor:pointer;font-size:14px;color:#4B5563;text-align:left;padding:0;transition:color 0.15s;" hover="color:#fff;">{CATS[k].nav}</S>
+                <S key={k} as="button" onClick={() => go("sol-" + k, k)} css="background:none;border:none;cursor:pointer;font-size:14px;color:rgba(255,255,255,0.78);text-align:left;padding:0;transition:color 0.15s;" hover="color:#fff;">{CATS[k].nav}</S>
               ))}
             </div>
           </div>
           <div style={{ flex: "1 1 120px" }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "#374151", letterSpacing: "1.2px", textTransform: "uppercase", marginBottom: 16 }}>Company</div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.55)", letterSpacing: "1.2px", textTransform: "uppercase", marginBottom: 16 }}>Company</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {[["Home", "home"], ["About", "about"], ["Tools", "tool-invest"], ["Forms", "forms"], ["Contact", "contact"]].map(([l, p]) => (
-                <S key={p} as="button" onClick={() => go(p)} css="background:none;border:none;cursor:pointer;font-size:14px;color:#4B5563;text-align:left;padding:0;transition:color 0.15s;" hover="color:#fff;">{l}</S>
+                <S key={p} as="button" onClick={() => go(p)} css="background:none;border:none;cursor:pointer;font-size:14px;color:rgba(255,255,255,0.78);text-align:left;padding:0;transition:color 0.15s;" hover="color:#fff;">{l}</S>
               ))}
             </div>
           </div>
           <div style={{ flex: "1 1 200px" }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "#374151", letterSpacing: "1.2px", textTransform: "uppercase", marginBottom: 16 }}>Contact</div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.55)", letterSpacing: "1.2px", textTransform: "uppercase", marginBottom: 16 }}>Contact</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              <span style={{ fontSize: 14, color: "#4B5563", lineHeight: 1.6 }}>102, Shreepati Jewels D Wing, Khattar Ali Lane, Girgaon, Mumbai 400004</span>
-              <a href="mailto:spectraassets@gmail.com" style={{ fontSize: 14, color: "#4B5563" }}>spectraassets@gmail.com</a>
+              <span style={{ fontSize: 14, color: "rgba(255,255,255,0.78)", lineHeight: 1.6 }}>102, Shreepati Jewels D Wing, Khattar Ali Lane, Girgaon, Mumbai 400004</span>
+              <a href="mailto:spectraassets@gmail.com" style={{ fontSize: 14, color: "rgba(255,255,255,0.78)" }}>spectraassets@gmail.com</a>
             </div>
           </div>
         </div>
-        <div style={{ borderTop: "1px solid rgba(255,255,255,0.07)", paddingTop: 22, display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
-          <span style={{ fontSize: 12, color: "#374151" }}>© {new Date().getFullYear()} Spectra Assets · Mumbai</span>
+        <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 22, display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
+          <span style={{ fontSize: 12, color: "rgba(255,255,255,0.55)" }}>© {new Date().getFullYear()} Spectra Assets · Mumbai</span>
           <div style={{ display: "flex", gap: 18 }}>
-            {["Privacy", "Terms", "Disclaimer"].map((t) => <a key={t} href="#" onClick={(e) => e.preventDefault()} style={{ fontSize: 12, color: "#374151" }}>{t}</a>)}
+            {["Privacy", "Terms", "Disclaimer"].map((t) => <a key={t} href="#" onClick={(e) => e.preventDefault()} style={{ fontSize: 12, color: "rgba(255,255,255,0.55)" }}>{t}</a>)}
           </div>
         </div>
       </div>
