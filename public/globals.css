@@ -151,6 +151,14 @@ body.sp-cursor-on, body.sp-cursor-on * { cursor: none !important; }
   .sp-burger { display: inline-flex !important; }
   .sp-visual { display: none !important; }
   .sp-team-body { padding: 8px 0 32px 0 !important; gap: 24px !important; }
+  /* "Our approach" timeline: unpin so the 4 stacked cards + heading never clip on mobile */
+  .sp-scroll-tall { height: auto !important; }
+  .sp-scroll-pin { position: static !important; height: auto !important; overflow: visible !important; display: block !important; padding: 56px 20px !important; }
+  .sp-proc-line { display: none !important; }
+}
+/* Our approach cards: natural 1-2-3-4 order on mobile; desktop rearranges for the line flow */
+@media (min-width: 861px) {
+  .sp-proc-o1 { order: 1; } .sp-proc-o2 { order: 2; } .sp-proc-o3 { order: 3; } .sp-proc-o4 { order: 4; }
 }
 @media (max-width: 560px) {
   .sp-pad { padding-left: 20px !important; padding-right: 20px !important; }
