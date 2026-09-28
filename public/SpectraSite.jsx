@@ -513,10 +513,15 @@ function LogoRow({ items, speed = 84, base = -1, scrollDir = 1 }) {
 /* partner wall: insurers scroll one way, AMCs the other */
 function LogoMarquee() {
   const dir = useScrollDirection();
+  const half = (arr) => [arr.slice(0, Math.ceil(arr.length / 2)), arr.slice(Math.ceil(arr.length / 2))];
+  const [ins1, ins2] = half(PARTNER_INSURERS);
+  const [amc1, amc2] = half(PARTNER_AMCS);
   return (
     <div className="sp-logo-wall">
-      <LogoRow items={PARTNER_INSURERS} speed={82} base={-1} scrollDir={dir} />
-      <LogoRow items={PARTNER_AMCS} speed={94} base={1} scrollDir={dir} />
+      <LogoRow items={ins1} speed={80} base={-1} scrollDir={dir} />
+      <LogoRow items={ins2} speed={90} base={1} scrollDir={dir} />
+      <LogoRow items={amc1} speed={86} base={-1} scrollDir={dir} />
+      <LogoRow items={amc2} speed={96} base={1} scrollDir={dir} />
     </div>
   );
 }
@@ -915,7 +920,7 @@ function SolRow({ catKey, it, num, go }) {
   const Text = (
     <div key="t" className="sp-sol-text">
       <div style={{ fontSize: 13, fontWeight: 600, color: TEAL, letterSpacing: "0.4px", marginBottom: 14 }}>{it.name}</div>
-      {it.head && <h3 style={{ fontSize: "clamp(28px,3vw,40px)", fontWeight: 500, color: "#1b1b1b", letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 20 }}>{it.head}</h3>}
+      {it.head && <h3 style={{ fontSize: "clamp(32px,3.6vw,48px)", fontWeight: 500, color: "#1b1b1b", letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 20 }}>{it.head}</h3>}
       <p style={{ fontSize: 17, color: "#1b1b1b", lineHeight: 1.75, letterSpacing: "0.01em", marginBottom: 24, opacity: 0.85 }}>{it.body}</p>
       <button className="sp-sol-link" onClick={() => go("contact")}>Talk to an advisor <span aria-hidden="true">→</span></button>
     </div>
@@ -1404,7 +1409,7 @@ function Home({ go, openMember, setOpenMember }) {
         <div aria-hidden="true" className="sp-hero-veil" style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "radial-gradient(ellipse 62% 70% at 50% 50%, rgba(255,255,255,0.97) 0%, rgba(255,255,255,0.93) 55%, rgba(255,255,255,0.6) 80%, rgba(255,255,255,0.25) 100%)" }}></div>
         <div style={{ position: "relative", zIndex: 1, padding: "112px 32px 120px", maxWidth: 860, margin: "0 auto", textAlign: "center" }}>
           <div>
-          <WordReveal as="h1" text="Financial advice that looks at the bigger picture." emFrom={6} baseDelay={200} style={{ fontSize: "clamp(40px,5.6vw,72px)", fontWeight: 800, color: NAVY, lineHeight: 1.08, marginBottom: 28 }} />
+          <WordReveal as="h1" text="Financial advice that looks at the bigger picture." emFrom={6} baseDelay={200} style={{ fontSize: "clamp(46px,6.2vw,84px)", fontWeight: 800, color: NAVY, lineHeight: 1.08, marginBottom: 28 }} />
           <p style={{ fontSize: 18, color: "#6B7280", lineHeight: 1.75, maxWidth: 620, margin: "0 auto 20px", fontWeight: 400 }}>Money rarely comes with just one goal. We help individuals, families and businesses make informed decisions across wealth creation, insurance, lending and financial planning, with the bigger picture always in focus.</p>
           <p style={{ fontSize: 15, color: "#9CA3AF", lineHeight: 1.7, maxWidth: 520, margin: "0 auto 40px" }}>Because a financial product may solve one need. A well-thought-out strategy can connect them all.</p>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 20, flexWrap: "wrap" }}>
@@ -1418,7 +1423,7 @@ function Home({ go, openMember, setOpenMember }) {
       {/* OUR NUMBERS (centered) */}
       <section style={{ maxWidth: 1100, margin: "0 auto", padding: "68px 32px", textAlign: "center", borderTop: "1px solid #F0F2F5" }}>
         <p className="sp-kicker" style={{ color: TEAL, marginBottom: 14 }}>Our numbers</p>
-        <h2 style={{ fontSize: "clamp(26px,3.2vw,40px)", fontWeight: 600, color: NAVY, letterSpacing: "-0.5px", marginBottom: 44 }}>Built on relationships. Growing with purpose.</h2>
+        <h2 style={{ fontSize: "clamp(30px,3.8vw,48px)", fontWeight: 600, color: NAVY, letterSpacing: "-0.5px", marginBottom: 44 }}>Built on relationships. Growing with purpose.</h2>
         <div className="sp-numrow" style={{ display: "flex", justifyContent: "center", alignItems: "center", flexWrap: "wrap", gap: 0 }}>
           {[{ p: "₹", v: 140, s: "Cr+", l: "Assets under management" }, { p: "", v: 350, s: "+", l: "Client families & businesses" }, { p: "", v: 600, s: "+", l: "Portfolios managed" }].map((it, i) => (
             <div key={i} style={{ padding: "8px 48px", borderRight: i < 2 ? "1px solid #F0F2F5" : "none" }}>
@@ -1434,7 +1439,7 @@ function Home({ go, openMember, setOpenMember }) {
         <div className="sp-grid-2" style={{ ...wrap, display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: 96, alignItems: "center" }}>
           <div>
             <p className="sp-kicker" style={{ color: TEAL, marginBottom: 20 }}>Our story</p>
-            <h2 style={{ fontSize: "clamp(28px,3.5vw,42px)", fontWeight: 800, color: NAVY, letterSpacing: "-1px", lineHeight: 1.1, marginBottom: 28 }}>We didn't start with products. We started with <em style={{ fontStyle: "normal", color: TEAL }}>people.</em></h2>
+            <h2 style={{ fontSize: "clamp(32px,4.2vw,52px)", fontWeight: 800, color: NAVY, letterSpacing: "-1px", lineHeight: 1.1, marginBottom: 28 }}>We didn't start with products. We started with <em style={{ fontStyle: "normal", color: TEAL }}>people.</em></h2>
             <p style={{ fontSize: 16, color: "#6B7280", lineHeight: 1.8, marginBottom: 20 }}>Every individual has a different story. A young professional wants to build wealth. Parents dream of giving their children the best education. Entrepreneurs work tirelessly to grow their businesses.</p>
             <p style={{ fontSize: 16, color: "#6B7280", lineHeight: 1.8 }}>Yet most financial advice is delivered in pieces, investments here, insurance there, loans somewhere else. Spectra Assets was built to bring every financial decision together under one trusted relationship.</p>
           </div>
@@ -1455,8 +1460,7 @@ function Home({ go, openMember, setOpenMember }) {
       <section style={{ background: NAVY, padding: "88px 32px", position: "relative", overflow: "hidden" }}>
         <div className="parallax-slow" style={{ position: "absolute", top: -120, right: -80, width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,155,141,0.10) 0%, transparent 70%)", pointerEvents: "none" }}></div>
         <div style={{ ...wrap, position: "relative", zIndex: 1, textAlign: "center" }}>
-          <p className="sp-kicker" style={{ color: TEAL, marginBottom: 14 }}>The Spectra ecosystem</p>
-          <p style={{ fontSize: 16, color: "rgba(255,255,255,0.55)", maxWidth: 520, margin: "0 auto 44px", lineHeight: 1.7 }}>Wealth, protection, lending and planning, connected around you, not sold in silos.</p>
+          <p className="sp-kicker" style={{ color: TEAL, marginBottom: 44 }}>The Spectra ecosystem</p>
           <Ecosystem go={go} />
         </div>
       </section>
@@ -1467,7 +1471,7 @@ function Home({ go, openMember, setOpenMember }) {
           <div style={{ maxWidth: 880, margin: "0 auto", width: "100%" }}>
             <div style={{ marginBottom: 48 }}>
               <p className="sp-kicker" style={{ color: TEAL, marginBottom: 14 }}>Our approach</p>
-              <h2 style={{ fontSize: "clamp(26px,3.5vw,42px)", fontWeight: 800, color: NAVY, letterSpacing: "-1px", lineHeight: 1.08 }}>It begins with understanding you, <br />then building around it.</h2>
+              <h2 style={{ fontSize: "clamp(30px,4.2vw,52px)", fontWeight: 800, color: NAVY, letterSpacing: "-1px", lineHeight: 1.08 }}>It begins with understanding you, <br />then building around it.</h2>
             </div>
             <div style={{ position: "relative" }}>
               <svg viewBox="0 0 880 380" fill="none" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 1, overflow: "visible" }}>
@@ -1522,7 +1526,7 @@ function Home({ go, openMember, setOpenMember }) {
         <div style={{ position: "sticky", top: 64, height: "calc(100vh - 64px)", display: "flex", flexDirection: "column", alignItems: "center", overflow: "hidden", padding: "48px 40px 32px" }}>
           <div style={{ textAlign: "center", marginBottom: 36, flexShrink: 0, width: "100%" }}>
             <p className="sp-kicker" style={{ color: TEAL, marginBottom: 14 }}>What we believe</p>
-            <h2 style={{ fontSize: "clamp(30px,4vw,52px)", fontWeight: 800, color: "#fff", letterSpacing: "-1.5px", lineHeight: 1.06 }}>Five principles that guide <em style={{ fontStyle: "normal", color: TEAL }}>every conversation.</em></h2>
+            <h2 style={{ fontSize: "clamp(34px,4.6vw,60px)", fontWeight: 800, color: "#fff", letterSpacing: "-1.5px", lineHeight: 1.06 }}>Five principles that guide <em style={{ fontStyle: "normal", color: TEAL }}>every conversation.</em></h2>
           </div>
           <div style={{ position: "relative", width: "100%", maxWidth: 960, flex: 1, minHeight: 0 }}>
             {PRINCIPLES.map((p, i) => {
@@ -1537,7 +1541,7 @@ function Home({ go, openMember, setOpenMember }) {
                         <span style={{ fontSize: 13, fontWeight: 800, color: TEAL, letterSpacing: "1px" }}>{String(i + 1).padStart(2, "0")}</span>
                         <span style={{ fontSize: 12, fontWeight: 700, color: TEAL, letterSpacing: "1.4px", textTransform: "uppercase" }}>Principle</span>
                       </div>
-                      <h3 style={{ fontSize: "clamp(24px,3vw,36px)", fontWeight: 800, color: NAVY, letterSpacing: "-0.6px", lineHeight: 1.15, marginBottom: 18, maxWidth: 460 }}>{p.t}</h3>
+                      <h3 style={{ fontSize: "clamp(28px,3.4vw,44px)", fontWeight: 800, color: NAVY, letterSpacing: "-0.6px", lineHeight: 1.15, marginBottom: 18, maxWidth: 460 }}>{p.t}</h3>
                       <p style={{ fontSize: 16, color: "#6B7280", lineHeight: 1.8, maxWidth: 440 }}>{p.d}</p>
                     </div>
                     {/* right: N26-style photo card */}
@@ -1590,7 +1594,7 @@ function Home({ go, openMember, setOpenMember }) {
         <div className="sp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 72, alignItems: "center" }}>
           <div>
             <Reveal><p className="sp-kicker" style={{ color: TEAL, marginBottom: 16 }}>Why clients choose Spectra</p></Reveal>
-            <Reveal delay={80}><h2 style={{ fontSize: "clamp(26px,3vw,40px)", fontWeight: 800, color: NAVY, letterSpacing: "-0.8px", lineHeight: 1.1, marginBottom: 20 }}>Good advice doesn't end after the first meeting.</h2></Reveal>
+            <Reveal delay={80}><h2 style={{ fontSize: "clamp(30px,3.6vw,48px)", fontWeight: 800, color: NAVY, letterSpacing: "-0.8px", lineHeight: 1.1, marginBottom: 20 }}>Good advice doesn't end after the first meeting.</h2></Reveal>
             <Reveal delay={150}><p style={{ fontSize: 16, color: "#6B7280", lineHeight: 1.8, marginBottom: 16 }}>Our commitment extends beyond recommendations. We believe in staying connected, reviewing progress, adapting strategies and supporting clients through every important financial milestone.</p></Reveal>
             <Reveal delay={200}><p style={{ fontSize: 16, color: "#6B7280", lineHeight: 1.8, marginBottom: 16 }}>Whether it's helping you make your first investment, assisting during an insurance claim or reviewing your financial plan as your goals evolve, our team remains by your side.</p></Reveal>
             <Reveal delay={250}><p style={{ fontSize: 16, color: "#6B7280", lineHeight: 1.8 }}>Because lasting financial confidence is built through continuous guidance, not one-time conversations.</p></Reveal>
@@ -1615,7 +1619,7 @@ function Home({ go, openMember, setOpenMember }) {
       <section style={{ background: "#F9FAFB", borderTop: "1px solid #F0F2F5", borderBottom: "1px solid #F0F2F5", padding: "72px 32px" }}>
         <div style={{ ...wrap, textAlign: "center" }}>
           <p className="sp-kicker" style={{ color: TEAL, marginBottom: 14 }}>Our network of financial institutions</p>
-          <h2 style={{ fontSize: "clamp(22px,2.6vw,32px)", fontWeight: 800, color: NAVY, letterSpacing: "-0.6px", maxWidth: 640, margin: "0 auto 16px", lineHeight: 1.2 }}>The right advice is strengthened by the right financial ecosystem.</h2>
+          <h2 style={{ fontSize: "clamp(26px,3vw,40px)", fontWeight: 800, color: NAVY, letterSpacing: "-0.6px", maxWidth: 640, margin: "0 auto 16px", lineHeight: 1.2 }}>The right advice is strengthened by the right financial ecosystem.</h2>
           <p style={{ fontSize: 15, color: "#6B7280", maxWidth: 620, margin: "0 auto 40px", lineHeight: 1.7 }}>We work with established institutions across investments, insurance and capital markets, giving clients access to a broad range of products while ensuring every recommendation stays aligned with your goals.</p>
         </div>
         <LogoMarquee />
@@ -1626,7 +1630,7 @@ function Home({ go, openMember, setOpenMember }) {
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 48, gap: 24, flexWrap: "wrap" }}>
           <div>
             <p className="sp-kicker" style={{ color: TEAL, marginBottom: 14 }}>Leadership</p>
-            <h2 style={{ fontSize: "clamp(26px,3vw,38px)", fontWeight: 800, color: NAVY, letterSpacing: "-0.8px" }}>Expertise across every financial need.</h2>
+            <h2 style={{ fontSize: "clamp(30px,3.6vw,46px)", fontWeight: 800, color: NAVY, letterSpacing: "-0.8px" }}>Expertise across every financial need.</h2>
           </div>
         </div>
         {TEAM.map((m, i) => {
@@ -1671,7 +1675,7 @@ function Home({ go, openMember, setOpenMember }) {
         <Reveal>
           <div style={{ textAlign: "center", marginBottom: 44 }}>
             <p className="sp-kicker" style={{ color: TEAL, marginBottom: 14 }}>Client stories</p>
-            <h2 style={{ fontSize: "clamp(26px,3.2vw,40px)", fontWeight: 800, color: NAVY, letterSpacing: "-0.8px", lineHeight: 1.1 }}>Trusted by families &amp; businesses across Mumbai.</h2>
+            <h2 style={{ fontSize: "clamp(30px,3.8vw,48px)", fontWeight: 800, color: NAVY, letterSpacing: "-0.8px", lineHeight: 1.1 }}>Trusted by families &amp; businesses across Mumbai.</h2>
           </div>
         </Reveal>
         <TestimonialsSlider />
@@ -1688,9 +1692,12 @@ function Ecosystem({ go }) {
   const C = 210; // viewBox centre (420x420)
   // top arc path for a given radius (text reads left→right over the top, upright)
   const topArc = (r) => `M ${C - r},${C} A ${r},${r} 0 0,1 ${C + r},${C}`;
+  // staggered reveal: outer ring first, then middle, then core, then the labels
+  const revCircle = (d) => ({ transformBox: "fill-box", transformOrigin: "center", opacity: seen ? 1 : 0, transform: seen ? "scale(1)" : "scale(0.4)", transition: `opacity .5s ease ${d}ms, transform .6s cubic-bezier(.34,1.4,.64,1) ${d}ms` });
+  const revText = (d) => ({ opacity: seen ? 1 : 0, transform: seen ? "none" : "translateY(6px)", transition: `opacity .5s ease ${d}ms, transform .5s ease ${d}ms` });
   return (
     <div ref={ref} style={{ maxWidth: 460, margin: "0 auto" }}>
-      <div style={{ position: "relative", width: "100%", aspectRatio: "1 / 1", opacity: seen ? 1 : 0, transform: seen ? "scale(1)" : "scale(0.88)", transition: "opacity .8s cubic-bezier(.16,1,.3,1), transform .8s cubic-bezier(.16,1,.3,1)" }}>
+      <div style={{ position: "relative", width: "100%", aspectRatio: "1 / 1" }}>
         <svg viewBox="0 0 420 420" style={{ width: "100%", height: "100%", overflow: "visible" }}>
           <defs>
             <radialGradient id="sp-core" cx="50%" cy="42%" r="65%">
@@ -1701,23 +1708,25 @@ function Ecosystem({ go }) {
             <path id="sp-arc-mid" d={topArc(104)} fill="none" />
           </defs>
 
-          {/* rings */}
-          <circle cx={C} cy={C} r="196" fill="rgba(0,155,141,0.03)" stroke="rgba(0,155,141,0.22)" strokeWidth="1" />
-          <circle cx={C} cy={C} r="134" fill="rgba(0,155,141,0.05)" stroke="rgba(0,155,141,0.3)" strokeWidth="1" />
-          <circle cx={C} cy={C} r="72" fill="url(#sp-core)" />
+          {/* rings — reveal one by one */}
+          <circle cx={C} cy={C} r="196" fill="rgba(0,155,141,0.03)" stroke="rgba(0,155,141,0.22)" strokeWidth="1" style={revCircle(0)} />
+          <circle cx={C} cy={C} r="134" fill="rgba(0,155,141,0.05)" stroke="rgba(0,155,141,0.3)" strokeWidth="1" style={revCircle(240)} />
+          <circle cx={C} cy={C} r="72" fill="url(#sp-core)" style={revCircle(480)} />
 
-          {/* curved labels along each ring's top arc (no collision with the core) */}
-          <text fill="rgba(255,255,255,0.82)" style={{ fontSize: 15, fontWeight: 600, letterSpacing: "3px", textTransform: "uppercase" }}>
+          {/* curved labels — appear after the rings */}
+          <text fill="rgba(255,255,255,0.82)" style={{ fontSize: 15, fontWeight: 600, letterSpacing: "3px", textTransform: "uppercase", ...revText(820) }}>
             <textPath href="#sp-arc-outer" startOffset="50%" textAnchor="middle">A complete financial perspective</textPath>
           </text>
-          <text fill="#fff" style={{ fontSize: 15, fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase" }}>
+          <text fill="#fff" style={{ fontSize: 15, fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase", ...revText(940) }}>
             <textPath href="#sp-arc-mid" startOffset="50%" textAnchor="middle">One relationship</textPath>
           </text>
 
-          {/* core label */}
-          <text x={C} y={C - 8} textAnchor="middle" className="ff-serif" fill="#fff" style={{ fontSize: 17, fontWeight: 700 }}>One</text>
-          <text x={C} y={C + 14} textAnchor="middle" className="ff-serif" fill="#fff" style={{ fontSize: 17, fontWeight: 700 }}>advisory</text>
-          <text x={C} y={C + 36} textAnchor="middle" className="ff-serif" fill="#fff" style={{ fontSize: 17, fontWeight: 700 }}>system</text>
+          {/* core label — last */}
+          <g style={revText(1060)}>
+            <text x={C} y={C - 8} textAnchor="middle" className="ff-serif" fill="#fff" style={{ fontSize: 17, fontWeight: 700 }}>One</text>
+            <text x={C} y={C + 14} textAnchor="middle" className="ff-serif" fill="#fff" style={{ fontSize: 17, fontWeight: 700 }}>advisory</text>
+            <text x={C} y={C + 36} textAnchor="middle" className="ff-serif" fill="#fff" style={{ fontSize: 17, fontWeight: 700 }}>system</text>
+          </g>
         </svg>
       </div>
       <p style={{ textAlign: "center", marginTop: 30, fontSize: 13, color: "rgba(255,255,255,0.45)", lineHeight: 1.6, opacity: seen ? 1 : 0, transition: "opacity .8s ease 700ms" }}>
@@ -1738,7 +1747,7 @@ function About({ go }) {
         <div className="parallax-fast" style={{ position: "absolute", bottom: -120, left: -60, width: 360, height: 360, borderRadius: "50%", background: "radial-gradient(circle, rgba(201,168,76,0.08) 0%, transparent 70%)", pointerEvents: "none" }}></div>
         <div style={{ ...wrap, position: "relative", zIndex: 1 }}>
           <Reveal><p className="sp-kicker" style={{ color: TEAL, marginBottom: 16 }}>About Spectra Assets</p></Reveal>
-          <Reveal delay={80}><h1 style={{ fontSize: "clamp(36px,5vw,64px)", fontWeight: 800, color: "#fff", lineHeight: 1.06, marginBottom: 24, maxWidth: 760 }}>Your investment partner <em style={{ fontStyle: "normal", color: TEAL }}>for life.</em></h1></Reveal>
+          <Reveal delay={80}><h1 style={{ fontSize: "clamp(42px,5.6vw,76px)", fontWeight: 800, color: "#fff", lineHeight: 1.06, marginBottom: 24, maxWidth: 760 }}>Your investment partner <em style={{ fontStyle: "normal", color: TEAL }}>for life.</em></h1></Reveal>
           <Reveal delay={160}><p style={{ fontSize: 18, color: "rgba(255,255,255,0.55)", maxWidth: 580, lineHeight: 1.75, marginBottom: 48 }}>Money rarely comes with just one goal. Spectra Assets brings every financial decision together under one trusted relationship, so the bigger picture always stays in focus.</p></Reveal>
           <div className="sp-numrow" style={{ display: "flex", gap: 44, flexWrap: "wrap", borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: 40 }}>
             {[{ p: "₹", v: 140, s: "Cr+", l: "Assets under management" }, { p: "", v: 350, s: "+", l: "Families & businesses" }, { p: "", v: 600, s: "+", l: "Portfolios managed" }].map((it, i) => (
@@ -1757,7 +1766,7 @@ function About({ go }) {
           <Reveal>
             <div>
               <p className="sp-kicker" style={{ color: TEAL, marginBottom: 16 }}>Our story</p>
-              <h2 style={{ fontSize: "clamp(26px,3vw,40px)", fontWeight: 700, color: NAVY, lineHeight: 1.15, marginBottom: 22 }}>We didn't start with products. We started with people.</h2>
+              <h2 style={{ fontSize: "clamp(30px,3.6vw,48px)", fontWeight: 700, color: NAVY, lineHeight: 1.15, marginBottom: 22 }}>We didn't start with products. We started with people.</h2>
               <p style={{ fontSize: 16, color: "#6B7280", lineHeight: 1.85, marginBottom: 16 }}>Most financial advice is delivered in pieces, investments here, insurance there, loans somewhere else. We saw an opportunity to do things differently.</p>
               <p style={{ fontSize: 16, color: "#6B7280", lineHeight: 1.85 }}>Spectra Assets helps clients navigate life with clarity, confidence and purpose. Because when every decision works together, financial progress becomes more meaningful.</p>
             </div>
@@ -1778,7 +1787,7 @@ function About({ go }) {
         <div style={wrap}>
           <Reveal><div style={{ textAlign: "center", marginBottom: 52 }}>
             <p className="sp-kicker" style={{ color: TEAL, marginBottom: 14 }}>What we believe</p>
-            <h2 style={{ fontSize: "clamp(28px,3.5vw,44px)", fontWeight: 700, color: NAVY, lineHeight: 1.1 }}>Five principles behind every conversation.</h2>
+            <h2 style={{ fontSize: "clamp(32px,4.2vw,52px)", fontWeight: 700, color: NAVY, lineHeight: 1.1 }}>Five principles behind every conversation.</h2>
           </div></Reveal>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 18 }}>
             {PRINCIPLES.map((p, i) => (
@@ -1791,17 +1800,6 @@ function About({ go }) {
               </Reveal>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* ECOSYSTEM pyramid */}
-      <section style={{ background: NAVY, padding: "88px 32px", position: "relative", overflow: "hidden" }}>
-        <div className="parallax-slow" style={{ position: "absolute", top: -120, right: -80, width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,155,141,0.10) 0%, transparent 70%)", pointerEvents: "none" }}></div>
-        <div style={{ ...wrap, position: "relative", zIndex: 1, textAlign: "center" }}>
-          <Reveal><p className="sp-kicker" style={{ color: TEAL, marginBottom: 14 }}>The Spectra ecosystem</p></Reveal>
-          <Reveal delay={80}><h2 style={{ fontSize: "clamp(28px,3.5vw,44px)", fontWeight: 700, color: "#fff", lineHeight: 1.12, marginBottom: 16 }}>One advisory system. One relationship.</h2></Reveal>
-          <Reveal delay={140}><p style={{ fontSize: 16, color: "rgba(255,255,255,0.5)", maxWidth: 520, margin: "0 auto 52px", lineHeight: 1.7 }}>Protection, wealth and growth, layered around you and managed together.</p></Reveal>
-          <Ecosystem go={go} />
         </div>
       </section>
 
@@ -1820,7 +1818,7 @@ function Solutions({ go, tab, setTab }) {
         <div className="parallax-slow" style={{ position: "absolute", bottom: -60, left: "20%", width: 300, height: 300, borderRadius: "50%", background: "radial-gradient(circle, rgba(201,168,76,0.08) 0%, transparent 70%)", pointerEvents: "none" }}></div>
         <div style={{ ...wrap, position: "relative", zIndex: 1 }}>
           <p className="sp-kicker" style={{ color: TEAL, marginBottom: 16 }}>Our solutions</p>
-          <h1 style={{ fontSize: "clamp(36px,5vw,64px)", fontWeight: 800, color: "#fff", letterSpacing: "-2px", marginBottom: 20, lineHeight: 1.03 }}>Everything you need,<br /><em style={{ fontStyle: "normal", color: TEAL }}>in one place.</em></h1>
+          <h1 style={{ fontSize: "clamp(42px,5.6vw,76px)", fontWeight: 800, color: "#fff", letterSpacing: "-2px", marginBottom: 20, lineHeight: 1.03 }}>Everything you need,<br /><em style={{ fontStyle: "normal", color: TEAL }}>in one place.</em></h1>
           <p style={{ fontSize: 17, color: "rgba(255,255,255,0.5)", maxWidth: 460, lineHeight: 1.7 }}>Five connected solution lines. One advisory relationship, no switching between firms.</p>
         </div>
       </section>
@@ -1839,7 +1837,7 @@ function Solutions({ go, tab, setTab }) {
       <section key={tab} style={{ padding: "64px 32px 8px", ...wrap, animation: "tabIn 0.35s ease-out both" }}>
         <div className="sp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "center", marginBottom: 56 }}>
         <div>
-          <h2 style={{ fontSize: "clamp(28px,3.5vw,44px)", fontWeight: 800, color: NAVY, letterSpacing: "-1px", lineHeight: 1.08, marginBottom: 18 }}>{cat.titleA} <em style={{ fontStyle: "normal", color: TEAL }}>{cat.titleEm}</em></h2>
+          <h2 style={{ fontSize: "clamp(32px,4.2vw,52px)", fontWeight: 800, color: NAVY, letterSpacing: "-1px", lineHeight: 1.08, marginBottom: 18 }}>{cat.titleA} <em style={{ fontStyle: "normal", color: TEAL }}>{cat.titleEm}</em></h2>
           {cat.intro.map((p, i) => <p key={i} style={{ fontSize: 16, color: "#6B7280", lineHeight: 1.8, marginBottom: 12 }}>{p}</p>)}
           <S as="button" onClick={() => go("sol-" + cat.key, cat.key)} css="margin-top:12px;background:#009B8D;color:#fff;border:none;cursor:pointer;font-weight:700;font-size:14px;padding:13px 26px;border-radius:10px;transition:all 0.18s;" hover="background:#007D72;transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,155,141,0.3);">Explore {cat.nav} →</S>
         </div>
@@ -1904,7 +1902,7 @@ function BizCover({ g, go }) {
     <div className="sp-biz" style={{ width: "100vw", marginLeft: "calc(50% - 50vw)", background: "#F7F5F0", borderTop: "1px solid #EFEBE0", borderBottom: "1px solid #EFEBE0", padding: "64px 40px" }}>
     <div style={{ maxWidth: 1100, margin: "0 auto" }}>
       <p className="sp-kicker" style={{ color: TEAL, marginBottom: 12 }}>For businesses</p>
-      <h3 style={{ fontSize: "clamp(24px,3vw,36px)", fontWeight: 800, color: NAVY, letterSpacing: "-0.7px", lineHeight: 1.12, marginBottom: 14 }}>{g.title}</h3>
+      <h3 style={{ fontSize: "clamp(28px,3.4vw,44px)", fontWeight: 800, color: NAVY, letterSpacing: "-0.7px", lineHeight: 1.12, marginBottom: 14 }}>{g.title}</h3>
       {g.intro && <p style={{ fontSize: 16, color: "#6B7280", lineHeight: 1.75, maxWidth: 720, marginBottom: 32 }}>{g.intro}</p>}
 
       {/* simple rectangular tabs */}
@@ -1960,7 +1958,7 @@ function ProductGrid({ groups, go }) {
           <div key={gi} style={{ marginBottom: 40 }}><BizCover g={g} go={go} /></div>
         ) : (
         <div key={gi} style={{ marginBottom: 40 }}>
-          {g.title && <h3 style={{ fontSize: "clamp(20px,2.4vw,28px)", fontWeight: 800, color: NAVY, letterSpacing: "-0.6px", marginBottom: g.intro ? 12 : 24 }}>{g.title}</h3>}
+          {g.title && <h3 style={{ fontSize: "clamp(24px,2.8vw,34px)", fontWeight: 800, color: NAVY, letterSpacing: "-0.6px", marginBottom: g.intro ? 12 : 24 }}>{g.title}</h3>}
           {g.intro && <p style={{ fontSize: 15, color: "#6B7280", lineHeight: 1.75, maxWidth: 760, marginBottom: 28 }}>{g.intro}</p>}
           {g.items && (
             <div className="sp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
@@ -1984,7 +1982,7 @@ function StackedGroups({ cat, go }) {
         <div key={gi} style={{ marginBottom: 8 }}>
           {g.title && !g.sub && (
             <div id={anchorId(cat.key, g.title)} style={{ scrollMarginTop: 90, margin: gi === 0 ? "0 0 24px" : "44px 0 24px" }}>
-              <h3 style={{ fontSize: "clamp(22px,2.6vw,30px)", fontWeight: 800, color: NAVY, letterSpacing: "-0.6px", marginBottom: g.intro ? 12 : 0 }}>{g.title}</h3>
+              <h3 style={{ fontSize: "clamp(26px,3vw,38px)", fontWeight: 800, color: NAVY, letterSpacing: "-0.6px", marginBottom: g.intro ? 12 : 0 }}>{g.title}</h3>
               {g.intro && <p style={{ fontSize: 15, color: "#6B7280", lineHeight: 1.75, maxWidth: 760 }}>{g.intro}</p>}
             </div>
           )}
@@ -2041,7 +2039,7 @@ function Category({ cat, go, faq, toggleFaq }) {
           <div style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", marginBottom: 14, letterSpacing: "1px" }}>
             Home › <button onClick={() => go("solutions")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "rgba(255,255,255,0.35)" }}>Solutions</button> › {cat.nav}
           </div>
-          <h1 style={{ fontSize: "clamp(32px,4.6vw,54px)", fontWeight: 800, color: "#fff", letterSpacing: "-1.5px", lineHeight: 1.1, marginBottom: 22, maxWidth: 900, marginLeft: "auto", marginRight: "auto" }}>{cat.titleA} <span style={{ color: TEAL }}>{cat.titleEm}</span></h1>
+          <h1 style={{ fontSize: "clamp(38px,5.2vw,66px)", fontWeight: 800, color: "#fff", letterSpacing: "-1.5px", lineHeight: 1.1, marginBottom: 22, maxWidth: 900, marginLeft: "auto", marginRight: "auto" }}>{cat.titleA} <span style={{ color: TEAL }}>{cat.titleEm}</span></h1>
           <p style={{ fontSize: 17, color: "rgba(255,255,255,0.5)", lineHeight: 1.75, marginBottom: 36, maxWidth: 540, marginLeft: "auto", marginRight: "auto" }}>{cat.hero}</p>
           <S as="button" onClick={() => go("contact")} css="background:#fff;color:#0F1729;border:none;cursor:pointer;font-weight:700;font-size:15px;padding:15px 34px;border-radius:10px;transition:all 0.18s;" hover="background:#F0FAF9;color:#009B8D;transform:translateY(-2px);">Talk to an Advisor →</S>
         </div>
@@ -2059,7 +2057,7 @@ function Category({ cat, go, faq, toggleFaq }) {
       {/* FAQ */}
       <section style={{ padding: "88px 40px", background: "#fff" }}>
         <div style={{ textAlign: "center", marginBottom: 48 }}>
-          <h2 style={{ fontSize: "clamp(26px,3.5vw,38px)", fontWeight: 800, color: NAVY, letterSpacing: "-0.8px", marginBottom: 10 }}>Still got questions?</h2>
+          <h2 style={{ fontSize: "clamp(30px,4vw,46px)", fontWeight: 800, color: NAVY, letterSpacing: "-0.8px", marginBottom: 10 }}>Still got questions?</h2>
           <p style={{ fontSize: 16, color: "#9CA3AF" }}>We're here to help.</p>
         </div>
         <FaqList items={GENERIC_FAQ} kp={cat.key} faq={faq} toggleFaq={toggleFaq} />
@@ -2173,7 +2171,7 @@ function CalcCard({ toggle, title, subtitle, sliders, donut, results, ctaLabel, 
     <div className="page-wrap" style={{ paddingTop: 64 }}>
       <section style={{ padding: "56px 32px 30px", textAlign: "center", background: "#fff" }}>
         <p className="sp-kicker" style={{ color: TEAL, marginBottom: 14 }}>Tools</p>
-        <h1 style={{ fontSize: "clamp(30px,4vw,46px)", fontWeight: 700, color: NAVY, letterSpacing: "-0.5px", marginBottom: 12 }}>{title}</h1>
+        <h1 style={{ fontSize: "clamp(34px,4.6vw,56px)", fontWeight: 700, color: NAVY, letterSpacing: "-0.5px", marginBottom: 12 }}>{title}</h1>
         <p style={{ fontSize: 16, color: "#6B7280", maxWidth: 480, margin: "0 auto" }}>{subtitle}</p>
       </section>
       <section style={{ padding: "0 24px 96px", background: "#fff" }}>
@@ -2280,7 +2278,7 @@ function Forms({ go }) {
     <div className="page-wrap" style={{ paddingTop: 64 }}>
       <section style={{ background: NAVY, padding: "72px 40px 60px", textAlign: "center" }}>
         <p className="sp-kicker" style={{ color: TEAL, marginBottom: 14 }}>Resources</p>
-        <h1 style={{ fontSize: "clamp(32px,4.5vw,52px)", fontWeight: 800, color: "#fff", letterSpacing: "-1.5px", marginBottom: 14 }}>Downloadable Forms</h1>
+        <h1 style={{ fontSize: "clamp(38px,5vw,64px)", fontWeight: 800, color: "#fff", letterSpacing: "-1.5px", marginBottom: 14 }}>Downloadable Forms</h1>
         <p style={{ fontSize: 16, color: "rgba(255,255,255,0.5)", maxWidth: 480, margin: "0 auto 28px" }}>All the forms you need to get started, in one place.</p>
         {/* search */}
         <div style={{ maxWidth: 440, margin: "0 auto", position: "relative" }}>
@@ -2342,7 +2340,7 @@ function Contact({ form, setForm, formDone, submitForm, toggleInterest }) {
       <section style={{ padding: "72px 32px 80px", ...wrap }}>
         <div style={{ maxWidth: 560, marginBottom: 56 }}>
           <p className="sp-kicker" style={{ color: TEAL, marginBottom: 16 }}>Contact us</p>
-          <h1 style={{ fontSize: "clamp(32px,4.5vw,54px)", fontWeight: 800, color: NAVY, letterSpacing: "-1.5px", lineHeight: 1.06, marginBottom: 20 }}>Let's talk about what matters to <em style={{ fontStyle: "normal", color: TEAL }}>you.</em></h1>
+          <h1 style={{ fontSize: "clamp(38px,5vw,66px)", fontWeight: 800, color: NAVY, letterSpacing: "-1.5px", lineHeight: 1.06, marginBottom: 20 }}>Let's talk about what matters to <em style={{ fontStyle: "normal", color: TEAL }}>you.</em></h1>
           <p style={{ fontSize: 16, color: "#6B7280", lineHeight: 1.75 }}>Whether you're looking to build wealth, protect what you've built, plan for the future, or arrange funding, we're here to understand your requirements and help you take the right next step.</p>
         </div>
 

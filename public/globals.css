@@ -96,14 +96,14 @@ h1, h2 { font-family: 'Poppins', sans-serif; letter-spacing: -0.02em !important;
 /* the offset is driven per frame in JS; spacing is a margin on the cards rather
    than a flex gap so the duplicated half is exactly half the track width */
 .sp-logo-track { display: flex; width: max-content; will-change: transform; backface-visibility: hidden; }
-.sp-logo-card { flex: 0 0 auto; height: 76px; margin-right: 16px; padding: 0 22px; background: #fff; border: 1px solid #F0F2F5;
-  border-radius: 14px; display: flex; align-items: center; justify-content: center;
+.sp-logo-card { flex: 0 0 auto; height: 96px; margin-right: 18px; padding: 0 28px; background: #fff; border: 1px solid #F0F2F5;
+  border-radius: 16px; display: flex; align-items: center; justify-content: center;
   box-shadow: 0 2px 12px rgba(15,23,41,0.04); transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease; }
 .sp-logo-card:hover { transform: translateY(-4px); box-shadow: 0 14px 32px rgba(15,23,41,0.12); border-color: rgba(0,155,141,0.32); }
-.sp-logo-card img { height: 42px; width: auto; max-width: 168px; object-fit: contain; display: block; user-select: none; }
+.sp-logo-card img { height: 56px; width: auto; max-width: 210px; object-fit: contain; display: block; user-select: none; }
 @media (max-width: 860px) {
-  .sp-logo-card { height: 64px; margin-right: 12px; padding: 0 16px; }
-  .sp-logo-card img { height: 34px; max-width: 132px; }
+  .sp-logo-card { height: 78px; margin-right: 14px; padding: 0 20px; }
+  .sp-logo-card img { height: 44px; max-width: 160px; }
 }
 
 /* floating whatsapp button */
