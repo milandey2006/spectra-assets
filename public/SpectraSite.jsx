@@ -1603,7 +1603,7 @@ function Ecosystem({ go }) {
           style={{ position: "absolute", left: "50%", top: py(C0[1]), height: ((340 * K / VH) * 100).toFixed(1) + "%", width: "auto", transform: seen ? "translate(-50%,-50%) scale(1)" : "translate(-50%,-50%) scale(0.9)", opacity: seen ? 1 : 0, filter: seen ? undefined : "blur(8px)", transition: "opacity .9s ease, transform 1.1s cubic-bezier(.16,1,.3,1), filter 1s ease" }} />
 
         {/* flow arrows beside each side, like the sketch */}
-        <svg viewBox={`${VX} ${VY} ${VW} ${VH}`} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", overflow: "visible", pointerEvents: "none" }} aria-hidden="true">
+        <svg className="sp-eco-arrows" viewBox={`${VX} ${VY} ${VW} ${VH}`} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", overflow: "visible", pointerEvents: "none" }} aria-hidden="true">
           <defs>
             <marker id="eco-arrow" viewBox="0 0 14 14" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto" markerUnits="userSpaceOnUse">
               <path d="M2,2 L11,7 L2,12" fill="none" stroke="#00D4B2" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />

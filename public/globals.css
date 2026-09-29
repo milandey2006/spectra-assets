@@ -107,7 +107,7 @@ h1, h2 { font-family: 'Poppins', sans-serif; letter-spacing: -0.02em !important;
 @media (prefers-reduced-motion: reduce) { .sp-eco-flow, .sp-eco-logo { animation: none; } }
 @media (max-width: 680px) {
   .sp-eco-stage { width: 100% !important; margin-bottom: 40px !important; }
-  .sp-eco-side { display: none !important; }
+  .sp-eco-side, .sp-eco-arrows { display: none !important; }
   .sp-eco-list { display: flex !important; }
 }
 
