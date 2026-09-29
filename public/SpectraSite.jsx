@@ -674,10 +674,11 @@ function CountUp({ to, prefix = "", suffix = "", dur = 1500 }) {
       raf = requestAnimationFrame(tick);
     };
     if (typeof IntersectionObserver === "undefined") { setVal(to); return; }
-    const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting && !started) { started = true; run(); io.disconnect(); } }), { threshold: 0.4 });
+    // only start once the number is clearly on screen (a bit above the bottom edge), so the
+    // count is seen happening. No timer fallback: it used to fire 1.6s after load, off screen.
+    const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting && !started) { started = true; run(); io.disconnect(); } }), { threshold: 0.6, rootMargin: "0px 0px -12% 0px" });
     io.observe(el);
-    const fb = setTimeout(() => { if (!started) { started = true; run(); } }, 1600);
-    return () => { io.disconnect(); if (raf) cancelAnimationFrame(raf); clearTimeout(fb); };
+    return () => { io.disconnect(); if (raf) cancelAnimationFrame(raf); };
   }, [to]);
   return <span ref={ref}>{prefix}{Math.round(val).toLocaleString("en-IN")}{suffix}</span>;
 }
