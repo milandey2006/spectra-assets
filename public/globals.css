@@ -96,7 +96,7 @@ h1, h2 { font-family: 'Poppins', sans-serif; letter-spacing: -0.02em !important;
 .sp-pcard:hover { border-color: rgba(0,212,178,0.38); transform: translateY(-3px); box-shadow: 0 16px 36px -18px rgba(0,212,178,0.22); }
 .sp-sticky-col { align-self: start; }
 /* pinned left column only when it fits the screen; otherwise let it scroll normally */
-@media (max-width: 860px), (max-height: 780px) { .sp-sticky-col { position: static !important; } }
+@media (max-width: 860px), (max-height: 500px) { .sp-sticky-col { position: static !important; } }
 
 /* ecosystem triangle */
 @keyframes ecoFlow { to { stroke-dashoffset: -32; } }
@@ -165,7 +165,6 @@ h1, h2 { font-family: 'Poppins', sans-serif; letter-spacing: -0.02em !important;
   .sp-contact-grid { grid-template-columns: 1fr; grid-template-areas: "head" "form" "info"; }
   .sp-contact-form { position: static; }
 }
-@media (max-height: 760px) { .sp-contact-form { position: static; } }
 
 /* "Our approach": vertical list on small screens, horizontal row from 1000px up */
 @media (min-width: 1000px) {

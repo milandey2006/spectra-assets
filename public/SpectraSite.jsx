@@ -1358,13 +1358,11 @@ function TestimonialsSlider() {
 /* ============================ HOME ============================ */
 function Home({ go, openMember, setOpenMember }) {
   const wrap = { maxWidth: 1100, margin: "0 auto" };
-  const marketRows = useMarketData();
   return (
     <div className="page-wrap" style={{ paddingTop: 64 }}>
-      {/* HERO: dark, editorial. Live-market backdrop + aurora kept; only the design changed. */}
+      {/* HERO: dark, editorial, with the soft aurora glow behind the text */}
       <section style={{ position: "relative", overflow: "hidden", background: BG }}>
         <Aurora />
-        <HeroNumbersBg rows={marketRows} />
         <div aria-hidden="true" style={{ position: "absolute", top: "-6%", left: "50%", transform: "translateX(-50%)", width: 760, height: 420, maxWidth: "100%", background: "radial-gradient(ellipse at center, rgba(0,212,178,0.16) 0%, transparent 68%)", filter: "blur(40px)", pointerEvents: "none" }}></div>
         <div aria-hidden="true" className="sp-hero-veil" style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "radial-gradient(ellipse 66% 74% at 50% 46%, rgba(7,11,17,0.94) 0%, rgba(7,11,17,0.86) 52%, rgba(7,11,17,0.55) 80%, rgba(7,11,17,0.25) 100%)" }}></div>
         <div style={{ position: "relative", zIndex: 1, padding: "124px 32px 128px", maxWidth: 1040, margin: "0 auto", textAlign: "center" }}>
@@ -1448,7 +1446,12 @@ function Home({ go, openMember, setOpenMember }) {
             <Reveal>
               <p className="sp-kicker" style={{ color: TEAL, marginBottom: 20 }}>Our story</p>
               <h2 style={{ fontSize: "clamp(26px,3.1vw,42px)", color: INK, lineHeight: 1.18, marginBottom: 28 }}>We didn't start with products.<br /><span style={{ color: GOLD, fontStyle: "italic", fontWeight: 400 }}>We started with people.</span></h2>
-              <p style={{ fontSize: 15, color: "#8A99AD", lineHeight: 1.8, marginBottom: 16, fontWeight: 300 }}>Every individual has a different story. A young professional wants to build wealth. Parents dream of giving their children the best education. Entrepreneurs work tirelessly to grow their businesses.</p>
+              <p style={{ fontSize: 17, color: INK, fontWeight: 500, lineHeight: 1.6, marginBottom: 16 }}>Every individual has a different story:</p>
+              <ul style={{ listStyle: "none", margin: "0 0 26px", padding: "2px 0 2px 22px", borderLeft: "3px solid rgba(0,212,178,0.38)", display: "flex", flexDirection: "column", gap: 14 }}>
+                {["A young professional wants to build wealth.", "Parents dream of giving their children the best education.", "Entrepreneurs work tirelessly to grow their businesses."].map((t) => (
+                  <li key={t} style={{ fontSize: 16, color: "#B9C4D3", lineHeight: 1.65, fontWeight: 300 }}><span aria-hidden="true" style={{ color: "#8A99AD", marginRight: 8 }}>&bull;</span>{t}</li>
+                ))}
+              </ul>
               <p style={{ fontSize: 15, color: "#8A99AD", lineHeight: 1.8, fontWeight: 300 }}>Yet most financial advice is delivered in pieces, investments here, insurance there, loans somewhere else. Spectra Assets was built to bring every financial decision together under one trusted relationship.</p>
             </Reveal>
           </div>
@@ -1472,10 +1475,10 @@ function Home({ go, openMember, setOpenMember }) {
       </section>
 
       {/* THE SPECTRA ECOSYSTEM */}
-      <section className="sp-newfont" style={{ background: NAVY, padding: "88px 32px", position: "relative", overflow: "hidden" }}>
+      <section className="sp-newfont" style={{ background: NAVY, padding: "60px 32px 56px", position: "relative", overflow: "hidden" }}>
         <div className="parallax-slow" style={{ position: "absolute", top: -120, right: -80, width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,212,178,0.10) 0%, transparent 70%)", pointerEvents: "none" }}></div>
         <div style={{ ...wrap, position: "relative", zIndex: 1, textAlign: "center" }}>
-          <p className="sp-kicker" style={{ color: TEAL, marginBottom: 44 }}>The Spectra ecosystem</p>
+          <p className="sp-kicker" style={{ color: TEAL, marginBottom: 6 }}>The Spectra ecosystem</p>
           <Ecosystem go={go} />
         </div>
       </section>
@@ -1573,7 +1576,7 @@ function Ecosystem({ go }) {
   const sc = (pt) => [C0[0] + (pt[0] - C0[0]) * K, C0[1] + (pt[1] - C0[1]) * K];
   const A = sc([450, 88]), BL = sc([285, 420]), BR = sc([615, 420]);
   const cen = [(A[0] + BL[0] + BR[0]) / 3, (A[1] + BL[1] + BR[1]) / 3];
-  const VX = 150, VY = 70, VW = 600, VH = 420;
+  const VX = 150, VY = 104, VW = 600, VH = 356;
   const px = (x) => (((x - VX) / VW) * 100).toFixed(2) + "%";
   const py = (y) => (((y - VY) / VH) * 100).toFixed(2) + "%";
   const sides = [
@@ -1595,7 +1598,7 @@ function Ecosystem({ go }) {
   const fade = (delay, extra) => ({ opacity: seen ? 1 : 0, transition: `opacity .7s ease ${delay}s, transform .7s cubic-bezier(.16,1,.3,1) ${delay}s`, ...(extra || {}) });
   return (
     <div ref={ref} style={{ maxWidth: 900, margin: "0 auto" }}>
-      <div className="sp-eco-stage" style={{ position: "relative", width: "66.6667%", margin: "0 auto 48px", aspectRatio: VW + " / " + VH }}>
+      <div className="sp-eco-stage" style={{ position: "relative", width: "66.6667%", margin: "0 auto 24px", aspectRatio: VW + " / " + VH }}>
         {/* soft glow behind the logo */}
         <div aria-hidden="true" style={{ position: "absolute", left: "50%", top: py(C0[1]), width: "80%", height: "96%", transform: "translate(-50%,-50%)", background: "radial-gradient(circle, rgba(0,212,178,0.16) 0%, transparent 62%)", pointerEvents: "none", opacity: seen ? 1 : 0, transition: "opacity 1.4s ease .2s" }}></div>
 
