@@ -11,6 +11,7 @@ import React from "react";
 const TEAL = "#00D4B2";
 const NAVY = "#0B1220"; // dark section background (was the navy brand colour)
 const BG = "#070B11";   // page background
+const NAV_H = 76;   // navbar height; page tops and sticky offsets use it
 const SURF = "#0D1522"; // card / dropdown / input surface
 const INK = "#E7ECF4";  // primary text on dark
 const GOLD = "#C9A84C";
@@ -473,7 +474,6 @@ function LogoRow({ items, speed = 84, base = -1, scrollDir = 1, names = false })
   React.useEffect(() => {
     const el = trackRef.current;
     if (!el) return;
-    if (typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     let raf, prev = null;
     const step = (t) => {
       if (prev === null) prev = t;
@@ -943,7 +943,7 @@ function SolRow({ catKey, it, num, go }) {
       <div style={{ fontSize: 13, fontWeight: 600, color: TEAL, letterSpacing: "0.4px", marginBottom: 14 }}>{it.name}</div>
       {it.head && <h3 style={{ fontSize: "clamp(26px,3.6vw,48px)", fontWeight: 500, color: "#E7ECF4", letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 20 }}>{it.head}</h3>}
       <p style={{ fontSize: 17, color: "#E7ECF4", lineHeight: 1.75, letterSpacing: "0.01em", marginBottom: 24, opacity: 0.85 }}>{it.body}</p>
-      <button className="sp-sol-link" onClick={() => go("contact")}>Talk to an advisor <span aria-hidden="true">→</span></button>
+      <button className="sp-sol-link" onClick={() => go("contact")}>Talk to an Advisor</button>
     </div>
   );
   return (
@@ -1059,71 +1059,6 @@ export default function SpectraSite() {
     return () => window.removeEventListener("scroll", onScroll);
   }, [page]);
 
-  /* home: "Our approach" timeline. The rail fills teal and each card lights up as you scroll past it. */
-  React.useEffect(() => {
-    if (page !== "home") return;
-    let raf;
-    const run = () => {
-      const N = 4;
-      const cards = [], nodes = [], fills = [];
-      for (let i = 1; i <= N; i++) { cards.push(document.getElementById("proc-card-" + i)); nodes.push(document.getElementById("proc-node-" + i)); fills.push(document.getElementById("proc-fill-" + i)); }
-      if (!cards[0]) return;
-      const setActive = (i, on) => {
-        const c = cards[i], n = nodes[i];
-        if (!c || !n) return;
-        c.style.borderColor = on ? "rgba(0,212,178,0.32)" : "rgba(255,255,255,0.07)";
-        c.style.boxShadow = on ? "0 18px 50px -24px rgba(0,212,178,0.35)" : "none";
-        c.style.background = on ? "rgba(0,212,178,0.035)" : "rgba(255,255,255,0.02)";
-        n.style.background = on ? TEAL : "#070B11";
-        n.style.borderColor = on ? TEAL : "rgba(255,255,255,0.14)";
-        n.style.color = on ? "#04140f" : "#75839A";
-        n.style.boxShadow = on ? "0 0 0 6px rgba(0,212,178,0.12)" : "none";
-      };
-      const list = document.querySelector(".sp-proc-list");
-      const onScroll = () => {
-        const vh = window.innerHeight;
-        const horizontal = window.matchMedia("(min-width: 1000px)").matches;
-        if (horizontal && list) {
-          // wide screens: the four steps sit in a row, so the rail fills left to right
-          // as the row scrolls up the screen (0 when it enters, 1 once it is well into view)
-          const raw = (vh * 0.85 - list.getBoundingClientRect().top) / (vh * 0.6);
-          const t = raw * (N - 1);
-          for (let i = 0; i < N; i++) {
-            setActive(i, raw > 0 && t > i - 0.001);
-            if (fills[i]) {
-              const f = Math.max(0, Math.min(1, t - i));
-              fills[i].style.height = "100%";
-              fills[i].style.width = (f * 100).toFixed(1) + "%";
-            }
-          }
-          return;
-        }
-        const line = vh * 0.6;   // small screens: vertical list, reading line
-        for (let i = 0; i < N; i++) {
-          const nr = nodes[i].getBoundingClientRect();
-          const nodeY = nr.top + nr.height / 2;
-          setActive(i, nodeY < line);
-          if (fills[i] && nodes[i + 1]) {
-            const nextY = nodes[i + 1].getBoundingClientRect().top + nr.height / 2;
-            const p = Math.max(0, Math.min(1, (line - nodeY) / Math.max(1, nextY - nodeY)));
-            fills[i].style.width = "100%";
-            fills[i].style.height = (p * 100).toFixed(1) + "%";
-          }
-        }
-      };
-      // capture phase so it also fires when a wrapper (not window) is what scrolls
-      window.__spProc = onScroll;
-      window.addEventListener("scroll", onScroll, { passive: true, capture: true });
-      window.addEventListener("resize", onScroll);
-      onScroll();
-    };
-    raf = setTimeout(run, 90);
-    return () => {
-      clearTimeout(raf);
-      if (window.__spProc) { window.removeEventListener("scroll", window.__spProc, { capture: true }); window.removeEventListener("resize", window.__spProc); window.__spProc = null; }
-    };
-  }, [page]);
-
   /* ---------- calculators ---------- */
   const fmt = (n) => "₹" + Math.round(n).toLocaleString("en-IN");
   const inr = (n) => Number(n).toLocaleString("en-IN");
@@ -1183,17 +1118,17 @@ export default function SpectraSite() {
       {/* SCROLL PROGRESS LINE */}
 
       {/* NAV */}
-      <nav data-navbar style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, height: 64, background: "rgba(7,11,17,0.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderBottom: "1px solid rgba(0,212,178,0.12)", display: "flex", alignItems: "center", padding: "0 32px" }}>
+      <nav data-navbar style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, height: NAV_H, background: "rgba(7,11,17,0.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderBottom: "1px solid rgba(0,212,178,0.12)", display: "flex", alignItems: "center", padding: "0 32px" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto", width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <button onClick={() => go("home")} aria-label="Spectra Assets home" style={{ background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center" }}>
-            <Brand size={38} color={INK} />
+            <Brand size={44} color={INK} />
           </button>
           <div className="sp-nav-links" style={{ display: "flex", alignItems: "center", gap: 2, position: "relative" }}>
-            <S as="button" onClick={() => go("home")} css={`background:none;border:none;cursor:pointer;font-size:14px;font-weight:${navW(page === "home")};color:${navC(page === "home")};padding:8px 14px;border-radius:8px;transition:color 0.15s;`} hover="color:#00D4B2;">Home</S>
+            <S as="button" onClick={() => go("home")} css={`background:none;border:none;cursor:pointer;font-size:19px;font-weight:${navW(page === "home")};color:${navC(page === "home")};padding:8px 14px;border-radius:8px;transition:color 0.15s;`} hover="color:#00D4B2;">Home</S>
 
             {/* Solutions dropdown */}
             <div style={{ position: "relative" }}>
-              <S as="button" onClick={() => setDrop(drop === "sol" ? null : "sol")} css={`background:none;border:none;cursor:pointer;font-size:14px;font-weight:${navW(isSol)};color:${navC(isSol)};padding:8px 14px;border-radius:8px;transition:color 0.15s;display:flex;align-items:center;gap:5px;`} hover="color:#00D4B2;">
+              <S as="button" onClick={() => setDrop(drop === "sol" ? null : "sol")} css={`background:none;border:none;cursor:pointer;font-size:19px;font-weight:${navW(isSol)};color:${navC(isSol)};padding:8px 14px;border-radius:8px;transition:color 0.15s;display:flex;align-items:center;gap:5px;`} hover="color:#00D4B2;">
                 Solutions
                 <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: "transform 0.2s", transform: drop === "sol" ? "rotate(180deg)" : "rotate(0deg)" }}><polyline points="2,4 6,8 10,4"></polyline></svg>
               </S>
@@ -1201,7 +1136,7 @@ export default function SpectraSite() {
                 <div style={{ position: "absolute", top: "calc(100% + 8px)", left: "50%", transform: "translateX(-50%)", background: SURF, border: "1px solid rgba(255,255,255,0.09)", borderRadius: 14, padding: 8, boxShadow: "0 16px 48px rgba(0,0,0,0.4)", minWidth: 240, zIndex: 300 }}>
                   {CAT_ORDER.map((k) => (
                     <div key={k} onMouseEnter={() => setSolHover(k)} style={{ position: "relative" }}>
-                      <S as="button" onClick={() => go("sol-" + k, k)} css={`width:100%;background:${solHover === k ? "#0B121E" : "none"};border:none;cursor:pointer;font-size:13px;font-weight:500;color:${solHover === k ? "#00D4B2" : "#B9C4D3"};padding:10px 14px;border-radius:8px;text-align:left;transition:all 0.12s;display:flex;align-items:center;justify-content:space-between;gap:10px;`} hover="background:#0B121E;color:#00D4B2;">
+                      <S as="button" onClick={() => go("sol-" + k, k)} css={`width:100%;background:${solHover === k ? "#0B121E" : "none"};border:none;cursor:pointer;font-size:19px;font-weight:500;color:${solHover === k ? "#00D4B2" : "#B9C4D3"};padding:10px 14px;border-radius:8px;text-align:left;transition:all 0.12s;display:flex;align-items:center;justify-content:space-between;gap:10px;`} hover="background:#0B121E;color:#00D4B2;">
                         {CATS[k].nav}
                         <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="4,2 8,6 4,10"></polyline></svg>
                       </S>
@@ -1209,23 +1144,23 @@ export default function SpectraSite() {
                         <div style={{ position: "absolute", left: "100%", top: -8, marginLeft: 4, background: SURF, border: "1px solid rgba(255,255,255,0.09)", borderRadius: 14, padding: 8, boxShadow: "0 16px 48px rgba(0,0,0,0.4)", minWidth: 250, maxHeight: 420, overflowY: "auto", zIndex: 400 }}>
                           <div style={{ fontSize: 11, fontWeight: 700, color: "#75839A", letterSpacing: "0.8px", textTransform: "uppercase", padding: "6px 14px 8px" }}>{CATS[k].nav}</div>
                           {catMenu(CATS[k]).map((m, mi) => (
-                            <S key={mi} as="button" onClick={() => go("sol-" + k, k, m.anchor)} css="width:100%;background:none;border:none;cursor:pointer;font-size:13px;font-weight:500;color:#B9C4D3;padding:9px 14px;border-radius:8px;text-align:left;transition:all 0.12s;" hover="background:#0B121E;color:#00D4B2;">{m.label}</S>
+                            <S key={mi} as="button" onClick={() => go("sol-" + k, k, m.anchor)} css="width:100%;background:none;border:none;cursor:pointer;font-size:19px;font-weight:500;color:#B9C4D3;padding:9px 14px;border-radius:8px;text-align:left;transition:all 0.12s;" hover="background:#0B121E;color:#00D4B2;">{m.label}</S>
                           ))}
                           <div style={{ height: 1, background: "rgba(255,255,255,0.09)", margin: "4px 8px" }}></div>
-                          <S as="button" onClick={() => go("sol-" + k, k)} css="width:100%;background:none;border:none;cursor:pointer;font-size:12px;font-weight:600;color:#00D4B2;padding:8px 14px;border-radius:8px;text-align:left;transition:background 0.12s;" hover="background:rgba(0,212,178,0.10);">Open {CATS[k].nav} page →</S>
+                          <S as="button" onClick={() => go("sol-" + k, k)} css="width:100%;background:none;border:none;cursor:pointer;font-size:19px;font-weight:600;color:#00D4B2;padding:8px 14px;border-radius:8px;text-align:left;transition:background 0.12s;" hover="background:rgba(0,212,178,0.10);">Open {CATS[k].nav} page →</S>
                         </div>
                       )}
                     </div>
                   ))}
                   <div style={{ height: 1, background: "rgba(255,255,255,0.09)", margin: "4px 8px" }}></div>
-                  <S as="button" onClick={() => go("solutions")} css="width:100%;background:none;border:none;cursor:pointer;font-size:12px;font-weight:600;color:#00D4B2;padding:8px 14px;border-radius:8px;text-align:left;transition:background 0.12s;" hover="background:rgba(0,212,178,0.10);">View all solutions →</S>
+                  <S as="button" onClick={() => go("solutions")} css="width:100%;background:none;border:none;cursor:pointer;font-size:19px;font-weight:600;color:#00D4B2;padding:8px 14px;border-radius:8px;text-align:left;transition:background 0.12s;" hover="background:rgba(0,212,178,0.10);">View all solutions →</S>
                 </div>
               )}
             </div>
 
             {/* Tools dropdown */}
             <div style={{ position: "relative" }}>
-              <S as="button" onClick={() => setDrop(drop === "tools" ? null : "tools")} css={`background:none;border:none;cursor:pointer;font-size:14px;font-weight:${navW(page.startsWith("tool-"))};color:${navC(page.startsWith("tool-"))};padding:8px 14px;border-radius:8px;transition:color 0.15s;display:flex;align-items:center;gap:5px;`} hover="color:#00D4B2;">
+              <S as="button" onClick={() => setDrop(drop === "tools" ? null : "tools")} css={`background:none;border:none;cursor:pointer;font-size:19px;font-weight:${navW(page.startsWith("tool-"))};color:${navC(page.startsWith("tool-"))};padding:8px 14px;border-radius:8px;transition:color 0.15s;display:flex;align-items:center;gap:5px;`} hover="color:#00D4B2;">
                 Tools
                 <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: "transform 0.2s", transform: drop === "tools" ? "rotate(180deg)" : "rotate(0deg)" }}><polyline points="2,4 6,8 10,4"></polyline></svg>
               </S>
@@ -1237,18 +1172,18 @@ export default function SpectraSite() {
                     ["SWP Calculator", () => go("tool-swp")],
                     ["Loan / EMI Calculator", () => go("tool-loan")],
                   ].map(([l, fn]) => (
-                    <S key={l} as="button" onClick={fn} css="width:100%;background:none;border:none;cursor:pointer;font-size:13px;font-weight:500;color:#B9C4D3;padding:10px 14px;border-radius:8px;text-align:left;transition:all 0.12s;" hover="background:#0B121E;color:#00D4B2;">{l}</S>
+                    <S key={l} as="button" onClick={fn} css="width:100%;background:none;border:none;cursor:pointer;font-size:19px;font-weight:500;color:#B9C4D3;padding:10px 14px;border-radius:8px;text-align:left;transition:all 0.12s;" hover="background:#0B121E;color:#00D4B2;">{l}</S>
                   ))}
                 </div>
               )}
             </div>
 
             {/* Forms — direct link to the forms page */}
-            <S as="button" onClick={() => go("forms")} css={`background:none;border:none;cursor:pointer;font-size:14px;font-weight:${navW(page === "forms")};color:${navC(page === "forms")};padding:8px 14px;border-radius:8px;transition:color 0.15s;`} hover="color:#00D4B2;">Forms</S>
+            <S as="button" onClick={() => go("forms")} css={`background:none;border:none;cursor:pointer;font-size:19px;font-weight:${navW(page === "forms")};color:${navC(page === "forms")};padding:8px 14px;border-radius:8px;transition:color 0.15s;`} hover="color:#00D4B2;">Forms</S>
 
             {/* Media dropdown */}
             <div style={{ position: "relative" }}>
-              <S as="button" onClick={() => setDrop(drop === "media" ? null : "media")} css="background:none;border:none;cursor:pointer;font-size:14px;font-weight:400;color:#B9C4D3;padding:8px 14px;border-radius:8px;transition:color 0.15s;display:flex;align-items:center;gap:5px;" hover="color:#00D4B2;">
+              <S as="button" onClick={() => setDrop(drop === "media" ? null : "media")} css="background:none;border:none;cursor:pointer;font-size:19px;font-weight:400;color:#B9C4D3;padding:8px 14px;border-radius:8px;transition:color 0.15s;display:flex;align-items:center;gap:5px;" hover="color:#00D4B2;">
                 Media
                 <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: "transform 0.2s", transform: drop === "media" ? "rotate(180deg)" : "rotate(0deg)" }}><polyline points="2,4 6,8 10,4"></polyline></svg>
               </S>
@@ -1257,7 +1192,7 @@ export default function SpectraSite() {
                   {[["Instagram", "https://www.instagram.com/_spectraassets_", <><rect x="2" y="2" width="20" height="20" rx="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></>],
                     ["LinkedIn", "https://www.linkedin.com/company/spectra-assets-private-limited/", <><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></>],
                   ].map(([label, href, icon]) => (
-                    <S key={label} as="a" href={href} target="_blank" rel="noopener" css="width:100%;box-sizing:border-box;font-size:13px;font-weight:500;color:#B9C4D3;padding:10px 14px;border-radius:8px;text-align:left;display:flex;align-items:center;gap:10px;transition:all 0.12s;text-decoration:none;" hover="background:#0B121E;color:#00D4B2;">
+                    <S key={label} as="a" href={href} target="_blank" rel="noopener" css="width:100%;box-sizing:border-box;font-size:19px;font-weight:500;color:#B9C4D3;padding:10px 14px;border-radius:8px;text-align:left;display:flex;align-items:center;gap:10px;transition:all 0.12s;text-decoration:none;" hover="background:#0B121E;color:#00D4B2;">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{icon}</svg>{label}
                     </S>
                   ))}
@@ -1265,7 +1200,7 @@ export default function SpectraSite() {
               )}
             </div>
 
-            <S as="button" onClick={() => go("contact")} css={`background:none;border:none;cursor:pointer;font-size:14px;font-weight:${navW(page === "contact")};color:${navC(page === "contact")};padding:8px 14px;border-radius:8px;transition:color 0.15s;`} hover="color:#00D4B2;">Contact</S>
+            <S as="button" onClick={() => go("contact")} css={`background:none;border:none;cursor:pointer;font-size:19px;font-weight:${navW(page === "contact")};color:${navC(page === "contact")};padding:8px 14px;border-radius:8px;transition:color 0.15s;`} hover="color:#00D4B2;">Contact</S>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <button className="sp-burger" onClick={() => setMobileOpen((o) => !o)} aria-label="Menu" style={{ display: "none", alignItems: "center", justifyContent: "center", width: 40, height: 40, background: "none", border: "1px solid rgba(255,255,255,0.09)", borderRadius: 8, cursor: "pointer" }}>
@@ -1279,7 +1214,7 @@ export default function SpectraSite() {
 
       {/* MOBILE MENU */}
       {mobileOpen && (
-        <div style={{ position: "fixed", top: 64, left: 0, right: 0, bottom: 0, zIndex: 99, background: BG, overflowY: "auto", padding: "12px 24px 48px", borderTop: "1px solid rgba(255,255,255,0.09)" }}>
+        <div style={{ position: "fixed", top: NAV_H, left: 0, right: 0, bottom: 0, zIndex: 99, background: BG, overflowY: "auto", padding: "12px 24px 48px", borderTop: "1px solid rgba(255,255,255,0.09)" }}>
           {[["Home", "home"]].map(([l, p]) => (
             <button key={p} onClick={() => go(p)} style={{ display: "block", width: "100%", textAlign: "left", background: "none", border: "none", borderBottom: "1px solid #0E1624", padding: "16px 0", fontSize: 16, fontWeight: 600, color: INK, cursor: "pointer" }}>{l}</button>
           ))}
@@ -1340,12 +1275,12 @@ function TestimonialsSlider() {
         {cards.map((t, k) => (
           <div key={k} className="sp-testi-card" aria-hidden={k >= TESTIMONIALS.length ? "true" : undefined}>
             <Stars n={t.rating} />
-            <p style={{ fontSize: 15, color: "#D6DDE9", lineHeight: 1.8, fontWeight: 300, margin: "18px 0 24px", flex: 1 }}>&ldquo;{t.quote}&rdquo;</p>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, paddingTop: 18, borderTop: "1px solid rgba(255,255,255,0.08)" }}>
-              <div style={{ width: 42, height: 42, borderRadius: "50%", background: "rgba(0,212,178,0.12)", border: "1px solid rgba(0,212,178,0.3)", color: TEAL, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 15, flexShrink: 0 }}>{t.name.charAt(0)}</div>
+            <p style={{ fontSize: "clamp(15px,1.25vw,18px)", color: "#D6DDE9", lineHeight: 1.85, fontWeight: 300, margin: "20px 0 26px", flex: 1 }}>&ldquo;{t.quote}&rdquo;</p>
+            <div style={{ display: "flex", alignItems: "center", gap: 14, paddingTop: 18, borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+              <div style={{ width: 48, height: 48, borderRadius: "50%", background: "rgba(0,212,178,0.12)", border: "1px solid rgba(0,212,178,0.3)", color: TEAL, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "clamp(15px,1.2vw,18px)", flexShrink: 0 }}>{t.name.charAt(0)}</div>
               <div>
-                <div style={{ fontSize: 14.5, fontWeight: 600, color: INK }}>{t.name}</div>
-                <div style={{ fontSize: 12.5, color: "#75839A", marginTop: 1 }}>{t.role}</div>
+                <div style={{ fontSize: "clamp(14px,1.15vw,17px)", fontWeight: 600, color: INK }}>{t.name}</div>
+                <div style={{ fontSize: "clamp(13px,1vw,15px)", color: "#75839A", marginTop: 2 }}>{t.role}</div>
               </div>
             </div>
           </div>
@@ -1359,113 +1294,82 @@ function TestimonialsSlider() {
 function Home({ go, openMember, setOpenMember }) {
   const wrap = { maxWidth: 1100, margin: "0 auto" };
   return (
-    <div className="page-wrap" style={{ paddingTop: 64 }}>
+    <div className="page-wrap" style={{ paddingTop: NAV_H }}>
       {/* HERO: dark, editorial, with the soft aurora glow behind the text */}
       <section style={{ position: "relative", overflow: "hidden", background: BG }}>
         <Aurora />
         <div aria-hidden="true" style={{ position: "absolute", top: "-6%", left: "50%", transform: "translateX(-50%)", width: 760, height: 420, maxWidth: "100%", background: "radial-gradient(ellipse at center, rgba(0,212,178,0.16) 0%, transparent 68%)", filter: "blur(40px)", pointerEvents: "none" }}></div>
         <div aria-hidden="true" className="sp-hero-veil" style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "radial-gradient(ellipse 66% 74% at 50% 46%, rgba(7,11,17,0.94) 0%, rgba(7,11,17,0.86) 52%, rgba(7,11,17,0.55) 80%, rgba(7,11,17,0.25) 100%)" }}></div>
-        <div style={{ position: "relative", zIndex: 1, padding: "124px 32px 128px", maxWidth: 1040, margin: "0 auto", textAlign: "center" }}>
+        <div style={{ position: "relative", zIndex: 1, padding: "52px 20px 100px", maxWidth: 1760, margin: "0 auto", textAlign: "center" }}>
           <WordReveal as="h1" className="sp-hero-h1" text="Financial advice that looks at the bigger picture." emFrom={6} baseDelay={200}
             emStyle={{ fontStyle: "italic", fontWeight: 400, background: "linear-gradient(120deg,#00D4B2 0%,#34D399 100%)", WebkitBackgroundClip: "text", backgroundClip: "text", WebkitTextFillColor: "transparent" }}
-            style={{ fontSize: "clamp(28px,5.6vw,74px)", color: "#fff", lineHeight: 1.16, marginBottom: 34, textShadow: "0 0 30px rgba(0,212,178,0.14)" }} />
-          <p className="sp-hero-body" style={{ fontSize: "clamp(15px,1.55vw,18px)", color: "#8A99AD", lineHeight: 1.8, maxWidth: 700, margin: "0 auto 18px", fontWeight: 300 }}>Money rarely comes with just one goal. We help individuals, families and businesses make informed decisions across wealth creation, insurance, lending and financial planning, with the bigger picture always in focus.</p>
-          <p className="sp-hero-body" style={{ fontSize: 15, color: "#75839A", lineHeight: 1.75, maxWidth: 560, margin: "0 auto 46px", fontWeight: 300 }}>Because a financial product may solve one need. A well-thought-out strategy can connect them all.</p>
+            style={{ fontSize: "clamp(34px,calc(9.2vw - 6px),100px)", color: "#fff", lineHeight: 1.14, marginBottom: 30, textShadow: "0 0 30px rgba(0,212,178,0.14)" }} />
+          <p className="sp-hero-body" style={{ fontSize: "clamp(17.5px,2.1vw,23px)", color: "#8A99AD", lineHeight: 1.65, maxWidth: 1700, textWrap: "balance", margin: "0 auto 20px", fontWeight: 300 }}>Money rarely comes with just one goal. We help individuals, families and businesses make informed decisions across wealth creation, insurance, lending and financial planning, with the bigger picture always in focus.</p>
+          <p className="sp-hero-body" style={{ fontSize: "clamp(16px,1.75vw,19px)", color: "#75839A", lineHeight: 1.65, maxWidth: 1500, margin: "0 auto 44px", fontWeight: 300 }}>Because a financial product may solve one need. A well-thought-out strategy can connect them all.</p>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 16, flexWrap: "wrap" }}>
-            <CtaPrimary onClick={() => go("contact")} radius={999} upper tracking="0.12em" fontSize={12.5} fontWeight={600} fontFamily="'Plus Jakarta Sans', sans-serif" pad="17px 34px">
-              Talk to an Advisor <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: 8, verticalAlign: "-2px" }}><path d="M7 17L17 7M8 7h9v9" /></svg>
+            <CtaPrimary onClick={() => go("contact")} radius={999} upper tracking="0.12em" fontSize="clamp(14px,1.4vw,15px)" fontWeight={600} fontFamily="'Plus Jakarta Sans', sans-serif" pad="clamp(17px,1.8vw,21px) clamp(30px,3.6vw,44px)">
+              Talk to an Advisor
             </CtaPrimary>
-            <S as="button" onClick={() => go("solutions")} css="font-family:'Plus Jakarta Sans',sans-serif;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.16);cursor:pointer;font-size:12.5px;font-weight:600;color:#E7ECF4;padding:17px 34px;border-radius:999px;letter-spacing:0.12em;text-transform:uppercase;transition:all 0.2s;" hover="border:1px solid rgba(0,212,178,0.55);background:rgba(0,212,178,0.07);color:#00D4B2;">Explore our solutions</S>
+            <S as="button" onClick={() => go("solutions")} css="font-family:'Plus Jakarta Sans',sans-serif;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.16);cursor:pointer;font-size:clamp(14px,1.4vw,15px);font-weight:600;color:#E7ECF4;padding:clamp(17px,1.8vw,21px) clamp(30px,3.6vw,44px);border-radius:999px;letter-spacing:0.12em;text-transform:uppercase;transition:all 0.2s;" hover="border:1px solid rgba(0,212,178,0.55);background:rgba(0,212,178,0.07);color:#00D4B2;">Explore our solutions</S>
           </div>
         </div>
       </section>
 
       {/* OUR NUMBERS (centered) */}
-      <section className="sp-newfont" style={{ maxWidth: 1100, margin: "0 auto", padding: "68px 32px", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.09)" }}>
-        <p className="sp-kicker" style={{ color: TEAL, marginBottom: 14 }}>Our numbers</p>
-        <h2 className="sp-one-line" style={{ fontSize: "clamp(24px,2.7vw,40px)", color: INK, marginBottom: 44 }}>Built on relationships. Growing with purpose.</h2>
+      <section className="sp-newfont" style={{ maxWidth: 1760, margin: "0 auto", padding: "68px 20px", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.09)" }}>
+        <p className="sp-kicker" style={{ color: TEAL, marginBottom: 18, fontSize: "clamp(17px,1.7vw,21px)" }}>Our numbers</p>
+        <h2 className="sp-one-line" style={{ fontSize: "clamp(24px,3.8vw,48px)", color: INK, marginBottom: 48 }}>Built on relationships. Growing with purpose.</h2>
         <div className="sp-numrow" style={{ display: "flex", justifyContent: "center", alignItems: "center", flexWrap: "wrap", gap: 0 }}>
           {[{ p: "₹", v: 140, s: "Cr+", l: "Assets under management" }, { p: "", v: 350, s: "+", l: "Client families & businesses" }, { p: "", v: 600, s: "+", l: "Portfolios managed" }].map((it, i) => (
-            <div key={i} style={{ padding: "8px 48px", borderRight: i < 2 ? "1px solid rgba(255,255,255,0.09)" : "none" }}>
-              <div className="ff-serif" style={{ fontSize: "clamp(34px,4.4vw,52px)", color: INK, lineHeight: 1 }}><CountUp to={it.v} prefix={it.p} suffix={it.s} /></div>
-              <div className="sp-stat-label" style={{ color: "#75839A", marginTop: 12 }}>{it.l}</div>
+            <div key={i} style={{ padding: "8px clamp(28px,5.2vw,72px)", borderRight: i < 2 ? "1px solid rgba(255,255,255,0.09)" : "none" }}>
+              <div className="ff-serif" style={{ fontSize: "clamp(34px,5.5vw,68px)", color: INK, lineHeight: 1 }}><CountUp to={it.v} prefix={it.p} suffix={it.s} /></div>
+              <div className="sp-stat-label" style={{ color: "#75839A", marginTop: 16, fontSize: "clamp(12px,1.15vw,14px)" }}>{it.l}</div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* OUR APPROACH: vertical timeline of wide cards; the rail fills teal as you scroll */}
-      <section id="process-section" className="sp-newfont" style={{ position: "relative", background: BG, borderTop: "1px solid rgba(255,255,255,0.09)", borderBottom: "1px solid rgba(255,255,255,0.09)", padding: "104px 32px 112px" }}>
+      {/* OUR APPROACH: one centred card, three questions, then the promise */}
+      <section id="process-section" className="sp-newfont" style={{ position: "relative", background: BG, borderTop: "1px solid rgba(255,255,255,0.09)", borderBottom: "1px solid rgba(255,255,255,0.09)", padding: "88px 20px 96px" }}>
         <div aria-hidden="true" style={{ position: "absolute", top: "8%", left: "50%", transform: "translateX(-50%)", width: 720, height: 360, maxWidth: "100%", background: "radial-gradient(ellipse at center, rgba(0,212,178,0.07) 0%, transparent 70%)", pointerEvents: "none" }}></div>
-        <div className="sp-proc-inner" style={{ maxWidth: 900, margin: "0 auto", position: "relative" }}>
-          <div style={{ textAlign: "center", marginBottom: 64 }}>
-            <p className="sp-kicker" style={{ color: TEAL, marginBottom: 16 }}>Our approach</p>
-            <h2 style={{ fontSize: "clamp(24px,3.6vw,46px)", color: INK, lineHeight: 1.2 }}>It begins with understanding you, <br />then building around it.</h2>
+        <Reveal style={{ position: "relative", maxWidth: 1560, margin: "0 auto", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 28, padding: "clamp(32px,4vw,56px) clamp(20px,4.4vw,64px)", textAlign: "center" }}>
+          <h2 style={{ fontSize: "clamp(20px,2.9vw,38px)", color: INK, lineHeight: 1.25, marginBottom: "clamp(22px,2.6vw,34px)", textWrap: "balance" }}>Our approach begins with understanding you:</h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", gap: "clamp(12px,1.7vw,26px)", marginBottom: "clamp(24px,2.8vw,40px)" }}>
+            {["Where are you today?", "What matters to you?", "Where do you want to go?"].map((c) => (
+              <span key={c} style={{ background: "rgba(0,212,178,0.06)", border: "1px solid rgba(0,212,178,0.16)", borderRadius: 14, padding: "clamp(14px,1.5vw,20px) 16px", fontSize: "clamp(16px,1.8vw,23px)", fontWeight: 600, color: TEAL }}>{c}</span>
+            ))}
           </div>
-          {(() => {
-            const steps = [
-              { n: "01", t: "Understand you", chips: ["Where are you today?", "What matters to you?", "Where do you want to go?"], p: "Everything begins with listening." },
-              { n: "02", t: "Clarify what matters", p: "We map your goals and priorities so recommendations follow your life, not a product shelf." },
-              { n: "03", t: "Build the strategy", p: "A connected plan across investments, protection, lending and planning, explained plainly." },
-              { n: "04", t: "Stay with you", p: "Reviewing progress, adapting strategies and supporting you through every important milestone." },
-            ];
-            return (
-              <div className="sp-proc-list" style={{ position: "relative" }}>
-                {steps.map((st, i) => (
-                  <div key={st.n} className="sp-proc-row" style={{ position: "relative", paddingLeft: 68, marginBottom: i < steps.length - 1 ? 28 : 0 }}>
-                    {/* rail segment from this node down to the next one */}
-                    {i < steps.length - 1 && (
-                      <div aria-hidden="true" className="sp-proc-seg" style={{ position: "absolute", left: 19, top: 42, bottom: -28 - 14, width: 2, background: "rgba(255,255,255,0.09)", borderRadius: 2, overflow: "hidden" }}>
-                        <div id={"proc-fill-" + (i + 1)} className="sp-proc-fill" style={{ width: "100%", height: "0%", background: "linear-gradient(180deg,#00D4B2,#10B981)", boxShadow: "0 0 12px rgba(0,212,178,0.6)" }}></div>
-                      </div>
-                    )}
-                    <div id={"proc-node-" + (i + 1)} className="sp-proc-node" style={{ position: "absolute", left: 0, top: 22, width: 40, height: 40, borderRadius: "50%", background: BG, border: "1.5px solid rgba(255,255,255,0.14)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12.5, fontWeight: 700, letterSpacing: "0.04em", color: "#75839A", transition: "background 0.4s, border-color 0.4s, color 0.4s, box-shadow 0.4s", zIndex: 2 }}>{st.n}</div>
-                    <div id={"proc-card-" + (i + 1)} className="sp-proc-card" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 24, padding: "clamp(26px,3.4vw,40px) clamp(20px,3.4vw,44px)", textAlign: "center", transition: "border-color 0.5s, box-shadow 0.5s, background 0.5s" }}>
-                      <h3 style={{ fontSize: "clamp(17px,1.8vw,22px)", color: INK, lineHeight: 1.3, marginBottom: st.chips ? 24 : 14 }}>{st.t}</h3>
-                      {st.chips && (
-                        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 14, marginBottom: 24 }}>
-                          {st.chips.map((c) => (
-                            <span key={c} className="sp-proc-chip" style={{ background: "rgba(0,212,178,0.06)", border: "1px solid rgba(0,212,178,0.16)", borderRadius: 12, padding: "12px 26px", fontSize: 16, fontWeight: 500, color: TEAL }}>{c}</span>
-                          ))}
-                        </div>
-                      )}
-                      <p style={{ fontSize: 16, color: "#8A99AD", lineHeight: 1.75, maxWidth: 640, margin: "0 auto", fontWeight: 300 }}>{st.p}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            );
-          })()}
-        </div>
+          <p style={{ fontSize: "clamp(16px,1.75vw,22px)", color: "#8A99AD", lineHeight: 1.6, maxWidth: 1320, margin: "0 auto", fontWeight: 300, textWrap: "balance" }}>From there, we help you make financial decisions that are practical today and meaningful for tomorrow. Because a financial product may solve one need. A well-thought-out strategy can connect them all.</p>
+        </Reveal>
       </section>
 
       {/* OUR STORY + WHAT WE BELIEVE: left column pins while the five principles scroll on the right */}
-      <section className="sp-newfont" style={{ background: BG, borderTop: "1px solid rgba(255,255,255,0.09)", padding: "112px 32px 120px", position: "relative" }}>
-        <div className="sp-grid-2" style={{ ...wrap, maxWidth: 1120, display: "grid", gridTemplateColumns: "0.92fr 1.08fr", gap: 80, alignItems: "start" }}>
-          <div className="sp-sticky-col" style={{ position: "sticky", top: 104 }}>
+      <section className="sp-newfont" style={{ background: BG, borderTop: "1px solid rgba(255,255,255,0.09)", padding: "96px 20px 104px", position: "relative" }}>
+        <div className="sp-grid-2" style={{ ...wrap, maxWidth: 1720, display: "grid", gridTemplateColumns: "1fr 1fr", gap: "clamp(40px,6.8vw,96px)", alignItems: "start" }}>
+          <div className="sp-sticky-col" style={{ position: "sticky", top: NAV_H + 40 }}>
             <Reveal>
-              <p className="sp-kicker" style={{ color: TEAL, marginBottom: 20 }}>Our story</p>
-              <h2 style={{ fontSize: "clamp(26px,3.1vw,42px)", color: INK, lineHeight: 1.18, marginBottom: 28 }}>We didn't start with products.<br /><span style={{ color: GOLD, fontStyle: "italic", fontWeight: 400 }}>We started with people.</span></h2>
-              <p style={{ fontSize: 17, color: INK, fontWeight: 500, lineHeight: 1.6, marginBottom: 16 }}>Every individual has a different story:</p>
-              <ul style={{ listStyle: "none", margin: "0 0 26px", padding: "2px 0 2px 22px", borderLeft: "3px solid rgba(0,212,178,0.38)", display: "flex", flexDirection: "column", gap: 14 }}>
+              <p className="sp-kicker" style={{ color: TEAL, marginBottom: 22, fontSize: "clamp(17px,1.7vw,21px)" }}>Our story</p>
+              <h2 style={{ fontSize: "clamp(26px,3.9vw,50px)", color: INK, lineHeight: 1.18, marginBottom: 28 }}>We didn't start with products.<br /><span style={{ color: GOLD, fontStyle: "italic", fontWeight: 400 }}>We started with people.</span></h2>
+              <p style={{ fontSize: "clamp(17px,1.67vw,21px)", color: INK, fontWeight: 500, lineHeight: 1.6, marginBottom: 20 }}>Every individual has a different story:</p>
+              <ul style={{ listStyle: "none", margin: "0 0 32px", padding: "2px 0 2px 26px", borderLeft: "3px solid rgba(0,212,178,0.38)", display: "flex", flexDirection: "column", gap: 14 }}>
                 {["A young professional wants to build wealth.", "Parents dream of giving their children the best education.", "Entrepreneurs work tirelessly to grow their businesses."].map((t) => (
-                  <li key={t} style={{ fontSize: 16, color: "#B9C4D3", lineHeight: 1.65, fontWeight: 300 }}><span aria-hidden="true" style={{ color: "#8A99AD", marginRight: 8 }}>&bull;</span>{t}</li>
+                  <li key={t} style={{ fontSize: "clamp(16px,1.53vw,19.5px)", color: "#B9C4D3", lineHeight: 1.65, fontWeight: 300 }}><span aria-hidden="true" style={{ color: "#8A99AD", marginRight: 8 }}>&bull;</span>{t}</li>
                 ))}
               </ul>
-              <p style={{ fontSize: 15, color: "#8A99AD", lineHeight: 1.8, fontWeight: 300 }}>Yet most financial advice is delivered in pieces, investments here, insurance there, loans somewhere else. Spectra Assets was built to bring every financial decision together under one trusted relationship.</p>
+              <p style={{ fontSize: "clamp(15px,1.46vw,19px)", color: "#8A99AD", lineHeight: 1.75, fontWeight: 300 }}>Yet most financial advice is delivered in pieces, investments here, insurance there, loans somewhere else. Spectra Assets was built to bring every financial decision together under one trusted relationship.</p>
             </Reveal>
           </div>
           <div>
             <Reveal>
-              <h3 className="sp-one-line" style={{ fontSize: "clamp(15px,1.3vw,19px)", color: INK, lineHeight: 1.3, marginBottom: 30, paddingTop: 6 }}>Five principles that guide every conversation.</h3>
+              <h3 className="sp-one-line" style={{ fontSize: "clamp(15px,1.95vw,25px)", color: INK, lineHeight: 1.3, marginBottom: 36, paddingTop: 6 }}>Five principles that guide every conversation.</h3>
             </Reveal>
-            <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "clamp(18px,1.7vw,24px)" }}>
               {PRINCIPLES.map((p, i) => (
                 <Reveal key={i} delay={i * 50}>
                   <div className="sp-pcard">
-                    <div style={{ fontFamily: "'Cinzel', 'Plus Jakarta Sans', serif", fontWeight: 600, fontSize: 12, color: TEAL, letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 10 }}>Principle {String(i + 1).padStart(2, "0")}</div>
-                    <h3 style={{ fontSize: "clamp(17px,1.6vw,21px)", color: INK, lineHeight: 1.3, marginBottom: 10 }}>{p.t}</h3>
-                    <p style={{ fontSize: 14.5, color: "#8A99AD", lineHeight: 1.75, fontWeight: 300 }}>{p.d}</p>
+                    <div style={{ fontFamily: "'Cinzel', 'Plus Jakarta Sans', serif", fontWeight: 600, fontSize: "clamp(12px,1.12vw,14px)", color: TEAL, letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 12 }}>Principle {String(i + 1).padStart(2, "0")}</div>
+                    <h3 style={{ fontSize: "clamp(17px,2.1vw,27px)", color: INK, lineHeight: 1.3, marginBottom: 12 }}>{p.t}</h3>
+                    <p style={{ fontSize: "clamp(14.5px,1.39vw,18px)", color: "#8A99AD", lineHeight: 1.75, fontWeight: 300 }}>{p.d}</p>
                   </div>
                 </Reveal>
               ))}
@@ -1474,24 +1378,25 @@ function Home({ go, openMember, setOpenMember }) {
         </div>
       </section>
 
-      {/* THE SPECTRA ECOSYSTEM */}
-      <section className="sp-newfont" style={{ background: NAVY, padding: "60px 32px 56px", position: "relative", overflow: "hidden" }}>
+      {/* THE SPECTRA ECOSYSTEM: big stacked heading on the left, the logo diagram on the right */}
+      <section className="sp-newfont" style={{ background: NAVY, padding: "80px 20px", position: "relative", overflow: "hidden" }}>
         <div className="parallax-slow" style={{ position: "absolute", top: -120, right: -80, width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,212,178,0.10) 0%, transparent 70%)", pointerEvents: "none" }}></div>
-        <div style={{ ...wrap, position: "relative", zIndex: 1, textAlign: "center" }}>
-          <p className="sp-kicker" style={{ color: TEAL, marginBottom: 6 }}>The Spectra ecosystem</p>
+        <div className="sp-eco-grid" style={{ maxWidth: 1400, margin: "0 auto", position: "relative", zIndex: 1, display: "grid", gridTemplateColumns: "1fr 1.15fr", gap: "clamp(32px,4.8vw,72px)", alignItems: "center" }}>
+          <Reveal>
+            <h2 style={{ fontSize: "clamp(40px,7.3vw,92px)", color: INK, lineHeight: 1.06, margin: 0 }}>The<br />Spectra<br /><span style={{ fontStyle: "italic", fontWeight: 400, background: "linear-gradient(120deg,#00D4B2 0%,#34D399 100%)", WebkitBackgroundClip: "text", backgroundClip: "text", WebkitTextFillColor: "transparent", paddingRight: "0.08em" }}>Ecosystem</span></h2>
+          </Reveal>
           <Ecosystem go={go} />
         </div>
+        <Reveal as="p" style={{ position: "relative", zIndex: 1, textAlign: "center", margin: "clamp(32px,3.8vw,52px) auto 0", fontSize: "clamp(15px,1.67vw,21px)", color: "rgba(255,255,255,0.55)", lineHeight: 1.6, fontWeight: 300, textWrap: "balance" }}>Every layer of your finances, managed together under one relationship.</Reveal>
       </section>
 
       {/* spacer between sections */}
-      <div style={{ height: 140, background: BG }}></div>
-
       {/* WHY CLIENTS CHOOSE SPECTRA: centred heading, four boxes below */}
-      <section className="sp-newfont" style={{ padding: "72px 32px 112px", ...wrap, maxWidth: 1160 }}>
+      <section className="sp-newfont" style={{ padding: "64px 20px 96px", ...wrap, maxWidth: 1720 }}>
         <Reveal>
-          <h2 style={{ textAlign: "center", fontSize: "clamp(26px,3.4vw,44px)", color: INK, lineHeight: 1.2, marginBottom: 56 }}>Why clients choose Spectra</h2>
+          <h2 style={{ textAlign: "center", fontSize: "clamp(26px,3.6vw,50px)", color: INK, lineHeight: 1.2, marginBottom: "clamp(36px,3.4vw,52px)" }}>Why clients choose Spectra</h2>
         </Reveal>
-        <div className="sp-why-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 20, alignItems: "stretch" }}>
+        <div className="sp-why-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "clamp(16px,1.4vw,24px)", alignItems: "stretch" }}>
           {[
             { p: "Good advice doesn't end after the first meeting. Our commitment extends beyond recommendations." },
             { p: "We believe in staying connected, reviewing progress, adapting strategies and supporting clients through every important financial milestone." },
@@ -1501,8 +1406,8 @@ function Home({ go, openMember, setOpenMember }) {
             <Reveal key={i} delay={i * 110} style={{ height: "100%" }}>
               <div className="sp-pcard sp-why-box">
                 <span aria-hidden="true" className="sp-why-bar"></span>
-                {b.t && <h3 style={{ fontSize: "clamp(18px,1.6vw,22px)", color: INK, lineHeight: 1.3, marginBottom: 14 }}>{b.t}</h3>}
-                <p style={{ fontSize: 15, color: b.t ? "#8A99AD" : "#B9C4D3", lineHeight: 1.8, fontWeight: 300 }}>{b.p}</p>
+                {b.t && <h3 style={{ fontSize: "clamp(18px,1.7vw,24px)", color: INK, lineHeight: 1.3, marginBottom: 14 }}>{b.t}</h3>}
+                <p style={{ fontSize: "clamp(15px,1.4vw,19px)", color: b.t ? "#8A99AD" : "#B9C4D3", lineHeight: 1.75, fontWeight: 300 }}>{b.p}</p>
               </div>
             </Reveal>
           ))}
@@ -1516,30 +1421,28 @@ function Home({ go, openMember, setOpenMember }) {
           <h2 className="sp-one-line" style={{ fontSize: "clamp(16px,2.35vw,28px)", color: INK, lineHeight: 1.25, margin: "0 auto 44px" }}>The right advice is strengthened by the right financial ecosystem.</h2>
         </div>
         <LogoMarquee />
-        <div style={{ height: 40 }}></div>
-        <NameMarquee />
       </section>
 
       {/* LEADERSHIP */}
-      <section className="sp-newfont" style={{ padding: "104px 32px 96px", ...wrap, maxWidth: 1160 }}>
+      <section className="sp-newfont" style={{ padding: "88px 20px 96px", ...wrap, maxWidth: 1720 }}>
         <Reveal>
-          <div style={{ textAlign: "center", marginBottom: 60 }}>
+          <div style={{ textAlign: "center", marginBottom: "clamp(44px,4.4vw,68px)" }}>
             <p className="sp-kicker" style={{ color: TEAL, marginBottom: 14 }}>Leadership</p>
-            <h2 style={{ fontSize: "clamp(24px,3.2vw,42px)", color: INK, lineHeight: 1.2 }}>Expertise across every financial need.</h2>
+            <h2 style={{ fontSize: "clamp(26px,3.6vw,50px)", color: INK, lineHeight: 1.2 }}>Expertise across every financial need.</h2>
           </div>
         </Reveal>
-        <div className="sp-lead-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24, alignItems: "stretch" }}>
+        <div className="sp-lead-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "clamp(20px,2vw,36px)", alignItems: "stretch" }}>
           {TEAM.map((m, i) => (
             <Reveal key={i} delay={i * 110} style={{ height: "100%" }}>
               <div className="sp-lead-card">
                 <div>
                   <div className="ff-serif sp-lead-avatar">{m.name.split(" ").map((x) => x[0]).slice(0, 2).join("")}</div>
-                  <h3 style={{ fontSize: "clamp(20px,1.9vw,25px)", color: INK, lineHeight: 1.25, marginBottom: 8 }}>{m.name}</h3>
-                  <div style={{ fontSize: 12.5, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: TEAL, marginBottom: 18, lineHeight: 1.5 }}>{m.role}</div>
-                  <p style={{ fontSize: 14.5, color: "#8A99AD", lineHeight: 1.8, fontWeight: 300 }}>{m.quote}</p>
+                  <h3 style={{ fontSize: "clamp(20px,1.9vw,28px)", color: INK, lineHeight: 1.25, marginBottom: 10 }}>{m.name}</h3>
+                  <div style={{ fontSize: "clamp(13px,1.1vw,16px)", fontWeight: 600, letterSpacing: "0.10em", textTransform: "uppercase", color: TEAL, marginBottom: 18, lineHeight: 1.5 }}>{m.role}</div>
+                  <p style={{ fontSize: "clamp(15px,1.3vw,19px)", color: "#8A99AD", lineHeight: 1.8, fontWeight: 300 }}>{m.quote}</p>
                 </div>
-                <div style={{ marginTop: 28, paddingTop: 20, borderTop: "1px solid rgba(255,255,255,0.08)", display: "flex", alignItems: "center", gap: 10, fontSize: 12.5, color: "#75839A" }}>
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={TEAL} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="9" r="6"></circle><path d="M8.5 14.5 7 22l5-3 5 3-1.5-7.5"></path></svg>
+                <div style={{ marginTop: 28, paddingTop: 20, borderTop: "1px solid rgba(255,255,255,0.08)", display: "flex", alignItems: "center", gap: 10, fontSize: "clamp(13px,1.1vw,15px)", color: "#75839A" }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={TEAL} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="9" r="6"></circle><path d="M8.5 14.5 7 22l5-3 5 3-1.5-7.5"></path></svg>
                   <span><b style={{ color: "#B9C4D3", fontWeight: 600 }}>{m.exp}</b> &middot; {m.expNote}</span>
                 </div>
               </div>
@@ -1551,9 +1454,9 @@ function Home({ go, openMember, setOpenMember }) {
       {/* TESTIMONIALS */}
       <section className="sp-newfont" style={{ padding: "0 0 104px" }}>
         <Reveal>
-          <div style={{ ...wrap, padding: "0 32px", textAlign: "center", marginBottom: 52 }}>
+          <div style={{ maxWidth: 1720, margin: "0 auto", padding: "0 20px", textAlign: "center", marginBottom: "clamp(36px,4vw,60px)" }}>
             <p className="sp-kicker" style={{ color: TEAL, marginBottom: 14 }}>Client stories</p>
-            <h2 className="sp-one-line" style={{ fontSize: "clamp(22px,2.7vw,38px)", color: INK, lineHeight: 1.2 }}>Trusted by families &amp; businesses across Mumbai.</h2>
+            <h2 className="sp-one-line" style={{ fontSize: "clamp(26px,3.4vw,50px)", color: INK, lineHeight: 1.2 }}>Trusted by families &amp; businesses across Mumbai.</h2>
           </div>
         </Reveal>
         <TestimonialsSlider />
@@ -1597,8 +1500,8 @@ function Ecosystem({ go }) {
   });
   const fade = (delay, extra) => ({ opacity: seen ? 1 : 0, transition: `opacity .7s ease ${delay}s, transform .7s cubic-bezier(.16,1,.3,1) ${delay}s`, ...(extra || {}) });
   return (
-    <div ref={ref} style={{ maxWidth: 900, margin: "0 auto" }}>
-      <div className="sp-eco-stage" style={{ position: "relative", width: "66.6667%", margin: "0 auto 24px", aspectRatio: VW + " / " + VH }}>
+    <div ref={ref} style={{ minWidth: 0 }}>
+      <div className="sp-eco-stage" style={{ position: "relative", width: "100%", margin: "0 auto", aspectRatio: VW + " / " + VH }}>
         {/* soft glow behind the logo */}
         <div aria-hidden="true" style={{ position: "absolute", left: "50%", top: py(C0[1]), width: "80%", height: "96%", transform: "translate(-50%,-50%)", background: "radial-gradient(circle, rgba(0,212,178,0.16) 0%, transparent 62%)", pointerEvents: "none", opacity: seen ? 1 : 0, transition: "opacity 1.4s ease .2s" }}></div>
 
@@ -1622,12 +1525,12 @@ function Ecosystem({ go }) {
 
         {/* the three points, written on the sides (desktop) */}
         {sides.map((sd) => (
-          <h3 key={sd.i} className="sp-eco-side" style={{ position: "absolute", left: px(sd.lab[0]), top: py(sd.lab[1]), transform: `translate(-50%,-50%) rotate(${sd.angle.toFixed(1)}deg)`, whiteSpace: "pre-line", textAlign: "center", fontSize: "clamp(11px,1.5vw,17px)", color: INK, lineHeight: 1.2, margin: 0, ...fade(sd.delay + 0.2) }}>{sd.text}</h3>
+          <h3 key={sd.i} className="sp-eco-side" style={{ position: "absolute", left: px(sd.lab[0]), top: py(sd.lab[1]), transform: `translate(-50%,-50%) rotate(${sd.angle.toFixed(1)}deg)`, whiteSpace: "pre-line", textAlign: "center", fontSize: "clamp(11px,1.74vw,22px)", color: INK, lineHeight: 1.2, margin: 0, ...fade(sd.delay + 0.2) }}>{sd.text}</h3>
         ))}
       </div>
 
       {/* mobile: the same three points as a list under the logo */}
-      <div className="sp-eco-list" style={{ flexDirection: "column", gap: 12, margin: "-20px auto 34px", maxWidth: 340, ...fade(3.2) }}>
+      <div className="sp-eco-list" style={{ flexDirection: "column", gap: 12, margin: "-20px auto 0", maxWidth: 340, ...fade(3.2) }}>
         {sides.map((sd) => (
           <div key={sd.i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 18px", borderRadius: 14, border: "1px solid rgba(0,212,178,0.18)", background: "rgba(0,212,178,0.05)", textAlign: "left" }}>
             <span style={{ width: 8, height: 8, borderRadius: "50%", background: TEAL, boxShadow: "0 0 10px #00D4B2", flexShrink: 0 }}></span>
@@ -1635,47 +1538,43 @@ function Ecosystem({ go }) {
           </div>
         ))}
       </div>
-
-      <p style={{ textAlign: "center", marginTop: 8, fontSize: 13, color: "rgba(255,255,255,0.45)", lineHeight: 1.6, opacity: seen ? 1 : 0, transition: "opacity .8s ease 3.6s" }}>
-        Every layer of your finances,<br />managed together under one relationship.
-      </p>
     </div>
   );
 }
 
 /* ============================ SOLUTIONS OVERVIEW (tabbed) ============================ */
 function Solutions({ go, tab, setTab }) {
-  const wrap = { maxWidth: 1100, margin: "0 auto" };
+  const wrap = { maxWidth: 1720, margin: "0 auto" };
   const cat = CATS[tab];
   return (
-    <div className="page-wrap" style={{ paddingTop: 64 }}>
-      <section style={{ background: NAVY, padding: "72px 32px 80px", position: "relative", overflow: "hidden" }}>
+    <div className="page-wrap sp-newfont" style={{ paddingTop: NAV_H }}>
+      <section style={{ background: NAVY, padding: "72px 20px 80px", position: "relative", overflow: "hidden" }}>
         <div className="parallax-fast" style={{ position: "absolute", top: -80, right: -80, width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,212,178,0.15) 0%, transparent 70%)", pointerEvents: "none" }}></div>
         <div className="parallax-slow" style={{ position: "absolute", bottom: -60, left: "20%", width: 300, height: 300, borderRadius: "50%", background: "radial-gradient(circle, rgba(201,168,76,0.08) 0%, transparent 70%)", pointerEvents: "none" }}></div>
         <div style={{ ...wrap, position: "relative", zIndex: 1 }}>
           <p className="sp-kicker" style={{ color: TEAL, marginBottom: 16 }}>Our solutions</p>
-          <h1 style={{ fontSize: "clamp(32px,5.6vw,76px)", fontWeight: 800, color: "#fff", letterSpacing: "-2px", marginBottom: 20, lineHeight: 1.03 }}>Everything you need,<br /><em style={{ fontStyle: "normal", color: TEAL }}>in one place.</em></h1>
-          <p style={{ fontSize: 17, color: "rgba(255,255,255,0.5)", maxWidth: 460, lineHeight: 1.7 }}>Five connected solution lines. One advisory relationship, no switching between firms.</p>
+          <h1 style={{ fontSize: "clamp(32px,5.6vw,76px)", fontWeight: 800, color: "#fff", letterSpacing: "-2px", marginBottom: 20, lineHeight: 1.03 }}>Everything you need, <em style={{ fontStyle: "normal", color: TEAL }}>in one place.</em></h1>
+          <p style={{ fontSize: "clamp(16px,1.5vw,22px)", color: "rgba(255,255,255,0.5)", maxWidth: 1400, lineHeight: 1.7, whiteSpace: "nowrap" }}>Five connected solution lines. One advisory relationship, no switching between firms.</p>
         </div>
       </section>
 
-      <div style={{ background: BG, borderBottom: "1px solid rgba(255,255,255,0.09)", position: "sticky", top: 64, zIndex: 50 }}>
-        <div style={{ ...wrap, padding: "0 32px", display: "flex", gap: 0, overflowX: "auto" }}>
+      <div style={{ background: BG, borderBottom: "1px solid rgba(255,255,255,0.09)", position: "sticky", top: NAV_H, zIndex: 50 }}>
+        <div style={{ ...wrap, padding: "0 20px", display: "flex", gap: 0, overflowX: "auto" }}>
           {CAT_ORDER.map((k) => {
             const active = tab === k;
             return (
-              <button key={k} onClick={() => setTab(k)} style={{ background: "none", border: "none", borderBottom: `2px solid ${active ? TEAL : "transparent"}`, cursor: "pointer", fontSize: 14, fontWeight: active ? 600 : 400, color: active ? TEAL : "#8A99AD", padding: "18px 22px", marginBottom: -1, whiteSpace: "nowrap", transition: "all 0.15s" }}>{CATS[k].nav}</button>
+              <button key={k} onClick={() => setTab(k)} style={{ background: "none", border: "none", borderBottom: `2px solid ${active ? TEAL : "transparent"}`, cursor: "pointer", fontSize: "clamp(13px,1.1vw,16px)", fontWeight: active ? 600 : 400, color: active ? TEAL : "#8A99AD", padding: "clamp(14px,1.4vw,20px) clamp(16px,1.6vw,26px)", marginBottom: -1, whiteSpace: "nowrap", transition: "all 0.15s" }}>{CATS[k].nav}</button>
             );
           })}
         </div>
       </div>
 
-      <section key={tab} style={{ padding: "64px 32px 8px", ...wrap, animation: "tabIn 0.35s ease-out both" }}>
-        <div className="sp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "center", marginBottom: 56 }}>
+      <section key={tab} style={{ padding: "clamp(48px,5vw,72px) 20px 8px", ...wrap, animation: "tabIn 0.35s ease-out both" }}>
+        <div className="sp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "clamp(40px,5vw,80px)", alignItems: "center", marginBottom: "clamp(40px,4.4vw,64px)" }}>
         <div>
-          <h2 style={{ fontSize: "clamp(27px,4.2vw,52px)", fontWeight: 800, color: INK, letterSpacing: "-1px", lineHeight: 1.08, marginBottom: 18 }}>{cat.titleA} <em style={{ fontStyle: "normal", color: TEAL }}>{cat.titleEm}</em></h2>
-          {cat.intro.map((p, i) => <p key={i} style={{ fontSize: 16, color: "#8A99AD", lineHeight: 1.8, marginBottom: 12 }}>{p}</p>)}
-          <S as="button" onClick={() => go("sol-" + cat.key, cat.key)} css="margin-top:12px;background:#00D4B2;color:#04140f;border:none;cursor:pointer;font-weight:700;font-size:14px;padding:13px 26px;border-radius:10px;transition:all 0.18s;" hover="background:#2BE3C6;transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,212,178,0.3);">Explore {cat.nav} →</S>
+          <h2 style={{ fontSize: "clamp(27px,4.2vw,56px)", fontWeight: 800, color: INK, letterSpacing: "-1px", lineHeight: 1.08, marginBottom: 20 }}>{cat.titleA} <em style={{ fontStyle: "normal", color: TEAL }}>{cat.titleEm}</em></h2>
+          {cat.intro.map((p, i) => <p key={i} style={{ fontSize: "clamp(17px,1.55vw,22px)", color: "#8A99AD", lineHeight: 1.8, marginBottom: 14 }}>{p}</p>)}
+          <S as="button" onClick={() => go("contact")} css={`margin-top:16px;background:#00D4B2;color:#04140f;border:none;cursor:pointer;font-weight:700;font-size:clamp(14px,1.15vw,17px);padding:clamp(13px,1.2vw,17px) clamp(24px,2.4vw,34px);border-radius:10px;transition:all 0.18s;`} hover="background:#2BE3C6;transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,212,178,0.3);">Talk to an Advisor</S>
         </div>
         <div className="sp-photo-cell">
           <Photo src={solImg(cat.key)} alt={cat.nav} ratio="7 / 5" fallback={<PhotoPlaceholder icon={CAT_ICON[cat.key]} />} />
@@ -1695,9 +1594,9 @@ function ProductCard({ name, head, body, id, selected, onSelect }) {
     <div id={id} role="button" tabIndex={0} aria-pressed={!!selected} onClick={toggle}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); } }}
       className={"sp-selcard" + (selected ? " on" : "")} style={{ scrollMarginTop: 110, height: "100%" }}>
-      <div style={{ fontSize: 12, fontWeight: 700, color: TEAL, letterSpacing: "0.5px", textTransform: "uppercase", marginBottom: 12 }}>{name}</div>
-      {head && <div style={{ fontSize: 18, fontWeight: 800, color: INK, letterSpacing: "-0.4px", lineHeight: 1.25, marginBottom: 12 }}>{head}</div>}
-      <p style={{ fontSize: 14, color: "#8A99AD", lineHeight: 1.75 }}>{body}</p>
+      <div style={{ fontFamily: "'Cinzel', serif", fontSize: "clamp(18px,2vw,30px)", fontWeight: 700, color: TEAL, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 14 }}>{name}</div>
+      {head && <div style={{ fontFamily: "'Cambria', Georgia, serif", fontSize: "clamp(18px,1.7vw,26px)", fontWeight: 400, color: INK, letterSpacing: "0px", lineHeight: 1.35, marginBottom: 14 }}>{head}</div>}
+      <p style={{ fontFamily: "'Poppins', sans-serif", fontSize: "clamp(15px,1.35vw,20px)", color: "#8A99AD", lineHeight: 1.8, fontWeight: 300 }}>{body}</p>
     </div>
   );
 }
@@ -1707,9 +1606,9 @@ function CompactCard({ name, body, gold }) {
     <S css="background:#0D1522;border:1px solid rgba(255,255,255,0.09);border-radius:14px;padding:20px 22px;transition:all 0.18s;height:100%;" hover={`border-color:${gold ? "rgba(201,168,76,0.4)" : "rgba(0,212,178,0.35)"};box-shadow:0 10px 28px rgba(0,0,0,0.21);`}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
         <span style={{ width: 6, height: 6, borderRadius: "50%", background: c, flexShrink: 0 }}></span>
-        <div style={{ fontSize: 14, fontWeight: 700, color: INK }}>{name}</div>
+        <div style={{ fontSize: "clamp(14px,1.2vw,17px)", fontWeight: 700, color: INK }}>{name}</div>
       </div>
-      <p style={{ fontSize: 13, color: "#8A99AD", lineHeight: 1.65 }}>{body}</p>
+      <p style={{ fontSize: "clamp(13px,1.1vw,16px)", color: "#8A99AD", lineHeight: 1.7 }}>{body}</p>
     </S>
   );
 }
@@ -1739,11 +1638,11 @@ function BizCover({ g, go }) {
   const [pick, setPick] = React.useState(null);
   const sub = g.sub[tab];
   return (
-    <div className="sp-biz" style={{ width: "100vw", marginLeft: "calc(50% - 50vw)", background: "#0C1421", borderTop: "1px solid #111B2C", borderBottom: "1px solid #111B2C", padding: "64px 40px" }}>
-    <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+    <div className="sp-biz" style={{ margin: "44px 0 24px" }}>
+    <div>
       <p className="sp-kicker" style={{ color: TEAL, marginBottom: 12 }}>For businesses</p>
       <h3 style={{ fontSize: "clamp(24px,3.4vw,44px)", fontWeight: 800, color: INK, letterSpacing: "-0.7px", lineHeight: 1.12, marginBottom: 14 }}>{g.title}</h3>
-      {g.intro && <p style={{ fontSize: 16, color: "#8A99AD", lineHeight: 1.75, maxWidth: 720, marginBottom: 32 }}>{g.intro}</p>}
+      {g.intro && <p style={{ fontSize: 18, color: "#8A99AD", lineHeight: 1.75, maxWidth: 720, marginBottom: 32 }}>{g.intro}</p>}
 
       {/* simple rectangular tabs */}
       <div role="tablist" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 28 }}>
@@ -1764,12 +1663,12 @@ function BizCover({ g, go }) {
         {sub.items.map((it, i) => (
           <div key={it.name} role="button" tabIndex={0} aria-pressed={pick === i} onClick={() => setPick(pick === i ? null : i)}
             onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setPick(pick === i ? null : i); } }}
-            className={"sp-selcard sp-selcard-sm" + (pick === i ? " on" : "")}>
+            className={"sp-selcard" + (pick === i ? " on" : "")} style={{ background: "#0D1522" }}>
             <div style={{ width: 42, height: 42, borderRadius: 10, background: "rgba(0,212,178,0.12)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={TEAL} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{BIZ_ICON[it.name] || CAT_ICON.insurance}</svg>
             </div>
-            <div style={{ fontSize: 15, fontWeight: 700, color: INK, marginBottom: 8, lineHeight: 1.3 }}>{it.name}</div>
-            <p style={{ fontSize: 14, color: "#8A99AD", lineHeight: 1.65 }}>{it.body}</p>
+            <div style={{ fontFamily: "Cinzel, serif", fontSize: 20, fontWeight: 700, color: INK, marginBottom: 8, lineHeight: 1.3 }}>{it.name}</div>
+            <p style={{ fontSize: 18, color: "#8A99AD", lineHeight: 1.65 }}>{it.body}</p>
           </div>
         ))}
       </div>
@@ -1794,7 +1693,7 @@ function BizCover({ g, go }) {
 /* the "Talk to an Advisor" button used on solution pages */
 function CatCta({ go }) {
   return (
-    <CtaPrimary onClick={() => go("contact")} radius={999} upper tracking="0.12em" fontSize={12.5} fontFamily="'Plus Jakarta Sans', sans-serif" pad="16px 32px">Talk to an Advisor &rarr;</CtaPrimary>
+    <CtaPrimary onClick={() => go("contact")} radius={999} upper tracking="0.12em" fontSize={12.5} fontFamily="'Plus Jakarta Sans', sans-serif" pad="16px 32px">Talk to an Advisor</CtaPrimary>
   );
 }
 
@@ -1889,21 +1788,21 @@ function FaqList({ items, kp, faq, toggleFaq }) {
 /* ============================ CATEGORY PAGE ============================ */
 /* one photo at the top with the solution's content on the left, then clickable cards */
 function Category({ cat, go, faq, toggleFaq }) {
-  const wrap = { maxWidth: 1120, margin: "0 auto" };
+  const wrap = { maxWidth: 1720, margin: "0 auto" };
   return (
-    <div className="page-wrap sp-newfont" style={{ paddingTop: 64 }}>
-      <section style={{ background: "radial-gradient(ellipse 60% 40% at 30% 0%, rgba(0,212,178,0.09) 0%, transparent 70%), " + BG, padding: "60px 32px 56px" }}>
+    <div className="page-wrap sp-newfont" style={{ paddingTop: NAV_H }}>
+      <section style={{ background: "radial-gradient(ellipse 60% 40% at 30% 0%, rgba(0,212,178,0.09) 0%, transparent 70%), " + BG, padding: "60px 20px 56px" }}>
         <div style={wrap}>
-          <div style={{ fontSize: 12, color: "#75839A", marginBottom: 30, letterSpacing: "1px" }}>
-            Home &rsaquo; <button onClick={() => go("solutions")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "#75839A", letterSpacing: "1px" }}>Solutions</button> &rsaquo; {cat.nav}
+          <div style={{ fontSize: "clamp(12px,1vw,14px)", color: "#75839A", marginBottom: 30, letterSpacing: "1px" }}>
+            Home &rsaquo; <button onClick={() => go("solutions")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: "clamp(12px,1vw,14px)", color: "#75839A", letterSpacing: "1px" }}>Solutions</button> &rsaquo; {cat.nav}
           </div>
-          <div className="sp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "center", marginBottom: 80 }}>
+          <div className="sp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "clamp(40px,5vw,80px)", alignItems: "center", marginBottom: "clamp(56px,6vw,96px)" }}>
             <div>
-              <h1 style={{ fontSize: "clamp(28px,3.9vw,52px)", color: INK, lineHeight: 1.12, marginBottom: 22 }}>{cat.titleA} <span style={{ color: TEAL }}>{cat.titleEm}</span></h1>
-              <p style={{ fontSize: 18, color: INK, fontWeight: 500, lineHeight: 1.7, marginBottom: 18 }}>{cat.hero}</p>
-              {cat.intro.map((t, i) => <p key={i} style={{ fontSize: 16, color: "#8A99AD", lineHeight: 1.8, marginBottom: 12, fontWeight: 300 }}>{t}</p>)}
-              <div style={{ marginTop: 24 }}>
-                <CtaPrimary onClick={() => go("contact")} radius={999} upper tracking="0.12em" fontSize={12.5} fontFamily="'Plus Jakarta Sans', sans-serif" pad="16px 32px">Talk to an Advisor &rarr;</CtaPrimary>
+              <h1 style={{ fontSize: "clamp(28px,3.9vw,56px)", color: INK, lineHeight: 1.12, marginBottom: 22 }}>{cat.titleA} <span style={{ color: TEAL }}>{cat.titleEm}</span></h1>
+              <p style={{ fontSize: "clamp(18px,1.75vw,26px)", color: INK, fontWeight: 500, lineHeight: 1.7, marginBottom: 18 }}>{cat.hero}</p>
+              {cat.intro.map((t, i) => <p key={i} style={{ fontSize: "clamp(17px,1.55vw,22px)", color: "#8A99AD", lineHeight: 1.8, marginBottom: 14, fontWeight: 300 }}>{t}</p>)}
+              <div style={{ marginTop: 28 }}>
+                <CtaPrimary onClick={() => go("contact")} radius={999} upper tracking="0.12em" fontSize="clamp(13px,1.1vw,15px)" fontFamily="'Plus Jakarta Sans', sans-serif" pad="clamp(14px,1.3vw,18px) clamp(28px,2.6vw,38px)">Talk to an Advisor</CtaPrimary>
               </div>
             </div>
             <div className="sp-photo-cell">
@@ -2028,7 +1927,7 @@ function CalcToggle({ mode, setMode }) {
 
 function CalcCard({ toggle, title, subtitle, sliders, donut, results, ctaLabel, onCta }) {
   return (
-    <div className="page-wrap" style={{ paddingTop: 64 }}>
+    <div className="page-wrap" style={{ paddingTop: NAV_H }}>
       <section style={{ padding: "56px 32px 30px", textAlign: "center", background: BG }}>
         <p className="sp-kicker" style={{ color: TEAL, marginBottom: 14 }}>Tools</p>
         <h1 style={{ fontSize: "clamp(28px,4.6vw,56px)", fontWeight: 700, color: INK, letterSpacing: "-0.5px", marginBottom: 12 }}>{title}</h1>
@@ -2135,7 +2034,7 @@ function Forms({ go }) {
   })).filter((grp) => grp.items.length);
   const totalMatches = groups.reduce((n, g) => n + g.items.length, 0);
   return (
-    <div className="page-wrap" style={{ paddingTop: 64 }}>
+    <div className="page-wrap" style={{ paddingTop: NAV_H }}>
       <section style={{ background: NAVY, padding: "72px 40px 60px", textAlign: "center" }}>
         <p className="sp-kicker" style={{ color: TEAL, marginBottom: 14 }}>Resources</p>
         <h1 style={{ fontSize: "clamp(30px,5vw,64px)", fontWeight: 800, color: "#fff", letterSpacing: "-1.5px", marginBottom: 14 }}>Downloadable Forms</h1>
@@ -2185,7 +2084,7 @@ function Forms({ go }) {
             </div>
           ))}
         </div>
-        <p style={{ textAlign: "center", fontSize: 13, color: "#75839A", marginTop: 32 }}>Need help filling a form? <button onClick={() => go("contact")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, color: TEAL }}>Talk to an advisor →</button></p>
+        <p style={{ textAlign: "center", fontSize: 13, color: "#75839A", marginTop: 32 }}>Need help filling a form? <button onClick={() => go("contact")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, color: TEAL }}>Talk to an advisor</button></p>
       </section>
     </div>
   );
@@ -2193,11 +2092,11 @@ function Forms({ go }) {
 
 /* ============================ CONTACT ============================ */
 function Contact({ form, setForm, formDone, submitForm, toggleInterest }) {
-  const wrap = { maxWidth: 1100, margin: "0 auto" };
+  const wrap = { maxWidth: 1720, margin: "0 auto" };
   const inputCss = { width: "100%", background: SURF, border: "1.5px solid rgba(255,255,255,0.10)", borderRadius: 9, padding: "11px 13px", fontSize: 14, color: INK };
   return (
-    <div className="page-wrap" style={{ paddingTop: 64 }}>
-      <section style={{ padding: "56px 32px 80px", ...wrap }}>
+    <div className="page-wrap sp-newfont" style={{ paddingTop: NAV_H }}>
+      <section style={{ padding: "56px 20px 80px", ...wrap }}>
         <div className="sp-contact-grid">
         <div className="sp-contact-head">
           <p className="sp-kicker" style={{ color: TEAL, marginBottom: 16 }}>Contact us</p>
@@ -2205,10 +2104,15 @@ function Contact({ form, setForm, formDone, submitForm, toggleInterest }) {
           <p style={{ fontSize: 16, color: "#8A99AD", lineHeight: 1.75 }}>Whether you're looking to build wealth, protect what you've built, plan for the future, or arrange funding, we're here to understand your requirements and help you take the right next step.</p>
         </div>
 
-          <div className="sp-contact-info" style={{ display: "flex", flexDirection: "column", gap: 32 }}>
-            <div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: "#75839A", letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: 12 }}>Office</div>
-              <div style={{ fontSize: 15, color: INK, fontWeight: 500, lineHeight: 1.65 }}>102, Shreepati Jewels D Wing,<br />Khattar Ali Lane, Near CP Tank Circle,<br />Girgaon, Mumbai, 400004</div>
+          <div className="sp-contact-info" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, alignItems: "start" }}>
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#75839A", letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: 12 }}>Office</div>
+                <div style={{ fontSize: 15, color: INK, fontWeight: 500, lineHeight: 1.65 }}>102, Shreepati Jewels D Wing,<br />Khattar Ali Lane, Near CP Tank Circle,<br />Girgaon, Mumbai, 400004</div>
+              </div>
+              <div style={{ borderRadius: 12, overflow: "hidden", border: "1px solid rgba(255,255,255,0.09)", height: 220 }}>
+                <iframe title="Location" src="https://maps.google.com/maps?q=CP%20Tank%20Circle%20Girgaon%20Mumbai%20400004&z=15&output=embed" width="100%" height="220" style={{ border: 0, display: "block" }} loading="lazy"></iframe>
+              </div>
             </div>
             <div>
               <div style={{ fontSize: 11, fontWeight: 700, color: "#75839A", letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: 12 }}>Email</div>
@@ -2224,9 +2128,6 @@ function Contact({ form, setForm, formDone, submitForm, toggleInterest }) {
                   </S>
                 ))}
               </div>
-            </div>
-            <div style={{ borderRadius: 14, overflow: "hidden", border: "1px solid rgba(255,255,255,0.09)", height: 180 }}>
-              <iframe title="Location" src="https://maps.google.com/maps?q=CP%20Tank%20Circle%20Girgaon%20Mumbai%20400004&z=15&output=embed" width="100%" height="180" style={{ border: 0, display: "block" }} loading="lazy"></iframe>
             </div>
           </div>
 
@@ -2289,43 +2190,43 @@ function Contact({ form, setForm, formDone, submitForm, toggleInterest }) {
 /* ============================ FOOTER ============================ */
 function Footer({ go }) {
   return (
-    <footer style={{ background: NAVY, padding: "52px 32px 32px", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
-      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", gap: 48, marginBottom: 48, flexWrap: "wrap", alignItems: "start" }}>
-          <div style={{ flex: "1.5 1 240px" }}>
-            <div style={{ marginBottom: 16 }}>
-              <Brand size={38} color="#fff" subColor="rgba(255,255,255,0.55)" />
+    <footer style={{ background: NAVY, padding: "clamp(48px,5vw,72px) clamp(40px,5vw,100px) clamp(28px,2.8vw,40px)", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+      <div style={{ maxWidth: 1720, margin: "0 auto" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", gap: "clamp(40px,4.4vw,72px)", marginBottom: "clamp(40px,4.4vw,64px)", flexWrap: "wrap", alignItems: "start" }}>
+          <div style={{ flex: "1.5 1 280px" }}>
+            <div style={{ marginBottom: 18 }}>
+              <Brand size={44} color="#fff" subColor="rgba(255,255,255,0.55)" />
             </div>
-            <p style={{ fontSize: 14, color: "rgba(255,255,255,0.68)", lineHeight: 1.75, maxWidth: 280 }}>Your investment partner for life. Wealth, protection, lending and planning, connected around you. Girgaon, Mumbai.</p>
+            <p style={{ fontSize: "clamp(14px,1.2vw,17px)", color: "rgba(255,255,255,0.68)", lineHeight: 1.8, maxWidth: 340 }}>Your investment partner for life. Wealth, protection, lending and planning, connected around you. Girgaon, Mumbai.</p>
+          </div>
+          <div style={{ flex: "1 1 160px" }}>
+            <div style={{ fontSize: "clamp(11px,0.9vw,13px)", fontWeight: 700, color: "rgba(255,255,255,0.55)", letterSpacing: "1.2px", textTransform: "uppercase", marginBottom: 18 }}>Solutions</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {CAT_ORDER.map((k) => (
+                <S key={k} as="button" onClick={() => go("sol-" + k, k)} css={`background:none;border:none;cursor:pointer;font-size:clamp(14px,1.2vw,17px);color:rgba(255,255,255,0.78);text-align:left;padding:0;transition:color 0.15s;`} hover="color:#fff;">{CATS[k].nav}</S>
+              ))}
+            </div>
           </div>
           <div style={{ flex: "1 1 140px" }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.55)", letterSpacing: "1.2px", textTransform: "uppercase", marginBottom: 16 }}>Solutions</div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {CAT_ORDER.map((k) => (
-                <S key={k} as="button" onClick={() => go("sol-" + k, k)} css="background:none;border:none;cursor:pointer;font-size:14px;color:rgba(255,255,255,0.78);text-align:left;padding:0;transition:color 0.15s;" hover="color:#fff;">{CATS[k].nav}</S>
-              ))}
-            </div>
-          </div>
-          <div style={{ flex: "1 1 120px" }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.55)", letterSpacing: "1.2px", textTransform: "uppercase", marginBottom: 16 }}>Company</div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <div style={{ fontSize: "clamp(11px,0.9vw,13px)", fontWeight: 700, color: "rgba(255,255,255,0.55)", letterSpacing: "1.2px", textTransform: "uppercase", marginBottom: 18 }}>Company</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {[["Home", "home"], ["Tools", "tool-invest"], ["Forms", "forms"], ["Contact", "contact"]].map(([l, p]) => (
-                <S key={p} as="button" onClick={() => go(p)} css="background:none;border:none;cursor:pointer;font-size:14px;color:rgba(255,255,255,0.78);text-align:left;padding:0;transition:color 0.15s;" hover="color:#fff;">{l}</S>
+                <S key={p} as="button" onClick={() => go(p)} css={`background:none;border:none;cursor:pointer;font-size:clamp(14px,1.2vw,17px);color:rgba(255,255,255,0.78);text-align:left;padding:0;transition:color 0.15s;`} hover="color:#fff;">{l}</S>
               ))}
             </div>
           </div>
-          <div style={{ flex: "1 1 200px" }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.55)", letterSpacing: "1.2px", textTransform: "uppercase", marginBottom: 16 }}>Contact</div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              <span style={{ fontSize: 14, color: "rgba(255,255,255,0.78)", lineHeight: 1.6 }}>102, Shreepati Jewels D Wing, Khattar Ali Lane, Girgaon, Mumbai 400004</span>
-              <a href="mailto:spectraassets@gmail.com" style={{ fontSize: 14, color: "rgba(255,255,255,0.78)" }}>spectraassets@gmail.com</a>
+          <div style={{ flex: "1.2 1 220px" }}>
+            <div style={{ fontSize: "clamp(11px,0.9vw,13px)", fontWeight: 700, color: "rgba(255,255,255,0.55)", letterSpacing: "1.2px", textTransform: "uppercase", marginBottom: 18 }}>Contact</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <span style={{ fontSize: "clamp(14px,1.2vw,17px)", color: "rgba(255,255,255,0.78)", lineHeight: 1.65 }}>102, Shreepati Jewels D Wing, Khattar Ali Lane, Girgaon, Mumbai 400004</span>
+              <a href="mailto:spectraassets@gmail.com" style={{ fontSize: "clamp(14px,1.2vw,17px)", color: "rgba(255,255,255,0.78)" }}>spectraassets@gmail.com</a>
             </div>
           </div>
         </div>
         <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 22, display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
-          <span style={{ fontSize: 12, color: "rgba(255,255,255,0.55)" }}>© {new Date().getFullYear()} Spectra Assets · Mumbai</span>
-          <div style={{ display: "flex", gap: 18 }}>
-            {["Privacy", "Terms", "Disclaimer"].map((t) => <a key={t} href="#" onClick={(e) => e.preventDefault()} style={{ fontSize: 12, color: "rgba(255,255,255,0.55)" }}>{t}</a>)}
+          <span style={{ fontSize: "clamp(12px,1vw,15px)", color: "rgba(255,255,255,0.55)" }}>© {new Date().getFullYear()} Spectra Assets · Mumbai</span>
+          <div style={{ display: "flex", gap: 22 }}>
+            {["Privacy", "Terms", "Disclaimer"].map((t) => <a key={t} href="#" onClick={(e) => e.preventDefault()} style={{ fontSize: "clamp(12px,1vw,15px)", color: "rgba(255,255,255,0.55)" }}>{t}</a>)}
           </div>
         </div>
       </div>

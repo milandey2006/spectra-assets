@@ -91,7 +91,7 @@ h1, h2 { font-family: 'Poppins', sans-serif; letter-spacing: -0.02em !important;
 @media (min-width: 861px) { .sp-one-line { white-space: nowrap; } }
 
 /* principle cards (What we believe) */
-.sp-pcard { background: linear-gradient(180deg, rgba(13,21,34,0.85) 0%, rgba(7,11,17,0.95) 100%); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; padding: 28px 32px;
+.sp-pcard { background: linear-gradient(180deg, rgba(13,21,34,0.85) 0%, rgba(7,11,17,0.95) 100%); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; padding: clamp(26px,2.2vw,32px) clamp(30px,2.7vw,40px);
   transition: border-color .35s cubic-bezier(.16,1,.3,1), transform .35s cubic-bezier(.16,1,.3,1), box-shadow .35s; }
 .sp-pcard:hover { border-color: rgba(0,212,178,0.38); transform: translateY(-3px); box-shadow: 0 16px 36px -18px rgba(0,212,178,0.22); }
 .sp-sticky-col { align-self: start; }
@@ -105,6 +105,7 @@ h1, h2 { font-family: 'Poppins', sans-serif; letter-spacing: -0.02em !important;
 .sp-eco-logo { animation: ecoBreath 4.2s ease-in-out infinite 1.4s; }
 .sp-eco-list { display: none; }
 @media (prefers-reduced-motion: reduce) { .sp-eco-flow, .sp-eco-logo { animation: none; } }
+@media (max-width: 860px) { .sp-eco-grid { grid-template-columns: 1fr !important; text-align: center; } }
 @media (max-width: 680px) {
   .sp-eco-stage { width: 100% !important; margin-bottom: 40px !important; }
   .sp-eco-side, .sp-eco-arrows { display: none !important; }
@@ -112,8 +113,8 @@ h1, h2 { font-family: 'Poppins', sans-serif; letter-spacing: -0.02em !important;
 }
 
 /* why clients choose: four boxes */
-.sp-why-box { position: relative; height: 100%; padding: 34px 28px 30px; overflow: hidden; }
-.sp-why-bar { position: absolute; top: 0; left: 28px; width: 34px; height: 3px; border-radius: 0 0 3px 3px; background: linear-gradient(90deg, #00D4B2, #10B981); box-shadow: 0 0 12px rgba(0,212,178,0.6); }
+.sp-why-box { position: relative; height: 100%; padding: clamp(30px,2.4vw,38px) clamp(26px,2.2vw,32px) clamp(28px,2.2vw,34px); overflow: hidden; }
+.sp-why-bar { position: absolute; top: 0; left: clamp(26px,2.2vw,32px); width: 34px; height: 3px; border-radius: 0 0 3px 3px; background: linear-gradient(90deg, #00D4B2, #10B981); box-shadow: 0 0 12px rgba(0,212,178,0.6); }
 @media (max-width: 1100px) { .sp-why-grid { grid-template-columns: repeat(2, 1fr) !important; } }
 @media (max-width: 620px) { .sp-why-grid { grid-template-columns: 1fr !important; } }
 
@@ -125,23 +126,23 @@ h1, h2 { font-family: 'Poppins', sans-serif; letter-spacing: -0.02em !important;
 .sp-name-card:hover { border-color: rgba(0,212,178,0.45); color: #00D4B2; background: rgba(0,212,178,0.05); }
 
 /* leadership cards */
-.sp-lead-card { height: 100%; display: flex; flex-direction: column; justify-content: space-between; padding: 38px 36px 30px; border-radius: 22px;
+.sp-lead-card { height: 100%; display: flex; flex-direction: column; justify-content: space-between; padding: clamp(32px,3vw,48px) clamp(28px,2.8vw,44px) clamp(28px,2.4vw,38px); border-radius: 24px;
   background: linear-gradient(180deg, rgba(13,21,34,0.85) 0%, rgba(7,11,17,0.95) 100%); border: 1px solid rgba(255,255,255,0.07); border-top: 2px solid rgba(0,212,178,0.42);
   transition: border-color .35s, transform .35s cubic-bezier(.16,1,.3,1), box-shadow .35s; }
 .sp-lead-card:hover { border-color: rgba(0,212,178,0.35); border-top-color: #00D4B2; transform: translateY(-4px); box-shadow: 0 20px 44px -22px rgba(0,212,178,0.3); }
-.sp-lead-avatar { width: 68px; height: 68px; border-radius: 50%; margin-bottom: 26px; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #00D4B2;
+.sp-lead-avatar { width: clamp(68px,5.5vw,84px); height: clamp(68px,5.5vw,84px); border-radius: 50%; margin-bottom: clamp(22px,2.2vw,32px); display: flex; align-items: center; justify-content: center; font-size: clamp(20px,1.8vw,28px); color: #00D4B2;
   background: linear-gradient(135deg, rgba(0,212,178,0.10), rgba(0,212,178,0.30)); border: 1px solid rgba(0,212,178,0.32); }
 @media (max-width: 980px) { .sp-lead-grid { grid-template-columns: 1fr !important; max-width: 560px; margin: 0 auto; } }
 
 /* testimonials: endless marquee */
 .sp-testi-wrap { overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 7%, #000 93%, transparent 100%); mask-image: linear-gradient(90deg, transparent 0, #000 7%, #000 93%, transparent 100%); }
-.sp-testi-track { display: flex; width: max-content; gap: 22px; padding: 6px 11px; animation: testiScroll 70s linear infinite; }
+.sp-testi-track { display: flex; width: max-content; gap: 28px; padding: 8px 14px; animation: testiScroll 70s linear infinite; }
 .sp-testi-wrap:hover .sp-testi-track { animation-play-state: paused; }
 @keyframes testiScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-.sp-testi-card { flex: 0 0 auto; width: 400px; display: flex; flex-direction: column; padding: 30px 32px; border-radius: 20px;
+.sp-testi-card { flex: 0 0 auto; width: 480px; display: flex; flex-direction: column; padding: 36px 38px; border-radius: 22px;
   background: linear-gradient(180deg, rgba(18,27,46,1) 0%, rgba(14,21,36,1) 100%); border: 1px solid rgba(255,255,255,0.08); }
 @media (max-width: 560px) { .sp-testi-card { width: 300px; padding: 26px 24px; } }
-@media (prefers-reduced-motion: reduce) { .sp-testi-track { animation: none; } .sp-testi-wrap { overflow-x: auto; } }
+/* always keep testimonials scrolling; overflow stays hidden to prevent scrollbar */
 
 /* selectable product cards: hover lifts, click keeps the teal border */
 .sp-selcard { cursor: pointer; text-align: left; padding: 28px 30px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08);
@@ -157,27 +158,13 @@ h1, h2 { font-family: 'Poppins', sans-serif; letter-spacing: -0.02em !important;
   border: 1px dashed rgba(0,212,178,0.35); background: radial-gradient(ellipse at center, rgba(0,212,178,0.09) 0%, rgba(0,212,178,0.02) 70%); }
 
 /* contact page: form sits beside the heading (right) and stays in view while the left column scrolls */
-.sp-contact-grid { display: grid; grid-template-columns: 1fr 1.08fr; grid-template-areas: "head form" "info form"; column-gap: 64px; row-gap: 44px; align-items: start; }
+.sp-contact-grid { display: grid; grid-template-columns: 1fr 1.4fr; grid-template-areas: "head form" "info form"; column-gap: 80px; row-gap: 44px; align-items: start; }
 .sp-contact-head { grid-area: head; }
 .sp-contact-info { grid-area: info; }
-.sp-contact-form { grid-area: form; position: sticky; top: 88px; }
+.sp-contact-form { grid-area: form; position: sticky; top: 100px; }
 @media (max-width: 860px) {
   .sp-contact-grid { grid-template-columns: 1fr; grid-template-areas: "head" "form" "info"; }
   .sp-contact-form { position: static; }
-}
-
-/* "Our approach": vertical list on small screens, horizontal row from 1000px up */
-@media (min-width: 1000px) {
-  .sp-proc-inner { max-width: 1180px !important; }
-  .sp-proc-list { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; align-items: stretch; }
-  .sp-proc-row { display: flex; flex-direction: column; padding-left: 0 !important; padding-top: 70px; margin-bottom: 0 !important; }
-  .sp-proc-node { left: 50% !important; top: 0 !important; transform: translateX(-50%); }
-  .sp-proc-seg { left: calc(50% + 26px) !important; right: auto !important; top: 19px !important; bottom: auto !important; width: calc(100% - 28px) !important; height: 2px !important; }
-  .sp-proc-fill { background-image: linear-gradient(90deg, #00D4B2, #10B981) !important; }
-  .sp-proc-card { flex: 1; padding: 30px 22px !important; }
-  .sp-proc-card h3 { font-size: 18px !important; }
-  .sp-proc-card p { font-size: 15px !important; }
-  .sp-proc-chip { display: block; width: 100%; padding: 10px 12px !important; font-size: 14px !important; }
 }
 
 /* scroll reveal */
@@ -204,14 +191,14 @@ h1, h2 { font-family: 'Poppins', sans-serif; letter-spacing: -0.02em !important;
 /* the offset is driven per frame in JS; spacing is a margin on the cards rather
    than a flex gap so the duplicated half is exactly half the track width */
 .sp-logo-track { display: flex; width: max-content; will-change: transform; backface-visibility: hidden; }
-.sp-logo-card { flex: 0 0 auto; height: 96px; margin-right: 18px; padding: 0 28px; background: #F4F7FA; border: 1px solid rgba(255,255,255,0.10);
-  border-radius: 16px; display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 2px 12px rgba(15,23,41,0.04); transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease; }
-.sp-logo-card:hover { transform: translateY(-4px); box-shadow: 0 14px 32px rgba(15,23,41,0.12); border-color: rgba(0,212,178,0.32); }
-.sp-logo-card img { height: 56px; width: auto; max-width: 210px; object-fit: contain; display: block; user-select: none; }
+.sp-logo-card { flex: 0 0 auto; height: 76px; margin-right: 14px; padding: 0 20px; background: #F4F7FA; border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 8px rgba(15,23,41,0.04); transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease; }
+.sp-logo-card:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(15,23,41,0.10); border-color: rgba(0,212,178,0.32); }
+.sp-logo-card img { height: 44px; width: auto; max-width: 170px; object-fit: contain; display: block; user-select: none; }
 @media (max-width: 860px) {
-  .sp-logo-card { height: 78px; margin-right: 14px; padding: 0 20px; }
-  .sp-logo-card img { height: 44px; max-width: 160px; }
+  .sp-logo-card { height: 62px; margin-right: 12px; padding: 0 16px; border-radius: 10px; }
+  .sp-logo-card img { height: 36px; max-width: 130px; }
 }
 
 /* floating whatsapp button */
