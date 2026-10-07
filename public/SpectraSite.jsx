@@ -149,7 +149,7 @@ const TESTIMONIALS = [
   { name: "Maulik Mehta", role: "Individual Investor", rating: 5, quote: "I've been with Spectra from the start for my mutual funds, bonds and insurance. They've handled everything from health to travel insurance, and even helped me with a claim that wasn't under their policy. That kind of support is hard to find, and they've also helped with my loan requirement." },
   { name: "Infinity Investors", role: "Corporate Client", rating: 5, quote: "As a firm, we needed someone who'd actually understand our cash-flow timing before recommending anything, not generic advice copy-pasted for every client. That's exactly what we got." },
   { name: "Zurvan Tumbol", role: "Corporate Client", rating: 4, quote: "I compared premiums myself before signing up for car insurance, and the recommendation I got here still came out better. Bonds and mutual funds are handled the same way, someone actually comparing options instead of pushing whatever earns the highest commission." },
-  { name: "Verified Client", role: "Individual Investor", rating: 5, quote: "I don't have to juggle four different people for my funds, bonds, securities and health cover anymore. Everything sits under one roof and someone actually keeps track of it, which has saved me a fair number of headaches, especially around renewal time." },
+  { name: "Bharat Rajput", role: "Individual Investor", rating: 5, quote: "I don't have to juggle four different people for my funds, bonds, securities and health cover anymore. Everything sits under one roof and someone actually keeps track of it, which has saved me a fair number of headaches, especially around renewal time." },
 ];
 
 const TEAM = [
@@ -784,7 +784,7 @@ function Aurora() {
   return (
     <div className="sp-aurora" aria-hidden="true">
       <i style={{ width: "46%", height: "72%", left: "-6%", top: "-12%", background: "radial-gradient(circle, rgba(0,212,178,0.16), transparent 65%)", animation: "auroraDrift1 19s ease-in-out infinite" }}></i>
-      <i style={{ width: "42%", height: "66%", right: "-4%", top: "4%", background: "radial-gradient(circle, rgba(201,168,76,0.07), transparent 65%)", animation: "auroraDrift2 23s ease-in-out infinite" }}></i>
+      <i style={{ width: "42%", height: "66%", right: "-4%", top: "4%", background: "radial-gradient(circle, rgba(0,212,178,0.10), transparent 65%)", animation: "auroraDrift2 23s ease-in-out infinite" }}></i>
       <i style={{ width: "40%", height: "62%", left: "28%", bottom: "-18%", background: "radial-gradient(circle, rgba(58,123,213,0.08), transparent 65%)", animation: "auroraDrift3 27s ease-in-out infinite" }}></i>
     </div>
   );
@@ -903,30 +903,196 @@ function useInView(threshold = 0.25) {
 /* photo slot (N26 /spaces style: 24px radius, no shadow). Images live in
    public/images/solutions/ (see design-source/image-prompts.md). If the file is
    missing it falls back to `fallback`, so the page never shows a broken image. */
-function Photo({ src, alt, fallback, ratio = "4 / 3" }) {
-  const ref = React.useRef(null);
-  const [ok, setOk] = React.useState(true);
-  React.useEffect(() => {
-    // the error event can fire before hydration, so also check the loaded state
-    const img = ref.current;
-    if (img && img.complete && img.naturalWidth === 0) setOk(false);
-  }, [src]);
-  if (!ok) return fallback || null;
+const solImg = (name) => name || "";
+
+function SolutionVisual({ catKey, title }) {
+  const key = (catKey || "").toLowerCase();
+  const t = (title || "").toLowerCase();
+
+  // 1. INSURANCE: Pile of papers on desk with big green APPROVED printed on paper
+  if (key.includes("insurance") || t.includes("insurance")) {
+    return (
+      <div className="sp-photo" style={{ aspectRatio: "7 / 5", position: "relative", overflow: "hidden", borderRadius: 16, background: "linear-gradient(135deg, #091322 0%, #0F1D32 100%)", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid rgba(255,255,255,0.08)" }}>
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 60% 30%, rgba(0,212,178,0.12) 0%, transparent 60%)" }}></div>
+        <div style={{ position: "relative", width: "84%", height: "82%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          {/* Paper 3 (Bottom) */}
+          <div style={{ position: "absolute", width: "70%", height: "82%", background: "#CBD5E1", borderRadius: 6, transform: "rotate(9deg) translate(-10px, 10px)", boxShadow: "0 4px 12px rgba(0,0,0,0.4)", opacity: 0.7 }}></div>
+          {/* Paper 2 (Middle) */}
+          <div style={{ position: "absolute", width: "72%", height: "84%", background: "#E2E8F0", borderRadius: 6, transform: "rotate(-5deg) translate(8px, 4px)", boxShadow: "0 6px 16px rgba(0,0,0,0.35)", opacity: 0.85 }}></div>
+          {/* Paper 1 (Top Front Document) */}
+          <div style={{ position: "absolute", width: "74%", height: "86%", background: "#FFFFFF", borderRadius: 6, padding: "20px 22px", boxShadow: "0 12px 32px rgba(0,0,0,0.5)", transform: "rotate(1deg)", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "2px solid #0F172A", paddingBottom: 8, marginBottom: 12 }}>
+                <div style={{ fontFamily: "'Cinzel', serif", fontWeight: 800, fontSize: 13, color: "#0F172A", letterSpacing: "1px" }}>SPECTRA POLICY AGREEMENT</div>
+                <div style={{ fontSize: 10, color: "#64748B", fontWeight: 600 }}>DOC #892-41</div>
+              </div>
+              <div style={{ height: 4, background: "#E2E8F0", borderRadius: 2, marginBottom: 8, width: "90%" }}></div>
+              <div style={{ height: 4, background: "#E2E8F0", borderRadius: 2, marginBottom: 8, width: "100%" }}></div>
+              <div style={{ height: 4, background: "#E2E8F0", borderRadius: 2, marginBottom: 8, width: "80%" }}></div>
+              <div style={{ height: 4, background: "#E2E8F0", borderRadius: 2, marginBottom: 8, width: "95%" }}></div>
+              <div style={{ height: 4, background: "#E2E8F0", borderRadius: 2, marginBottom: 8, width: "60%" }}></div>
+            </div>
+            {/* BIG GREEN BOLD PRINTED "APPROVED" STAMP directly on the paper */}
+            <div style={{ position: "absolute", top: "44%", left: "50%", transform: "translate(-50%, -50%) rotate(-14deg)", border: "5px double #059669", color: "#059669", borderRadius: 8, padding: "6px 20px", fontWeight: 900, fontSize: "clamp(24px,3.8vw,36px)", letterSpacing: "5px", textTransform: "uppercase", background: "rgba(236, 253, 245, 0.85)", boxShadow: "0 4px 15px rgba(5,150,105,0.25)" }}>
+              APPROVED
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+              <div style={{ fontSize: 10, color: "#94A3B8" }}>Verified Risk Management Cover</div>
+              <div style={{ width: 28, height: 28, borderRadius: "50%", border: "2px solid #059669", opacity: 0.6, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 8, color: "#059669", fontWeight: 800 }}>SEAL</div>
+            </div>
+          </div>
+          {/* Executive Pen laying on desk next to paper */}
+          <div style={{ position: "absolute", bottom: -6, right: 10, width: 140, height: 8, background: "linear-gradient(90deg, #1E293B 0%, #475569 70%, #00D4B2 100%)", borderRadius: 4, transform: "rotate(-25deg)", boxShadow: "0 6px 12px rgba(0,0,0,0.4)" }}></div>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. LOANS: Wooden blocks with different loan types on table & loan papers
+  if (key.includes("loan") || t.includes("loan")) {
+    return (
+      <div className="sp-photo" style={{ aspectRatio: "7 / 5", position: "relative", overflow: "hidden", borderRadius: 16, background: "linear-gradient(135deg, #091322 0%, #0F1D32 100%)", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid rgba(255,255,255,0.08)" }}>
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 40% 70%, rgba(0,212,178,0.12) 0%, transparent 60%)" }}></div>
+        <div style={{ width: "90%", height: "85%", display: "flex", flexDirection: "column", justifyContent: "space-between", position: "relative" }}>
+          {/* Loan Agreement Paper on Table */}
+          <div style={{ background: "#FFFFFF", borderRadius: 8, padding: "16px 20px", boxShadow: "0 10px 25px rgba(0,0,0,0.4)", width: "70%", margin: "0 auto", position: "relative" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid #E2E8F0", paddingBottom: 6, marginBottom: 8 }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: "#0F172A" }}>LOAN SANCTION & FACILITY</span>
+              <span style={{ fontSize: 10, color: "#059669", fontWeight: 800 }}>SANCTIONED</span>
+            </div>
+            <div style={{ height: 3, background: "#CBD5E1", borderRadius: 2, marginBottom: 6, width: "100%" }}></div>
+            <div style={{ height: 3, background: "#CBD5E1", borderRadius: 2, width: "75%" }}></div>
+          </div>
+          {/* Wooden blocks on the table */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 10, marginTop: 12 }}>
+            {[
+              { label: "HOME", sub: "LOAN", icon: "🏠" },
+              { label: "CAR", sub: "LOAN", icon: "🚗" },
+              { label: "EDU", sub: "LOAN", icon: "🎓" },
+              { label: "PERSONAL", sub: "LOAN", icon: "👤" },
+            ].map((blk, i) => (
+              <div key={i} style={{ background: "linear-gradient(145deg, #92400E, #78350F)", border: "1px solid #B45309", borderRadius: 8, padding: "12px 6px", textAlign: "center", boxShadow: "0 6px 14px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.2)", transform: "translateY(" + (i % 2 === 0 ? "0px" : "-4px") + ")" }}>
+                <div style={{ fontSize: 18, marginBottom: 2 }}>{blk.icon}</div>
+                <div style={{ fontSize: 11, fontWeight: 800, color: "#FEF3C7", letterSpacing: "0.5px" }}>{blk.label}</div>
+                <div style={{ fontSize: 9, fontWeight: 600, color: "#FDE68A", opacity: 0.8 }}>{blk.sub}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 3. SECURITIES: Stock market trading graph setup
+  if (key.includes("securit") || t.includes("securit") || key.includes("equity") || t.includes("equity")) {
+    return (
+      <div className="sp-photo" style={{ aspectRatio: "7 / 5", position: "relative", overflow: "hidden", borderRadius: 16, background: "#060C16", display: "flex", flexDirection: "column", padding: 20, justifyContent: "space-between", border: "1px solid rgba(0,212,178,0.2)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: 10 }}>
+          <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
+            <span style={{ fontSize: 12, fontWeight: 800, color: "#00D4B2" }}>NIFTY 50 · 22,480</span>
+            <span style={{ fontSize: 11, color: "#10B981", fontWeight: 700 }}>▲ +1.85%</span>
+          </div>
+          <span style={{ fontSize: 10, color: "#64748B", fontWeight: 600 }}>LIVE CAPITAL MARKETS</span>
+        </div>
+        <div style={{ position: "relative", flex: 1, margin: "14px 0", display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 6, padding: "0 10px" }}>
+          {[
+            { h: 40, w: 8, bull: true }, { h: 55, w: 10, bull: true }, { h: 45, w: 8, bull: false },
+            { h: 70, w: 10, bull: true }, { h: 60, w: 8, bull: false }, { h: 85, w: 12, bull: true },
+            { h: 78, w: 10, bull: true }, { h: 95, w: 12, bull: true }, { h: 110, w: 14, bull: true }
+          ].map((c, i) => (
+            <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: 1, height: "100%", justifyContent: "flex-end" }}>
+              <div style={{ width: 2, height: c.h + 16, background: c.bull ? "#10B981" : "#EF4444", opacity: 0.5 }}></div>
+              <div style={{ width: "100%", height: c.h, background: c.bull ? "#10B981" : "#EF4444", borderRadius: 3, marginTop: -(c.h + 8), boxShadow: c.bull ? "0 0 10px rgba(16,185,129,0.3)" : "none" }}></div>
+            </div>
+          ))}
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "#94A3B8", borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: 10 }}>
+          <span>EQUITIES & DERIVATIVES</span>
+          <span style={{ color: "#00D4B2", fontWeight: 700 }}>BULLISH TREND</span>
+        </div>
+      </div>
+    );
+  }
+
+  // 4. WEALTH: Wealth creation asset growth visual
+  if (key.includes("wealth") || t.includes("wealth") || key.includes("fund") || key.includes("bond")) {
+    return (
+      <div className="sp-photo" style={{ aspectRatio: "7 / 5", position: "relative", overflow: "hidden", borderRadius: 16, background: "linear-gradient(135deg, #091322 0%, #0F1D32 100%)", padding: 24, display: "flex", flexDirection: "column", justifyContent: "space-between", border: "1px solid rgba(0,212,178,0.2)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#00D4B2", letterSpacing: "1px", textTransform: "uppercase" }}>WEALTH PORTFOLIO</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: "#FFFFFF", marginTop: 2 }}>₹140 Cr+ AUM</div>
+          </div>
+          <div style={{ background: "rgba(0,212,178,0.15)", border: "1px solid #00D4B2", color: "#00D4B2", borderRadius: 8, padding: "4px 12px", fontSize: 12, fontWeight: 700 }}>+24.8% YoY</div>
+        </div>
+        <div style={{ display: "flex", alignItems: "flex-end", gap: 14, height: 100, margin: "10px 0" }}>
+          {[30, 48, 68, 92].map((vh, i) => (
+            <div key={i} style={{ flex: 1, background: "linear-gradient(180deg, #00D4B2 0%, #092B28 100%)", borderRadius: "8px 8px 0 0", height: vh + "%", display: "flex", alignItems: "center", justifyContent: "center", borderTop: "2px solid #2BE3C6" }}>
+              <span style={{ fontSize: 10, fontWeight: 800, color: "#FFFFFF" }}>Q{i + 1}</span>
+            </div>
+          ))}
+        </div>
+        <div style={{ fontSize: 11, color: "#8A99AD", textAlign: "center" }}>Disciplined Goal-Aligned Asset Allocation</div>
+      </div>
+    );
+  }
+
+  // 5. PLANNING: Financial Roadmap Blueprint
   return (
-    <div className="sp-photo" style={{ aspectRatio: ratio }}>
-      <img ref={ref} src={src} alt={alt} loading="lazy" onError={() => setOk(false)} />
+    <div className="sp-photo" style={{ aspectRatio: "7 / 5", position: "relative", overflow: "hidden", borderRadius: 16, background: "linear-gradient(135deg, #091322 0%, #0F1D32 100%)", padding: 22, display: "flex", flexDirection: "column", justifyContent: "space-between", border: "1px solid rgba(255,255,255,0.08)" }}>
+      <div style={{ borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: 8 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: "#00D4B2", letterSpacing: "1px" }}>FINANCIAL ROADMAP STRATEGY</div>
+        <div style={{ fontSize: 16, fontWeight: 700, color: "#FFFFFF", marginTop: 2 }}>Retirement & Life Milestones</div>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10, margin: "12px 0" }}>
+        {[
+          { step: "01", title: "Emergency & Life Protection", status: "Secured", col: "#10B981" },
+          { step: "02", title: "Child Education & Wealth Build", status: "In Progress", col: "#00D4B2" },
+          { step: "03", title: "Retirement & Estate Corpus", status: "On Track", col: "#3B82F6" },
+        ].map((m, i) => (
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, background: "rgba(255,255,255,0.04)", padding: "8px 12px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.06)" }}>
+            <div style={{ width: 24, height: 24, borderRadius: "50%", background: m.col, color: "#0F172A", fontWeight: 800, fontSize: 11, display: "flex", alignItems: "center", justifyContent: "center" }}>{m.step}</div>
+            <div style={{ flex: 1, fontSize: 12, fontWeight: 600, color: "#E2E8F0" }}>{m.title}</div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: m.col }}>{m.status}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{ fontSize: 11, color: "#8A99AD", textAlign: "right" }}>Comprehensive Financial Roadmap</div>
     </div>
   );
 }
-const solImg = (name) => "/images/solutions/" + name + ".jpg";
 
-/* light photo placeholder shown until the real image is added */
-function PhotoPlaceholder({ icon }) {
+function Photo({ src, alt, ratio = "7 / 5" }) {
+  const lowerAlt = (alt || "").toLowerCase();
+  const lowerSrc = (src || "").toLowerCase();
+  
+  let imgFileName = lowerSrc;
+  if (imgFileName.includes("anchorid")) {
+    imgFileName = lowerAlt.replace(/[^a-z0-9]+/g, "-");
+  }
+  if (imgFileName.startsWith("/")) {
+    imgFileName = imgFileName.split("/").pop();
+  }
+  if (!imgFileName.endsWith(".jpg") && !imgFileName.endsWith(".png")) {
+    imgFileName = imgFileName + ".jpg";
+  }
+  
+  const realImgPath = "/images/solutions/" + imgFileName;
+
   return (
-    <div className="sp-photo sp-photo-ph" style={{ aspectRatio: "7 / 5" }}>
-      <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke={TEAL} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.35 }}>{icon}</svg>
+    <div className="sp-photo" style={{ aspectRatio: ratio, position: "relative", overflow: "hidden", borderRadius: 16, background: "#0F172A", border: "1px solid rgba(255,255,255,0.1)" }}>
+      <img src={realImgPath} alt={alt || "Solution image"} loading="lazy" onError={(e) => {
+        e.target.src = lowerAlt.includes("insurance") || lowerSrc.includes("insurance") ? "/images/solutions/insurance.jpg" :
+                       lowerAlt.includes("loan") || lowerSrc.includes("loan") ? "/images/solutions/loans.jpg" :
+                       lowerAlt.includes("securit") || lowerSrc.includes("securit") ? "/images/solutions/securities.jpg" :
+                       lowerAlt.includes("wealth") || lowerSrc.includes("wealth") ? "/images/solutions/wealth.jpg" : "/images/solutions/planning.jpg";
+      }} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
     </div>
   );
+}
+
+function PhotoPlaceholder({ icon }) {
+  return <Photo src="insurance" alt="Insurance" />;
 }
 
 /* one solution row: photo + text column, sides alternate row by row */
@@ -1316,7 +1482,7 @@ function Home({ go, openMember, setOpenMember }) {
       </section>
 
       {/* OUR NUMBERS (centered) */}
-      <section className="sp-newfont" style={{ maxWidth: 1760, margin: "0 auto", padding: "68px 20px", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.09)" }}>
+      <section className="sp-newfont" style={{ maxWidth: 1760, margin: "0 auto", padding: "48px 20px", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.09)" }}>
         <p className="sp-kicker" style={{ color: TEAL, marginBottom: 18, fontSize: "clamp(17px,1.7vw,21px)" }}>Our numbers</p>
         <h2 className="sp-one-line" style={{ fontSize: "clamp(24px,3.8vw,48px)", color: INK, marginBottom: 48 }}>Built on relationships. Growing with purpose.</h2>
         <div className="sp-numrow" style={{ display: "flex", justifyContent: "center", alignItems: "center", flexWrap: "wrap", gap: 0 }}>
@@ -1330,7 +1496,7 @@ function Home({ go, openMember, setOpenMember }) {
       </section>
 
       {/* OUR APPROACH: one centred card, three questions, then the promise */}
-      <section id="process-section" className="sp-newfont" style={{ position: "relative", background: BG, borderTop: "1px solid rgba(255,255,255,0.09)", borderBottom: "1px solid rgba(255,255,255,0.09)", padding: "88px 20px 96px" }}>
+      <section id="process-section" className="sp-newfont" style={{ position: "relative", background: BG, borderTop: "1px solid rgba(255,255,255,0.09)", borderBottom: "1px solid rgba(255,255,255,0.09)", padding: "48px 20px 56px" }}>
         <div aria-hidden="true" style={{ position: "absolute", top: "8%", left: "50%", transform: "translateX(-50%)", width: 720, height: 360, maxWidth: "100%", background: "radial-gradient(ellipse at center, rgba(0,212,178,0.07) 0%, transparent 70%)", pointerEvents: "none" }}></div>
         <Reveal style={{ position: "relative", maxWidth: 1560, margin: "0 auto", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 28, padding: "clamp(32px,4vw,56px) clamp(20px,4.4vw,64px)", textAlign: "center" }}>
           <h2 style={{ fontSize: "clamp(20px,2.9vw,38px)", color: INK, lineHeight: 1.25, marginBottom: "clamp(22px,2.6vw,34px)", textWrap: "balance" }}>Our approach begins with understanding you:</h2>
@@ -1344,7 +1510,7 @@ function Home({ go, openMember, setOpenMember }) {
       </section>
 
       {/* OUR STORY + WHAT WE BELIEVE: left column pins while the five principles scroll on the right */}
-      <section className="sp-newfont" style={{ background: BG, borderTop: "1px solid rgba(255,255,255,0.09)", padding: "96px 20px 104px", position: "relative" }}>
+      <section className="sp-newfont" style={{ background: BG, borderTop: "1px solid rgba(255,255,255,0.09)", padding: "56px 20px 64px", position: "relative" }}>
         <div className="sp-grid-2" style={{ ...wrap, maxWidth: 1720, display: "grid", gridTemplateColumns: "1fr 1fr", gap: "clamp(40px,6.8vw,96px)", alignItems: "start" }}>
           <div className="sp-sticky-col" style={{ position: "sticky", top: NAV_H + 40 }}>
             <Reveal>
@@ -1379,7 +1545,7 @@ function Home({ go, openMember, setOpenMember }) {
       </section>
 
       {/* THE SPECTRA ECOSYSTEM: big stacked heading on the left, the logo diagram on the right */}
-      <section className="sp-newfont" style={{ background: NAVY, padding: "80px 20px", position: "relative", overflow: "hidden" }}>
+      <section className="sp-newfont" style={{ background: NAVY, padding: "48px 20px", position: "relative", overflow: "hidden" }}>
         <div className="parallax-slow" style={{ position: "absolute", top: -120, right: -80, width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,212,178,0.10) 0%, transparent 70%)", pointerEvents: "none" }}></div>
         <div className="sp-eco-grid" style={{ maxWidth: 1400, margin: "0 auto", position: "relative", zIndex: 1, display: "grid", gridTemplateColumns: "1fr 1.15fr", gap: "clamp(32px,4.8vw,72px)", alignItems: "center" }}>
           <Reveal>
@@ -1392,7 +1558,7 @@ function Home({ go, openMember, setOpenMember }) {
 
       {/* spacer between sections */}
       {/* WHY CLIENTS CHOOSE SPECTRA: centred heading, four boxes below */}
-      <section className="sp-newfont" style={{ padding: "64px 20px 96px", ...wrap, maxWidth: 1720 }}>
+      <section className="sp-newfont" style={{ padding: "48px 20px 56px", ...wrap, maxWidth: 1720 }}>
         <Reveal>
           <h2 style={{ textAlign: "center", fontSize: "clamp(26px,3.6vw,50px)", color: INK, lineHeight: 1.2, marginBottom: "clamp(36px,3.4vw,52px)" }}>Why clients choose Spectra</h2>
         </Reveal>
@@ -1415,7 +1581,7 @@ function Home({ go, openMember, setOpenMember }) {
       </section>
 
       {/* OUR NETWORK: logos first, then the same partners as names only */}
-      <section className="sp-newfont" style={{ background: "#0B121E", borderTop: "1px solid rgba(255,255,255,0.09)", borderBottom: "1px solid rgba(255,255,255,0.09)", padding: "80px 32px 88px" }}>
+      <section className="sp-newfont" style={{ background: "#0B121E", borderTop: "1px solid rgba(255,255,255,0.09)", borderBottom: "1px solid rgba(255,255,255,0.09)", padding: "48px 32px 56px" }}>
         <div style={{ ...wrap, textAlign: "center", maxWidth: 1160 }}>
           <p className="sp-kicker" style={{ color: TEAL, marginBottom: 14 }}>Our network of financial institutions</p>
           <h2 className="sp-one-line" style={{ fontSize: "clamp(16px,2.35vw,28px)", color: INK, lineHeight: 1.25, margin: "0 auto 44px" }}>The right advice is strengthened by the right financial ecosystem.</h2>
@@ -1424,7 +1590,7 @@ function Home({ go, openMember, setOpenMember }) {
       </section>
 
       {/* LEADERSHIP */}
-      <section className="sp-newfont" style={{ padding: "88px 20px 96px", ...wrap, maxWidth: 1720 }}>
+      <section className="sp-newfont" style={{ padding: "48px 20px 56px", ...wrap, maxWidth: 1720 }}>
         <Reveal>
           <div style={{ textAlign: "center", marginBottom: "clamp(44px,4.4vw,68px)" }}>
             <p className="sp-kicker" style={{ color: TEAL, marginBottom: 14 }}>Leadership</p>
@@ -1452,7 +1618,7 @@ function Home({ go, openMember, setOpenMember }) {
       </section>
 
       {/* TESTIMONIALS */}
-      <section className="sp-newfont" style={{ padding: "0 0 104px" }}>
+      <section className="sp-newfont" style={{ padding: "0 0 56px" }}>
         <Reveal>
           <div style={{ maxWidth: 1720, margin: "0 auto", padding: "0 20px", textAlign: "center", marginBottom: "clamp(36px,4vw,60px)" }}>
             <p className="sp-kicker" style={{ color: TEAL, marginBottom: 14 }}>Client stories</p>
@@ -1550,7 +1716,7 @@ function Solutions({ go, tab, setTab }) {
     <div className="page-wrap sp-newfont" style={{ paddingTop: NAV_H }}>
       <section style={{ background: NAVY, padding: "72px 20px 80px", position: "relative", overflow: "hidden" }}>
         <div className="parallax-fast" style={{ position: "absolute", top: -80, right: -80, width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,212,178,0.15) 0%, transparent 70%)", pointerEvents: "none" }}></div>
-        <div className="parallax-slow" style={{ position: "absolute", bottom: -60, left: "20%", width: 300, height: 300, borderRadius: "50%", background: "radial-gradient(circle, rgba(201,168,76,0.08) 0%, transparent 70%)", pointerEvents: "none" }}></div>
+        <div className="parallax-slow" style={{ position: "absolute", bottom: -60, left: "20%", width: 300, height: 300, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,212,178,0.12) 0%, transparent 70%)", pointerEvents: "none" }}></div>
         <div style={{ ...wrap, position: "relative", zIndex: 1 }}>
           <p className="sp-kicker" style={{ color: TEAL, marginBottom: 16 }}>Our solutions</p>
           <h1 style={{ fontSize: "clamp(32px,5.6vw,76px)", fontWeight: 800, color: "#fff", letterSpacing: "-2px", marginBottom: 20, lineHeight: 1.03 }}>Everything you need, <em style={{ fontStyle: "normal", color: TEAL }}>in one place.</em></h1>
@@ -1563,7 +1729,7 @@ function Solutions({ go, tab, setTab }) {
           {CAT_ORDER.map((k) => {
             const active = tab === k;
             return (
-              <button key={k} onClick={() => setTab(k)} style={{ background: "none", border: "none", borderBottom: `2px solid ${active ? TEAL : "transparent"}`, cursor: "pointer", fontSize: "clamp(13px,1.1vw,16px)", fontWeight: active ? 600 : 400, color: active ? TEAL : "#8A99AD", padding: "clamp(14px,1.4vw,20px) clamp(16px,1.6vw,26px)", marginBottom: -1, whiteSpace: "nowrap", transition: "all 0.15s" }}>{CATS[k].nav}</button>
+              <button key={k} onClick={() => setTab(k)} style={{ background: "none", border: "none", borderBottom: `2px solid ${active ? TEAL : "transparent"}`, cursor: "pointer", fontSize: "clamp(16px,1.5vw,19px)", fontWeight: active ? 600 : 400, color: active ? TEAL : "#8A99AD", padding: "clamp(14px,1.4vw,20px) clamp(16px,1.6vw,26px)", marginBottom: -1, whiteSpace: "nowrap", transition: "all 0.15s" }}>{CATS[k].nav}</button>
             );
           })}
         </div>
@@ -2106,27 +2272,29 @@ function Contact({ form, setForm, formDone, submitForm, toggleInterest }) {
 
           <div className="sp-contact-info" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, alignItems: "start" }}>
-              <div>
-                <div style={{ fontSize: 11, fontWeight: 700, color: "#75839A", letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: 12 }}>Office</div>
-                <div style={{ fontSize: 15, color: INK, fontWeight: 500, lineHeight: 1.65 }}>102, Shreepati Jewels D Wing,<br />Khattar Ali Lane, Near CP Tank Circle,<br />Girgaon, Mumbai, 400004</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#75839A", letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: 12 }}>Office</div>
+                  <div style={{ fontSize: 15, color: INK, fontWeight: 500, lineHeight: 1.65 }}>102, Shreepati Jewels D Wing,<br />Khattar Ali Lane, Near CP Tank Circle,<br />Girgaon, Mumbai, 400004</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#75839A", letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: 12 }}>Email</div>
+                  <a href="mailto:spectraassets@gmail.com" style={{ fontSize: 15, color: INK, fontWeight: 500 }}>spectraassets@gmail.com</a>
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#75839A", letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: 12 }}>Follow</div>
+                  <div style={{ display: "flex", gap: 10 }}>
+                    {[["https://www.instagram.com/_spectraassets_", <><rect x="2" y="2" width="20" height="20" rx="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></>],
+                      ["https://www.linkedin.com/company/spectra-assets-private-limited/", <><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></>]].map(([href, icon], i) => (
+                      <S key={i} as="a" href={href} target="_blank" rel="noopener" css="width:40px;height:40px;border-radius:10px;border:1px solid rgba(255,255,255,0.10);display:flex;align-items:center;justify-content:center;color:#B9C4D3;transition:all 0.15s;" hover="border-color:#00D4B2;color:#00D4B2;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{icon}</svg>
+                      </S>
+                    ))}
+                  </div>
+                </div>
               </div>
-              <div style={{ borderRadius: 12, overflow: "hidden", border: "1px solid rgba(255,255,255,0.09)", height: 220 }}>
-                <iframe title="Location" src="https://maps.google.com/maps?q=CP%20Tank%20Circle%20Girgaon%20Mumbai%20400004&z=15&output=embed" width="100%" height="220" style={{ border: 0, display: "block" }} loading="lazy"></iframe>
-              </div>
-            </div>
-            <div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: "#75839A", letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: 12 }}>Email</div>
-              <a href="mailto:spectraassets@gmail.com" style={{ fontSize: 15, color: INK, fontWeight: 500 }}>spectraassets@gmail.com</a>
-            </div>
-            <div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: "#75839A", letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: 12 }}>Follow</div>
-              <div style={{ display: "flex", gap: 10 }}>
-                {[["https://www.instagram.com/_spectraassets_", <><rect x="2" y="2" width="20" height="20" rx="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></>],
-                  ["https://www.linkedin.com/company/spectra-assets-private-limited/", <><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></>]].map(([href, icon], i) => (
-                  <S key={i} as="a" href={href} target="_blank" rel="noopener" css="width:40px;height:40px;border-radius:10px;border:1px solid rgba(255,255,255,0.10);display:flex;align-items:center;justify-content:center;color:#B9C4D3;transition:all 0.15s;" hover="border-color:#00D4B2;color:#00D4B2;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{icon}</svg>
-                  </S>
-                ))}
+              <div style={{ borderRadius: 12, overflow: "hidden", border: "1px solid rgba(255,255,255,0.09)", height: "100%", minHeight: 280 }}>
+                <iframe title="Location" src="https://maps.google.com/maps?q=CP%20Tank%20Circle%20Girgaon%20Mumbai%20400004&z=15&output=embed" width="100%" height="100%" style={{ border: 0, display: "block", minHeight: 280 }} loading="lazy"></iframe>
               </div>
             </div>
           </div>
