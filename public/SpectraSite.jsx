@@ -567,7 +567,7 @@ function Check() {
 /* ===================== creative building blocks ===================== */
 
 /* set to a number like "919820012345" to enable direct WhatsApp chat; empty = opens Contact */
-const WHATSAPP = "";
+const WHATSAPP = "918369955218";
 
 /* fallback quotes when the live API is unavailable (e.g. the offline standalone preview) */
 const MARKET_FALLBACK = [
@@ -1488,38 +1488,7 @@ function TestimonialsSlider() {
           </div>
         ))}
       </div>
-      <div
-        style={{
-          position: "absolute",
-          bottom: 12,
-          right: 20,
-          pointerEvents: "none",
-          zIndex: 5,
-          display: "flex",
-          alignItems: "center",
-          gap: 6,
-          padding: "5px 12px",
-          borderRadius: 999,
-          background: "rgba(7, 11, 17, 0.8)",
-          backdropFilter: "blur(8px)",
-          border: "1px solid rgba(255, 255, 255, 0.12)",
-          fontSize: 12,
-          fontWeight: 500,
-          color: isPaused ? "#00D4B2" : "#8A99AD",
-          transition: "all 0.3s ease"
-        }}
-      >
-        <span
-          style={{
-            width: 7,
-            height: 7,
-            borderRadius: "50%",
-            background: isPaused ? "#00D4B2" : "#8A99AD",
-            boxShadow: isPaused ? "0 0 8px #00D4B2" : "none"
-          }}
-        />
-        {isPaused ? "Paused (Tap to Resume)" : "Auto-scrolling (Tap to Pause)"}
-      </div>
+
     </div>
   );
 }
@@ -1741,7 +1710,7 @@ function Ecosystem({ go }) {
 
         {/* the big logo */}
         <img src={MARK} alt="Spectra Assets" className="sp-eco-logo"
-          style={{ position: "absolute", left: "50%", top: py(C0[1]), height: ((340 * K / VH) * 100).toFixed(1) + "%", width: "auto", transform: seen ? "translate(-50%,-50%) scale(1)" : "translate(-50%,-50%) scale(0.9)", opacity: seen ? 1 : 0, filter: seen ? undefined : "blur(8px)", transition: "opacity .9s ease, transform 1.1s cubic-bezier(.16,1,.3,1), filter 1s ease" }} />
+          style={{ position: "absolute", left: "50%", top: py(C0[1]), height: ((340 * K / VH) * 100).toFixed(1) + "%", width: "auto", transform: seen ? "translate(-50%,-50%) scale(1)" : "translate(-50%,-50%) scale(0.9)", opacity: seen ? 1 : 0, transition: "opacity .9s ease, transform 1.1s cubic-bezier(.16,1,.3,1)" }} />
 
         {/* flow arrows beside each side, like the sketch */}
         <svg className="sp-eco-arrows" viewBox={`${VX} ${VY} ${VW} ${VH}`} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", overflow: "visible", pointerEvents: "none" }} aria-hidden="true">
@@ -2348,6 +2317,13 @@ function Contact({ form, setForm, formDone, submitForm, toggleInterest }) {
                 <div>
                   <div style={{ fontSize: 11, fontWeight: 700, color: "#75839A", letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: 12 }}>Email</div>
                   <a href="mailto:spectraassets@gmail.com" style={{ fontSize: 15, color: INK, fontWeight: 500 }}>spectraassets@gmail.com</a>
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#75839A", letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: 12 }}>Phone</div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    <a href="tel:+919136169842" style={{ fontSize: 15, color: INK, fontWeight: 500 }}>+91 91361 69842</a>
+                    <a href="tel:+918369955218" style={{ fontSize: 15, color: INK, fontWeight: 500 }}>+91 83699 55218</a>
+                  </div>
                 </div>
                 <div>
                   <div style={{ fontSize: 11, fontWeight: 700, color: "#75839A", letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: 12 }}>Follow</div>
