@@ -103,13 +103,15 @@ h1, h2 { font-family: 'Poppins', sans-serif; letter-spacing: -0.02em !important;
 .sp-eco-flow { stroke-dasharray: 7 9; animation: ecoFlow 1.6s linear infinite; }
 @keyframes ecoBreath { 0%,100% { filter: drop-shadow(0 0 14px rgba(0,212,178,0.28)); } 50% { filter: drop-shadow(0 0 34px rgba(0,212,178,0.6)); } }
 .sp-eco-logo { animation: ecoBreath 4.2s ease-in-out infinite 1.4s; }
-.sp-eco-list { display: none; }
+.sp-eco-list { display: none !important; }
 @media (prefers-reduced-motion: reduce) { .sp-eco-flow, .sp-eco-logo { animation: none; } }
-@media (max-width: 860px) { .sp-eco-grid { grid-template-columns: 1fr !important; text-align: center; } }
-@media (max-width: 680px) {
-  .sp-eco-stage { width: 100% !important; margin-bottom: 40px !important; }
-  .sp-eco-side, .sp-eco-arrows { display: none !important; }
-  .sp-eco-list { display: flex !important; }
+@media (max-width: 860px) {
+  .sp-eco-grid { grid-template-columns: 1fr !important; text-align: center; }
+  .sp-eco-stage { width: 100% !important; max-width: 540px; margin: 0 auto !important; }
+}
+@media (max-width: 520px) {
+  .sp-eco-stage { max-width: 400px; }
+  .sp-eco-side { font-size: clamp(9px, 3vw, 14px) !important; }
 }
 
 /* why clients choose: four boxes */

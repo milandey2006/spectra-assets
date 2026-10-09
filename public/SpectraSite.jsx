@@ -1703,19 +1703,9 @@ function Ecosystem({ go }) {
           ))}
         </svg>
 
-        {/* the three points, written on the sides (desktop) */}
+        {/* the three points, written on the sides */}
         {sides.map((sd) => (
           <h3 key={sd.i} className="sp-eco-side" style={{ position: "absolute", left: px(sd.lab[0]), top: py(sd.lab[1]), transform: `translate(-50%,-50%) rotate(${sd.angle.toFixed(1)}deg)`, whiteSpace: "pre-line", textAlign: "center", fontSize: "clamp(11px,1.74vw,22px)", color: INK, lineHeight: 1.2, margin: 0, ...fade(sd.delay + 0.2) }}>{sd.text}</h3>
-        ))}
-      </div>
-
-      {/* mobile: the same three points as a list under the logo */}
-      <div className="sp-eco-list" style={{ flexDirection: "column", gap: 12, margin: "-10px auto 0", maxWidth: 360, width: "100%", opacity: seen ? 1 : 0, transform: seen ? "translateY(0)" : "translateY(10px)", transition: "opacity 0.4s ease 0.1s, transform 0.4s ease 0.1s" }}>
-        {sides.map((sd) => (
-          <div key={sd.i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 18px", borderRadius: 14, border: "1px solid rgba(0,212,178,0.22)", background: "rgba(0,212,178,0.06)", textAlign: "left" }}>
-            <span style={{ width: 8, height: 8, borderRadius: "50%", background: TEAL, boxShadow: "0 0 10px #00D4B2", flexShrink: 0 }}></span>
-            <span className="ff-serif" style={{ fontSize: 13, color: INK, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase" }}>{sd.text.replace("\n", " ")}</span>
-          </div>
         ))}
       </div>
     </div>
