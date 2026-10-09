@@ -1432,18 +1432,48 @@ export default function SpectraSite() {
   );
 }
 
-/* testimonials: an endless, slowly scrolling row of cards (pauses on tap/click or hover) */
+/* testimonials: an endless, slowly scrolling row of cards (pauses on tap/click or hover, resumes on tap/click or mouse leave) */
 function TestimonialsSlider() {
-  const [paused, setPaused] = React.useState(false);
+  const [userPaused, setUserPaused] = React.useState(false);
+  const [hoverPaused, setHoverPaused] = React.useState(false);
   const cards = [...TESTIMONIALS, ...TESTIMONIALS, ...TESTIMONIALS, ...TESTIMONIALS];
 
-  const togglePause = () => {
-    setPaused((prev) => !prev);
+  const handlePointerEnter = (e) => {
+    if (e.pointerType === "touch") return;
+    setHoverPaused(true);
   };
 
+  const handlePointerLeave = (e) => {
+    if (e.pointerType === "touch") return;
+    setHoverPaused(false);
+  };
+
+  const togglePause = () => {
+    setUserPaused((prev) => !prev);
+  };
+
+  const isPaused = userPaused || hoverPaused;
+
   return (
-    <div className="sp-testi-wrap" onClick={togglePause} style={{ cursor: "pointer", position: "relative" }}>
-      <div className={"sp-testi-track" + (paused ? " is-paused" : "")}>
+    <div
+      className="sp-testi-wrap"
+      onClick={togglePause}
+      onPointerEnter={handlePointerEnter}
+      onPointerLeave={handlePointerLeave}
+      style={{
+        cursor: "pointer",
+        position: "relative",
+        touchAction: "manipulation",
+        WebkitTapHighlightColor: "transparent"
+      }}
+    >
+      <div
+        className={"sp-testi-track" + (isPaused ? " is-paused" : "")}
+        style={{
+          WebkitAnimationPlayState: isPaused ? "paused" : "running",
+          animationPlayState: isPaused ? "paused" : "running"
+        }}
+      >
         {cards.map((t, k) => (
           <div key={k} className="sp-testi-card" aria-hidden={k >= TESTIMONIALS.length ? "true" : undefined}>
             <Stars n={t.rating} />
@@ -1457,6 +1487,38 @@ function TestimonialsSlider() {
             </div>
           </div>
         ))}
+      </div>
+      <div
+        style={{
+          position: "absolute",
+          bottom: 12,
+          right: 20,
+          pointerEvents: "none",
+          zIndex: 5,
+          display: "flex",
+          alignItems: "center",
+          gap: 6,
+          padding: "5px 12px",
+          borderRadius: 999,
+          background: "rgba(7, 11, 17, 0.8)",
+          backdropFilter: "blur(8px)",
+          border: "1px solid rgba(255, 255, 255, 0.12)",
+          fontSize: 12,
+          fontWeight: 500,
+          color: isPaused ? "#00D4B2" : "#8A99AD",
+          transition: "all 0.3s ease"
+        }}
+      >
+        <span
+          style={{
+            width: 7,
+            height: 7,
+            borderRadius: "50%",
+            background: isPaused ? "#00D4B2" : "#8A99AD",
+            boxShadow: isPaused ? "0 0 8px #00D4B2" : "none"
+          }}
+        />
+        {isPaused ? "Paused (Tap to Resume)" : "Auto-scrolling (Tap to Pause)"}
       </div>
     </div>
   );
