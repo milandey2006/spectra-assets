@@ -1233,25 +1233,29 @@ export default function SpectraSite() {
   const swpBal = (corpus, withdraw, rate, years) => { const i = rate / 100 / 12, n = years * 12; let bal = corpus; for (let m = 0; m < n; m++) { bal = bal * (1 + i) - withdraw; if (bal < 0) return 0; } return bal; };
   const loanEmi = (amount, rate, years) => { const i = rate / 100 / 12, n = years * 12; return amount * i * Math.pow(1 + i, n) / (Math.pow(1 + i, n) - 1); };
 
-  const submitForm = (e) => {
+  const submitForm = async (e) => {
     e.preventDefault();
-    // No backend yet: compose an email to Spectra with the enquiry details.
-    const lines = [
-      "Name: " + (form.name || ""),
-      "Mobile: " + (form.phone || ""),
-      "Email: " + (form.email || ""),
-      "Interested in: " + (form.interests.length ? form.interests.join(", ") : "None selected"),
-      "",
-      (form.message || ""),
-    ];
-    const url =
-      "mailto:spectraassets@gmail.com" +
-      "?subject=" + encodeURIComponent("Website enquiry from " + (form.name || "a visitor")) +
-      "&body=" + encodeURIComponent(lines.join("\n"));
-    try { if (typeof window !== "undefined") window.location.href = url; } catch (e2) {}
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name,
+          phone: form.phone,
+          email: form.email,
+          interests: form.interests,
+          message: form.message,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Failed");
+    } catch (err) {
+      console.error("Form submit error:", err);
+    }
     setFormDone(true);
     setTimeout(() => { setFormDone(false); setForm({ name: "", phone: "", email: "", interests: [], message: "" }); }, 7000);
   };
+
   const toggleInterest = (v) => setForm((s) => ({ ...s, interests: s.interests.includes(v) ? s.interests.filter((x) => x !== v) : [...s.interests, v] }));
 
   const isSol = page === "solutions" || page.startsWith("sol-");
