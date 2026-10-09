@@ -1432,12 +1432,26 @@ export default function SpectraSite() {
   );
 }
 
-/* testimonials: an endless, slowly scrolling row of cards (pauses on hover) */
+/* testimonials: an endless, slowly scrolling row of cards (pauses on hover or click/tap toggle) */
 function TestimonialsSlider() {
   const cards = [...TESTIMONIALS, ...TESTIMONIALS, ...TESTIMONIALS, ...TESTIMONIALS];
+  const [isPaused, setIsPaused] = React.useState(false);
+
+  const togglePlayState = () => {
+    setIsPaused((prev) => !prev);
+  };
+
   return (
-    <div className="sp-testi-wrap">
-      <div className="sp-testi-track">
+    <div 
+      className="sp-testi-wrap" 
+      onClick={togglePlayState}
+      style={{ cursor: "pointer", userSelect: "none" }}
+      aria-label="Testimonials slider (click or tap to pause or resume)"
+    >
+      <div 
+        className="sp-testi-track" 
+        style={{ animationPlayState: isPaused ? "paused" : undefined }}
+      >
         {cards.map((t, k) => (
           <div key={k} className="sp-testi-card" aria-hidden={k >= TESTIMONIALS.length ? "true" : undefined}>
             <Stars n={t.rating} />
@@ -1636,7 +1650,7 @@ function Home({ go, openMember, setOpenMember }) {
    so one big logo sits in the middle, one point is written on each side of it, and a flow
    arrow runs beside every side (clockwise). Reveal: logo first, then side by side. */
 function Ecosystem({ go }) {
-  const [ref, seen] = useInView(0.3);
+  const [ref, seen] = useInView(0.1);
 
   // geometry in a 900x590 space; the svg viewBox crops to x150..750, y40..540.
   // A/BL/BR are only the guide points of the logo's silhouette (nothing is drawn between them)
@@ -1662,9 +1676,9 @@ function Ecosystem({ go }) {
     const arrow = { x1: mid[0] - d[0] * h + n[0] * e.off, y1: mid[1] - d[1] * h + n[1] * e.off, x2: mid[0] + d[0] * h + n[0] * e.off, y2: mid[1] + d[1] * h + n[1] * e.off };
     const lab = [mid[0] + n[0] * (e.off + (e.gap || 24)), mid[1] + n[1] * (e.off + (e.gap || 24))];
     const angle = Math.atan2(dy, dx) * 180 / Math.PI;   // text runs the same way as the arrow
-    return { ...e, i, arrow, lab, angle, delay: 1 + i * 0.9 };
+    return { ...e, i, arrow, lab, angle, delay: 0.2 + i * 0.3 };
   });
-  const fade = (delay, extra) => ({ opacity: seen ? 1 : 0, transition: `opacity .7s ease ${delay}s, transform .7s cubic-bezier(.16,1,.3,1) ${delay}s`, ...(extra || {}) });
+  const fade = (delay, extra) => ({ opacity: seen ? 1 : 0, transition: `opacity .6s ease ${delay}s, transform .6s cubic-bezier(.16,1,.3,1) ${delay}s`, ...(extra || {}) });
   return (
     <div ref={ref} style={{ minWidth: 0 }}>
       <div className="sp-eco-stage" style={{ position: "relative", width: "100%", margin: "0 auto", aspectRatio: VW + " / " + VH }}>
@@ -1696,11 +1710,11 @@ function Ecosystem({ go }) {
       </div>
 
       {/* mobile: the same three points as a list under the logo */}
-      <div className="sp-eco-list" style={{ flexDirection: "column", gap: 12, margin: "-20px auto 0", maxWidth: 340, ...fade(3.2) }}>
+      <div className="sp-eco-list" style={{ flexDirection: "column", gap: 12, margin: "-10px auto 0", maxWidth: 360, width: "100%", opacity: seen ? 1 : 0, transform: seen ? "translateY(0)" : "translateY(10px)", transition: "opacity 0.4s ease 0.1s, transform 0.4s ease 0.1s" }}>
         {sides.map((sd) => (
-          <div key={sd.i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 18px", borderRadius: 14, border: "1px solid rgba(0,212,178,0.18)", background: "rgba(0,212,178,0.05)", textAlign: "left" }}>
+          <div key={sd.i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 18px", borderRadius: 14, border: "1px solid rgba(0,212,178,0.22)", background: "rgba(0,212,178,0.06)", textAlign: "left" }}>
             <span style={{ width: 8, height: 8, borderRadius: "50%", background: TEAL, boxShadow: "0 0 10px #00D4B2", flexShrink: 0 }}></span>
-            <span className="ff-serif" style={{ fontSize: 15, color: INK }}>{sd.text}</span>
+            <span className="ff-serif" style={{ fontSize: 13, color: INK, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase" }}>{sd.text.replace("\n", " ")}</span>
           </div>
         ))}
       </div>
