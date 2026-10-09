@@ -1432,26 +1432,18 @@ export default function SpectraSite() {
   );
 }
 
-/* testimonials: an endless, slowly scrolling row of cards (pauses on hover or click/tap toggle) */
+/* testimonials: an endless, slowly scrolling row of cards (pauses on tap/click or hover) */
 function TestimonialsSlider() {
+  const [paused, setPaused] = React.useState(false);
   const cards = [...TESTIMONIALS, ...TESTIMONIALS, ...TESTIMONIALS, ...TESTIMONIALS];
-  const [isPaused, setIsPaused] = React.useState(false);
 
-  const togglePlayState = () => {
-    setIsPaused((prev) => !prev);
+  const togglePause = () => {
+    setPaused((prev) => !prev);
   };
 
   return (
-    <div 
-      className="sp-testi-wrap" 
-      onClick={togglePlayState}
-      style={{ cursor: "pointer", userSelect: "none" }}
-      aria-label="Testimonials slider (click or tap to pause or resume)"
-    >
-      <div 
-        className="sp-testi-track" 
-        style={{ animationPlayState: isPaused ? "paused" : undefined }}
-      >
+    <div className="sp-testi-wrap" onClick={togglePause} style={{ cursor: "pointer", position: "relative" }}>
+      <div className={"sp-testi-track" + (paused ? " is-paused" : "")}>
         {cards.map((t, k) => (
           <div key={k} className="sp-testi-card" aria-hidden={k >= TESTIMONIALS.length ? "true" : undefined}>
             <Stars n={t.rating} />
@@ -1559,11 +1551,11 @@ function Home({ go, openMember, setOpenMember }) {
       </section>
 
       {/* THE SPECTRA ECOSYSTEM: big stacked heading on the left, the logo diagram on the right */}
-      <section className="sp-newfont" style={{ background: NAVY, padding: "clamp(48px, 6vw, 80px) 20px", position: "relative", overflow: "hidden" }}>
+      <section className="sp-newfont" style={{ background: NAVY, padding: "48px 20px", position: "relative", overflow: "hidden" }}>
         <div className="parallax-slow" style={{ position: "absolute", top: -120, right: -80, width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,212,178,0.10) 0%, transparent 70%)", pointerEvents: "none" }}></div>
         <div className="sp-eco-grid" style={{ maxWidth: 1400, margin: "0 auto", position: "relative", zIndex: 1, display: "grid", gridTemplateColumns: "1fr 1.15fr", gap: "clamp(32px,4.8vw,72px)", alignItems: "center" }}>
           <Reveal>
-            <h2 className="sp-eco-title" style={{ fontSize: "clamp(40px,7.3vw,92px)", color: INK, lineHeight: 1.06, margin: 0 }}>The<span className="sp-eco-br"><br /></span>Spectra<span className="sp-eco-br"><br /></span><span style={{ fontStyle: "italic", fontWeight: 400, background: "linear-gradient(120deg,#00D4B2 0%,#34D399 100%)", WebkitBackgroundClip: "text", backgroundClip: "text", WebkitTextFillColor: "transparent", paddingRight: "0.08em" }}>Ecosystem</span></h2>
+            <h2 style={{ fontSize: "clamp(40px,7.3vw,92px)", color: INK, lineHeight: 1.06, margin: 0 }}>The<br />Spectra<br /><span style={{ fontStyle: "italic", fontWeight: 400, background: "linear-gradient(120deg,#00D4B2 0%,#34D399 100%)", WebkitBackgroundClip: "text", backgroundClip: "text", WebkitTextFillColor: "transparent", paddingRight: "0.08em" }}>Ecosystem</span></h2>
           </Reveal>
           <Ecosystem go={go} />
         </div>
@@ -1650,22 +1642,22 @@ function Home({ go, openMember, setOpenMember }) {
    so one big logo sits in the middle, one point is written on each side of it, and a flow
    arrow runs beside every side (clockwise). Reveal: logo first, then side by side. */
 function Ecosystem({ go }) {
-  const [ref, seen] = useInView(0.05);
+  const [ref, seen] = useInView(0.3);
 
-  // geometry in a 900x590 space; the svg viewBox crops to x90..810, y50..450.
+  // geometry in a 900x590 space; the svg viewBox crops to x150..750, y40..540.
+  // A/BL/BR are only the guide points of the logo's silhouette (nothing is drawn between them)
+  // K shrinks the whole diagram (logo + guides) around the logo's centre; 1 = the earlier, larger size
   const K = 0.7, C0 = [450, 254];
   const sc = (pt) => [C0[0] + (pt[0] - C0[0]) * K, C0[1] + (pt[1] - C0[1]) * K];
   const A = sc([450, 88]), BL = sc([285, 420]), BR = sc([615, 420]);
   const cen = [(A[0] + BL[0] + BR[0]) / 3, (A[1] + BL[1] + BR[1]) / 3];
-
-  const VX = 90, VY = 50, VW = 720, VH = 400;
+  const VX = 150, VY = 104, VW = 600, VH = 356;
   const px = (x) => (((x - VX) / VW) * 100).toFixed(2) + "%";
   const py = (y) => (((y - VY) / VH) * 100).toFixed(2) + "%";
-
   const sides = [
-    { from: BL, to: A,  text: "A COMPLETE FINANCIAL\nPERSPECTIVE", off: 50, gap: 36 },
-    { from: A,  to: BR, text: "ONE RELATIONSHIP",                 off: 50, gap: 36 },
-    { from: BR, to: BL, text: "ONE ADVISORY SYSTEM",              off: 30, gap: 26 },
+    { from: BL, to: A,  text: "A complete financial\nperspective", off: 50, gap: 34 },
+    { from: A,  to: BR, text: "One relationship",                 off: 50 },
+    { from: BL, to: BR, text: "One advisory system",              off: 30 },
   ].map((e, i) => {
     const dx = e.to[0] - e.from[0], dy = e.to[1] - e.from[1], len = Math.hypot(dx, dy);
     const d = [dx / len, dy / len];
@@ -1675,18 +1667,15 @@ function Ecosystem({ go }) {
     const h = len * 0.27;
     const arrow = { x1: mid[0] - d[0] * h + n[0] * e.off, y1: mid[1] - d[1] * h + n[1] * e.off, x2: mid[0] + d[0] * h + n[0] * e.off, y2: mid[1] + d[1] * h + n[1] * e.off };
     const lab = [mid[0] + n[0] * (e.off + (e.gap || 24)), mid[1] + n[1] * (e.off + (e.gap || 24))];
-    let angle = Math.atan2(dy, dx) * 180 / Math.PI;
-    if (i === 2) angle = 0; // horizontal bottom label
-    return { ...e, i, arrow, lab, angle, delay: 0.2 + i * 0.3 };
+    const angle = Math.atan2(dy, dx) * 180 / Math.PI;   // text runs the same way as the arrow
+    return { ...e, i, arrow, lab, angle, delay: 1 + i * 0.9 };
   });
-
-  const fade = (delay, extra) => ({ opacity: seen ? 1 : 0, transition: `opacity .6s ease ${delay}s, transform .6s cubic-bezier(.16,1,.3,1) ${delay}s`, ...(extra || {}) });
-
+  const fade = (delay, extra) => ({ opacity: seen ? 1 : 0, transition: `opacity .7s ease ${delay}s, transform .7s cubic-bezier(.16,1,.3,1) ${delay}s`, ...(extra || {}) });
   return (
-    <div ref={ref} style={{ minWidth: 0, width: "100%" }}>
+    <div ref={ref} style={{ minWidth: 0 }}>
       <div className="sp-eco-stage" style={{ position: "relative", width: "100%", margin: "0 auto", aspectRatio: VW + " / " + VH }}>
         {/* soft glow behind the logo */}
-        <div aria-hidden="true" style={{ position: "absolute", left: "50%", top: py(C0[1]), width: "80%", height: "96%", transform: "translate(-50%,-50%)", background: "radial-gradient(circle, rgba(0,212,178,0.18) 0%, transparent 62%)", pointerEvents: "none", opacity: seen ? 1 : 0, transition: "opacity 1.4s ease .2s" }}></div>
+        <div aria-hidden="true" style={{ position: "absolute", left: "50%", top: py(C0[1]), width: "80%", height: "96%", transform: "translate(-50%,-50%)", background: "radial-gradient(circle, rgba(0,212,178,0.16) 0%, transparent 62%)", pointerEvents: "none", opacity: seen ? 1 : 0, transition: "opacity 1.4s ease .2s" }}></div>
 
         {/* the big logo */}
         <img src={MARK} alt="Spectra Assets" className="sp-eco-logo"
@@ -1706,24 +1695,19 @@ function Ecosystem({ go }) {
           ))}
         </svg>
 
-        {/* the three points, written on the sides */}
+        {/* the three points, written on the sides (desktop) */}
         {sides.map((sd) => (
-          <h3 key={sd.i} className="sp-eco-side" style={{
-            position: "absolute",
-            left: px(sd.lab[0]),
-            top: py(sd.lab[1]),
-            transform: `translate(-50%,-50%) rotate(${sd.angle.toFixed(1)}deg)`,
-            whiteSpace: "pre-line",
-            textAlign: "center",
-            fontFamily: "'Plus Jakarta Sans', sans-serif",
-            fontWeight: 600,
-            letterSpacing: "0.06em",
-            textTransform: "uppercase",
-            color: INK,
-            lineHeight: 1.25,
-            margin: 0,
-            ...fade(sd.delay + 0.15)
-          }}>{sd.text}</h3>
+          <h3 key={sd.i} className="sp-eco-side" style={{ position: "absolute", left: px(sd.lab[0]), top: py(sd.lab[1]), transform: `translate(-50%,-50%) rotate(${sd.angle.toFixed(1)}deg)`, whiteSpace: "pre-line", textAlign: "center", fontSize: "clamp(11px,1.74vw,22px)", color: INK, lineHeight: 1.2, margin: 0, ...fade(sd.delay + 0.2) }}>{sd.text}</h3>
+        ))}
+      </div>
+
+      {/* mobile: the same three points as a list under the logo */}
+      <div className="sp-eco-list" style={{ flexDirection: "column", gap: 12, margin: "-20px auto 0", maxWidth: 340, ...fade(3.2) }}>
+        {sides.map((sd) => (
+          <div key={sd.i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 18px", borderRadius: 14, border: "1px solid rgba(0,212,178,0.18)", background: "rgba(0,212,178,0.05)", textAlign: "left" }}>
+            <span style={{ width: 8, height: 8, borderRadius: "50%", background: TEAL, boxShadow: "0 0 10px #00D4B2", flexShrink: 0 }}></span>
+            <span className="ff-serif" style={{ fontSize: 15, color: INK }}>{sd.text}</span>
+          </div>
         ))}
       </div>
     </div>

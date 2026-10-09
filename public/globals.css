@@ -105,20 +105,10 @@ h1, h2 { font-family: 'Poppins', sans-serif; letter-spacing: -0.02em !important;
 .sp-eco-logo { animation: ecoBreath 4.2s ease-in-out infinite 1.4s; }
 .sp-eco-list { display: none !important; }
 @media (prefers-reduced-motion: reduce) { .sp-eco-flow, .sp-eco-logo { animation: none; } }
-
-.sp-eco-side { font-size: clamp(12px, 1.4vw, 20px); }
-.sp-eco-br { display: block; }
-
 @media (max-width: 860px) {
-  .sp-eco-br { display: none; }
   .sp-eco-grid { grid-template-columns: 1fr !important; text-align: center; }
-  .sp-eco-title { font-size: clamp(32px, 7vw, 54px) !important; text-align: center !important; margin-bottom: 24px !important; }
-  .sp-eco-stage { width: 100% !important; max-width: 580px; margin: 0 auto !important; }
-  .sp-eco-side { font-size: clamp(10px, 2.6vw, 16px) !important; }
-}
-@media (max-width: 520px) {
-  .sp-eco-stage { max-width: 440px; }
-  .sp-eco-side { font-size: clamp(9px, 2.7vw, 13px) !important; letter-spacing: 0.04em !important; }
+  .sp-eco-stage { width: 100% !important; max-width: 580px; margin: 0 auto 20px !important; }
+  .sp-eco-side { font-size: clamp(10px, 3vw, 17px) !important; }
 }
 
 /* why clients choose: four boxes */
@@ -146,9 +136,11 @@ h1, h2 { font-family: 'Poppins', sans-serif; letter-spacing: -0.02em !important;
 /* testimonials: endless marquee */
 .sp-testi-wrap { overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 7%, #000 93%, transparent 100%); mask-image: linear-gradient(90deg, transparent 0, #000 7%, #000 93%, transparent 100%); }
 .sp-testi-track { display: flex; width: max-content; gap: 28px; padding: 8px 14px; animation: testiScroll 70s linear infinite; }
-@media (hover: hover) and (pointer: fine) {
-  .sp-testi-wrap:hover .sp-testi-track { animation-play-state: paused; }
-}
+.sp-testi-wrap:hover .sp-testi-track, .sp-testi-track.is-paused { animation-play-state: paused !important; }
+@keyframes testiScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.sp-testi-card { flex: 0 0 auto; width: 480px; display: flex; flex-direction: column; padding: 36px 38px; border-radius: 22px;
+  background: linear-gradient(180deg, rgba(18,27,46,1) 0%, rgba(14,21,36,1) 100%); border: 1px solid rgba(255,255,255,0.08); }
+@media (max-width: 560px) { .sp-testi-card { width: 300px; padding: 26px 24px; } }
 @keyframes testiScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 .sp-testi-card { flex: 0 0 auto; width: 480px; display: flex; flex-direction: column; padding: 36px 38px; border-radius: 22px;
   background: linear-gradient(180deg, rgba(18,27,46,1) 0%, rgba(14,21,36,1) 100%); border: 1px solid rgba(255,255,255,0.08); }
