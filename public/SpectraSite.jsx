@@ -1646,8 +1646,8 @@ function Home({ go, openMember, setOpenMember }) {
                   <div className="ff-serif sp-lead-avatar">{m.name.split(" ").map((x) => x[0]).slice(0, 2).join("")}</div>
                   <h3 style={{ fontSize: "clamp(20px,1.9vw,28px)", color: INK, lineHeight: 1.25, marginBottom: m.coName ? 4 : 10 }}>{m.name}</h3>
                   {m.coName && (
-                    <div style={{ fontSize: "clamp(20px,1.9vw,28px)", fontWeight: 700, color: INK, marginBottom: 10, display: "flex", alignItems: "center", gap: 8 }}>
-                      <span style={{ width: 18, height: 1.5, background: "rgba(0,212,178,0.5)", display: "inline-block", borderRadius: 2 }} />
+                    <div style={{ fontSize: "clamp(20px,1.9vw,28px)", fontWeight: 700, color: INK, marginBottom: 10, display: "flex", alignItems: "center", gap: 10 }}>
+                      <span style={{ color: "rgba(0,212,178,0.6)", fontWeight: 300 }}>|</span>
                       {m.coName}
                     </div>
                   )}
