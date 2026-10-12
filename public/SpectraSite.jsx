@@ -176,7 +176,7 @@ const TEAM = [
     quote: "16+ years in equity markets, specialising in HNI investments, portfolio construction and risk management.",
   },
   {
-    name: "Sanket Punamiya", role: "Loans & Insurance", accent: "#3A7BD5",
+    name: "Sanket Punamiya", coName: "Sehul Shah", role: "Loans & Insurance", accent: "#3A7BD5",
     exp: "15+ Years", expNote: "gold markets & financial services",
     stats: [
       { k: "Experience", v: "15+ Years", n: "financial services" },
@@ -1644,7 +1644,13 @@ function Home({ go, openMember, setOpenMember }) {
               <div className="sp-lead-card">
                 <div>
                   <div className="ff-serif sp-lead-avatar">{m.name.split(" ").map((x) => x[0]).slice(0, 2).join("")}</div>
-                  <h3 style={{ fontSize: "clamp(20px,1.9vw,28px)", color: INK, lineHeight: 1.25, marginBottom: 10 }}>{m.name}</h3>
+                  <h3 style={{ fontSize: "clamp(20px,1.9vw,28px)", color: INK, lineHeight: 1.25, marginBottom: m.coName ? 4 : 10 }}>{m.name}</h3>
+                  {m.coName && (
+                    <div style={{ fontSize: "clamp(15px,1.5vw,21px)", fontWeight: 600, color: INK, marginBottom: 10, display: "flex", alignItems: "center", gap: 8 }}>
+                      <span style={{ width: 18, height: 1.5, background: "rgba(0,212,178,0.5)", display: "inline-block", borderRadius: 2 }} />
+                      {m.coName}
+                    </div>
+                  )}
                   <div style={{ fontSize: "clamp(13px,1.1vw,16px)", fontWeight: 600, letterSpacing: "0.10em", textTransform: "uppercase", color: TEAL, marginBottom: 18, lineHeight: 1.5 }}>{m.role}</div>
                   <p style={{ fontSize: "clamp(15px,1.3vw,19px)", color: "#8A99AD", lineHeight: 1.8, fontWeight: 300 }}>{m.quote}</p>
                 </div>
