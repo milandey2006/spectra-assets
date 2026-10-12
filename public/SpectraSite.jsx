@@ -1646,10 +1646,10 @@ function Home({ go, openMember, setOpenMember }) {
                   <div className="ff-serif sp-lead-avatar">{m.name.split(" ").map((x) => x[0]).slice(0, 2).join("")}</div>
                   <h3 style={{ fontSize: "clamp(20px,1.9vw,28px)", color: INK, lineHeight: 1.25, marginBottom: m.coName ? 4 : 10 }}>{m.name}</h3>
                   {m.coName && (
-                    <div style={{ fontSize: "clamp(20px,1.9vw,28px)", fontWeight: 700, color: INK, marginBottom: 10, display: "flex", alignItems: "center", gap: 10 }}>
-                      <span style={{ color: "rgba(0,212,178,0.6)", fontWeight: 300 }}>|</span>
-                      {m.coName}
-                    </div>
+                    <h3 style={{ fontSize: "clamp(20px,1.9vw,28px)", color: INK, lineHeight: 1.25, marginBottom: 10, display: "flex", alignItems: "center", gap: 10 }}>
+                      <span style={{ color: "rgba(0,212,178,0.6)", fontWeight: 300, fontFamily: "sans-serif" }}>|</span>
+                      <span>{m.coName}</span>
+                    </h3>
                   )}
                   <div style={{ fontSize: "clamp(13px,1.1vw,16px)", fontWeight: 600, letterSpacing: "0.10em", textTransform: "uppercase", color: TEAL, marginBottom: 18, lineHeight: 1.5 }}>{m.role}</div>
                   <p style={{ fontSize: "clamp(15px,1.3vw,19px)", color: "#8A99AD", lineHeight: 1.8, fontWeight: 300 }}>{m.quote}</p>
